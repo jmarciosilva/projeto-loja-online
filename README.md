@@ -10,8 +10,12 @@
 
 **Loja Online** é uma plataforma de e-commerce moderna, completa e escalável, construída com Laravel 12, Livewire 4 e Docker. Oferece um painel administrativo intuitivo (CMS) com gerenciamento de cores, menus, páginas estáticas e um catálogo de produtos com carrinho e checkout totalmente funcional.
 
+É um **e-commerce próprio de operação única (single-store)**: não é marketplace
+e não possui lojistas ou vendedores terceiros. Produtos, estoque, pedidos e
+pagamentos pertencem à operação comercial da própria loja.
+
 ### Para Quem?
-- Lojistas que precisam de uma solução de e-commerce profissional e flexível
+- Operações de loja que precisam de uma solução de e-commerce profissional e flexível
 - Desenvolvedoras/es que querem estudar arquitetura Laravel com padrões modernos
 - Startups que precisam escalar um e-commerce rapidamente
 
@@ -29,7 +33,8 @@
 ## ✨ O que já roda hoje
 
 **Estado em 2026-09-04: ambiente de desenvolvimento completo e funcionando.
-Nenhuma funcionalidade de e-commerce foi escrita ainda.**
+A fundação do CMS (F2.1) já está implementada; catálogo, carrinho, checkout,
+pedidos e interface administrativa ainda não foram implementados.**
 
 ### ✅ Pronto — Fase 1
 
@@ -60,9 +65,10 @@ Detalhes da validação em [`docker/VERIFICACAO.md`](./docker/VERIFICACAO.md).
 ### ⏳ Ainda não existe
 
 Tudo que é específico desta loja: produtos, categorias, carrinho, checkout,
-pedidos, painel administrativo, CMS, autenticação por papéis e a API mobile.
-O `app/` contém apenas o esqueleto padrão do Laravel — não há `Services/`,
-`Policies/`, `Livewire/` nem `Enums/` ainda.
+pedidos, painel administrativo, interface do CMS, autenticação por papéis e a
+API mobile.
+A fundação do CMS já inclui `SiteSetting` e `SiteSettingService`; ainda não há
+`Policies/`, `Livewire/` nem `Enums/`.
 
 A Stack Técnica abaixo mistura o que já está instalado com o que é alvo do
 projeto. Para o estado real por fase, veja o [ROADMAP.md](./ROADMAP.md).
@@ -76,7 +82,7 @@ projeto. Para o estado real por fase, veja o [ROADMAP.md](./ROADMAP.md).
 | **Backend** | PHP | 8.3 |
 | | Laravel | 12 |
 | | Laravel Livewire | 4 |
-| | Spatie Permission | 6.x |
+| | Spatie Permission | 8.3.x |
 | | Laravel Sanctum | API tokens |
 | **Frontend** | AlpineJS | 3 |
 | | TailwindCSS | 4 |
@@ -176,7 +182,7 @@ docker compose exec app composer test    # suíte de testes
 
 ⏳ **Ainda não existem.** Dependem dos seeders da Fase 3 (Autenticação e Roles).
 
-Os papéis planejados são admin, gerente, editor, lojista e customer — a
+Os papéis planejados são admin, gerente, editor, operador e customer — a
 definição está no [ROADMAP.md](./ROADMAP.md#fase-3--autenticação-roles-e-permissions).
 Quando os seeders forem escritos, as credenciais de desenvolvimento entram aqui.
 
@@ -237,10 +243,11 @@ docker compose exec node sh
 
 ```
 projeto-loja-online/
-├── app/                          # Esqueleto padrão do Laravel por enquanto
+├── app/
 │   ├── Http/Controllers/
 │   ├── Models/
-│   └── Providers/
+│   ├── Providers/
+│   └── Services/
 ├── bootstrap/  config/  database/  resources/  routes/  storage/  tests/
 ├── docker/
 │   ├── Dockerfile                # PHP-FPM 8.3 + extensões
@@ -259,8 +266,8 @@ projeto-loja-online/
 └── prompt-loja-online.md         # Especificação original do projeto
 ```
 
-As pastas do desenho-alvo que **ainda não existem** — `app/Services/`,
-`app/Policies/`, `app/Livewire/`, `app/Enums/` — estão descritas em
+As pastas do desenho-alvo que **ainda não existem** — `app/Policies/`,
+`app/Livewire/`, `app/Enums/` — estão descritas em
 [docs/ARQUITETURA.md](./docs/ARQUITETURA.md).
 
 ---
@@ -271,8 +278,9 @@ As pastas do desenho-alvo que **ainda não existem** — `app/Services/`,
 docker compose exec app composer test
 ```
 
-Hoje passam os 2 testes do esqueleto do Laravel. A suíte de verdade — carrinho,
-checkout, permissões, API — é o escopo da Fase 8, com meta de 70% de cobertura.
+Atualmente a suíte contém testes da infraestrutura e da fundação do CMS. A Fase
+8 ampliará a cobertura global do e-commerce e consolidará a meta de cobertura
+do projeto.
 
 Formatação com Laravel Pint:
 
@@ -284,7 +292,7 @@ docker compose exec app vendor/bin/pint
 
 ## 📊 Status do Projeto
 
-**Fase Atual:** Fase 2 — CMS e Configurações Admin (em desenvolvimento; próximo passo: F2.1 — Fundação do CMS)
+**Fase Atual:** Fase 2 — CMS e Configurações Admin (em desenvolvimento; próximo passo: F2.2 — Fundação do Admin)
 **Data de Início:** 2026-09-04
 **Progresso:** ~11% (Fase 1 de 9 concluída)
 
@@ -314,7 +322,7 @@ Descreve as camadas de segurança previstas para a aplicação:
 - **Admin** — Acesso total ao sistema
 - **Gerente** — Supervisão de pedidos e relatórios
 - **Editor** — Edição de conteúdo (páginas, banners, menus)
-- **Lojista** — Gerenciamento de produtos e categorias
+- **Operador** — Operação cotidiana de pedidos, estoque e atendimento
 - **Customer** — Usuário final, pode comprar
 
 ### Proteções previstas

@@ -156,6 +156,10 @@ A F2.7 é executada antes da F2.5 por decisão arquitetural: os banners consomem
 a biblioteca de mídia em vez de manter armazenamento próprio (ver F2.5). A
 numeração das subfases é mantida — apenas a ordem de execução muda.
 
+**Modelo de negócio:** e-commerce próprio de operação única (single-store),
+sem marketplace, lojistas ou vendedores terceiros. Produtos, estoque, pedidos
+e pagamentos pertencem à operação comercial da própria loja.
+
 #### Vocabulário de status
 
 | Marcador | Significado |
@@ -276,7 +280,7 @@ o painel.
 Continuam exclusivamente na **Fase 3**: roles, permissions, autorização
 granular, policies, middleware baseado em role ou permission, CRUD de usuários
 e roles, a definição definitiva dos perfis que acessam `/admin` e as regras de
-`admin`, `gerente`, `editor`, `lojista` e `customer`.
+`admin`, `gerente`, `editor`, `operador` e `customer`.
 
 ---
 
@@ -490,7 +494,7 @@ permanece após a conclusão da Fase 2.
 
 - [ ] **Spatie/laravel-permission Configurado**
   - [ ] Migration para roles e permissions
-  - [ ] Seeders para roles padrão (admin, gerente, editor, lojista, customer)
+  - [ ] Seeders para roles padrão (admin, gerente, editor, operador, customer)
   - [ ] 30+ permissions granulares (ver roles-permissions.json)
 
 - [ ] **CRUD de Usuários Admin**
@@ -536,11 +540,11 @@ permanece após a conclusão da Fase 2.
 #### Roles Definidos
 | Role | Descrição | Acesso |
 |------|-----------|--------|
-| admin | Administrador completo | Tudo |
-| gerente | Supervisão de vendas | Pedidos, relatórios, usuários (view) |
-| editor | Editor de conteúdo | Páginas, banners, menus, mídia |
-| lojista | Gestor de produtos | Produtos, categorias, estoque |
-| customer | Cliente final | Comprar, perfil, pedidos |
+| admin | Administrador completo da plataforma | Usuários, roles, permissions, configurações e operação administrativa |
+| gerente | Gestão da operação do e-commerce | Produtos, estoque, pedidos, clientes, relatórios e supervisão operacional |
+| editor | Conteúdo editorial do site | Páginas, banners, menus, mídia e conteúdo editorial |
+| operador | Operação cotidiana sem poderes administrativos sensíveis | Pedidos, atualização de status, estoque operacional e atendimento |
+| customer | Cliente final do e-commerce | Conta, endereços, compras, carrinho, checkout e próprios pedidos |
 
 #### Bloqueadores
 - Nenhum bloqueador arquitetural pendente. A F2.2 entrega autenticação mínima
@@ -1277,6 +1281,9 @@ Atualizado toda segunda-feira com progresso real.
 - **2026-09-04:** Decisão arquitetural da F2.2 resolvida — autenticação mínima
   para `/admin` na F2.2; autorização granular permanece na Fase 3. F2.2 pronta
   para implementação.
+- **2026-09-04:** Modelo de negócio explicitado como e-commerce próprio
+  single-store; marketplace e lojistas terceiros estão fora do escopo. A role
+  `lojista` foi substituída por `operador` no planejamento da Fase 3.
 - *Próxima revisão: 2026-09-11*
 
 ---
