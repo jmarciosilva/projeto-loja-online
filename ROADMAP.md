@@ -254,18 +254,26 @@ autorização granular, policies, middleware baseado em role ou permission, CRUD
 de usuários e roles, a definição definitiva dos perfis que acessam `/admin` e
 as regras de `admin`, `gerente`, `editor`, `operador` e `customer`.
 
-##### F2.2-A — Fortify mínimo + autenticação ⏳ Em desenvolvimento
+##### F2.2-A — Fortify mínimo + autenticação ✅ Concluída
 
 **Objetivo:** estabelecer a autenticação web mínima para proteger `/admin`,
 usando Laravel Fortify como infraestrutura a ser expandida na Fase 3.
 
+**Concluída e validada em 2026-09-04.**
+Commit: `bf175ec9a1e3068bf3d67ee1f051c8a07ad3434a`
+(`feat(fase-2): adiciona autenticacao minima com Fortify`)
+
+Validação: 7 testes / 34 assertions na suíte da subfase; 31 testes /
+87 assertions na suíte completa. `laravel/fortify v1.39.0` com
+`features => []`, guard `web` e redirect pós-login para `/admin`.
+
 **Escopo**
 
-- [ ] Instalação e configuração mínima do Laravel Fortify
-- [ ] Login por email/password, sessão autenticada e logout
-- [ ] View de login e redirect após login para `/admin`
-- [ ] Middleware `auth` e proteção de `/admin`
-- [ ] View administrativa provisória mínima e testes da autenticação
+- [x] Instalação e configuração mínima do Laravel Fortify
+- [x] Login por email/password, sessão autenticada e logout
+- [x] View de login e redirect após login para `/admin`
+- [x] Middleware `auth` e proteção de `/admin`
+- [x] View administrativa provisória mínima e testes da autenticação
 
 **Fora do escopo:** roles, permissions, Spatie Permission, policies,
 autorização granular, `is_admin`, cadastro de clientes, recuperação/reset de
@@ -481,17 +489,18 @@ Preservadas da versão anterior deste Roadmap:
 
 #### Bloqueadores da Fase 2
 
-- Nenhum bloqueador arquitetural pendente. A F2.2-A está em desenvolvimento
-  com autenticação mínima para `/admin`; autorização granular permanece na
-  Fase 3.
+- Nenhum bloqueador arquitetural pendente. A F2.2-A entregou a autenticação
+  mínima para `/admin` e está concluída; a F2.2 segue em desenvolvimento até
+  F2.2-B e F2.2-C. A autorização granular permanece na Fase 3.
 
 #### Dependências
 
 - ✅ Fase 1 (concluída)
 
 #### Próximo Passo
-→ **F2.2-A — Fortify mínimo + autenticação:** concluir e validar a proteção de
-`/admin`. A Fase 3 permanece após a conclusão da Fase 2.
+→ **F2.2-B — Layout administrativo e navegação.** A F2.2-A está concluída, mas
+a F2.2 só será encerrada após F2.2-B e F2.2-C. A Fase 3 permanece após a
+conclusão da Fase 2.
 
 ---
 
@@ -1272,9 +1281,9 @@ Atualizado toda segunda-feira com progresso real.
 ## ⚠️ Bloqueadores Conhecidos
 
 - ✅ **F2.1 — Fundação do CMS:** concluída.
-- Nenhum bloqueador arquitetural conhecido. A F2.2-A está em desenvolvimento
-  com autenticação mínima em `/admin`; a autorização granular permanece na
-  Fase 3.
+- Nenhum bloqueador arquitetural conhecido. A F2.2-A está concluída com
+  autenticação mínima em `/admin`; a F2.2 prossegue em F2.2-B. A autorização
+  granular permanece na Fase 3.
 
 ---
 
@@ -1303,6 +1312,10 @@ Atualizado toda segunda-feira com progresso real.
 - **2026-09-04:** F2.2 decomposta em F2.2-A (Fortify mínimo + autenticação),
   F2.2-B (layout administrativo e navegação) e F2.2-C (dashboard, navegação
   ativa e hardening), permitindo evolução incremental sem antecipar a Fase 3.
+- **2026-09-04:** F2.2-A concluída e validada — Fortify mínimo, login/logout e
+  proteção de `/admin` por middleware `auth`. Commit:
+  `bf175ec9a1e3068bf3d67ee1f051c8a07ad3434a`. A F2.2 segue em desenvolvimento
+  até a conclusão de F2.2-B e F2.2-C.
 - *Próxima revisão: 2026-09-11*
 
 ---
@@ -1313,10 +1326,10 @@ Atualizado toda segunda-feira com progresso real.
 R: Aproximadamente 30 dias (4 semanas) até Fase 8 concluída.
 
 **P: Posso usar em produção agora?**  
-R: Não. O ambiente de desenvolvimento já roda a aplicação; a F2.1 está
-concluída e a F2.2-A está em desenvolvimento. As demais funcionalidades de
-e-commerce e a preparação para produção continuam previstas para as próximas
-fases.
+R: Não. O ambiente de desenvolvimento já roda a aplicação; a F2.1 e a F2.2-A
+estão concluídas, e a F2.2 segue em desenvolvimento. As demais funcionalidades
+de e-commerce e a preparação para produção continuam previstas para as
+próximas fases.
 
 **P: Preciso implementar tudo?**  
 R: Não. Priorize as fases 1-6 para MVP. Fases 7-9 são para release.
