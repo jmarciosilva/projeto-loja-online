@@ -368,6 +368,20 @@ docker compose exec redis redis-cli -n 1 KEYS '*'
 
 ---
 
+### ⚠️ Alterações no `nginx.conf` não valem sozinhas
+
+O arquivo é bind-mountado read-only, então o nginx segue com a configuração que
+carregou no boot. Depois de editar:
+
+```bash
+docker compose restart nginx
+```
+
+Sintoma típico: uma rota nova do Laravel devolve o conteúdo antigo porque um
+bloco `location` que você acabou de remover ainda está ativo na memória.
+
+---
+
 ## 🔐 Senhas e Dados Sensíveis
 
 ### Não commitar `.env`

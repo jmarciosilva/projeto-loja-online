@@ -41,6 +41,19 @@ Nenhuma funcionalidade de e-commerce foi escrita ainda.**
 - Cache e filas no Redis (`CACHE_STORE=redis`, database 1)
 - `composer test` passando
 - Laravel Pint disponível para formatação
+- Pacotes do projeto instalados e prontos para as próximas fases:
+  spatie/laravel-permission, laravel/sanctum, intervention/image,
+  barryvdh/laravel-dompdf
+
+### Endpoints disponíveis
+
+| Rota | O que verifica |
+|------|----------------|
+| `/` | Home placeholder sobre o layout base |
+| `/health` | Aplicação **e** dependências (MySQL + Redis), em JSON |
+| `/api/health` | API respondendo |
+| `/up` | Health nativo do Laravel — só o framework |
+| `/health.php` | Estático: responde mesmo sem o Laravel instalado |
 
 Detalhes da validação em [`docker/VERIFICACAO.md`](./docker/VERIFICACAO.md).
 

@@ -15,7 +15,8 @@ RUN apk add --no-cache \
     libjpeg-turbo \
     freetype \
     libzip \
-    oniguruma
+    oniguruma \
+    icu-libs
 
 # Build deps are virtual so they can be dropped after compiling.
 # linux-headers is required by ext/sockets (linux/sock_diag.h).
@@ -27,10 +28,13 @@ RUN apk add --no-cache --virtual .build-deps \
         freetype-dev \
         libzip-dev \
         oniguruma-dev \
+        icu-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j"$(nproc)" \
         bcmath \
+        exif \
         gd \
+        intl \
         mbstring \
         pdo_mysql \
         pcntl \
