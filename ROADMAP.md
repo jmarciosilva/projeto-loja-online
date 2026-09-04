@@ -3,6 +3,9 @@
 ## Status Geral
 
 - **Fase Atual:** Fase 2 — CMS e Configurações Admin ⏳ (iniciada em 2026-09-04)
+  - F2.1 — Fundação do CMS: ✅ concluída
+  - F2.2 — Fundação do Admin: ✅ concluída
+  - Próxima subfase: **F2.3 — Configurações Globais**
 - **Fase 1:** ✅ Concluída em 2026-09-04
 - **Data de Início:** 2026-09-04
 - **Data Estimada de MVP Completo:** 2026-09-30
@@ -177,7 +180,7 @@ no repositório e foi executado/validado com sucesso.**
 | Subfase | Status | Entregável | Depende de |
 | --- | --- | --- | --- |
 | F2.1 — Fundação do CMS | ✅ Concluída | Domínio e infraestrutura de configuração | Fase 1 |
-| F2.2 — Fundação do Admin | ⏳ Em desenvolvimento | Autenticação, rotas, layout e navegação de `/admin` | Fase 1 |
+| F2.2 — Fundação do Admin | ✅ Concluída | Autenticação, rotas, layout e navegação de `/admin` | Fase 1 |
 | F2.3 — Configurações Globais | 📋 Planejado | Interface administrativa de `SiteSetting` | F2.1, F2.2 |
 | F2.4 — Páginas Estáticas | 📋 Planejado | CRUD de páginas com SEO e publicação | F2.2 |
 | F2.7 — Biblioteca de Mídia | 📋 Planejado | Upload, processamento e consulta de mídia | F2.2 |
@@ -235,13 +238,24 @@ configuração — isso é escopo da F2.3.
 
 ---
 
-#### F2.2 — Fundação do Admin ⏳ Em desenvolvimento
+#### F2.2 — Fundação do Admin ✅ Concluída
 
 **Objetivo:** entregar incrementalmente a fundação administrativa, sem
 antecipar a autorização definitiva da Fase 3.
 
-**Sequência interna:** F2.2-A → F2.2-B → F2.2-C. A F2.2 só será concluída
-quando as três subfases estiverem concluídas e validadas.
+**Concluída em 2026-09-04**, com as três subfases implementadas e validadas:
+
+| Subfase | Entregou |
+| --- | --- |
+| F2.2-A | Fortify mínimo, login, logout e proteção de `/admin` com `auth` |
+| F2.2-B | Layout administrativo único, sidebar, topbar, breadcrumbs e responsividade básica |
+| F2.2-C | Dashboard estrutural, navegação ativa, testes de integração e regressões de autenticação e layout |
+
+Detalhes e evidências de cada uma nas seções abaixo.
+
+**Sequência interna:** F2.2-A → F2.2-B → F2.2-C. A F2.2 só seria concluída
+quando as três subfases estivessem concluídas e validadas — condição
+satisfeita.
 
 **Decisão arquitetural registrada — Opção 1: autenticação mínima na F2.2**
 
@@ -319,21 +333,57 @@ genérico de menu (F2.2-C), roles, permissions, policies e autorização granula
 
 **Dependência:** F2.2-A concluída.
 
-##### F2.2-C — Dashboard, navegação ativa e hardening 📋 Planejada
+##### F2.2-C — Dashboard, navegação ativa e hardening ✅ Concluída
 
 **Objetivo:** completar e endurecer a Fundação do Admin antes das subfases
 administrativas seguintes.
 
-**Escopo planejado:** dashboard administrativo inicial, estado ativo da
-navegação, integração final de sidebar/topbar/breadcrumbs, comportamento de
-navegação, testes de integração, hardening e regressões de autenticação.
+**Concluída e validada em 2026-09-04.**
+Commit: `359bdf16afe4d97ff7982e49de85c866491f85d7`
+(`feat(fase-2): adiciona dashboard e hardening do admin`)
+
+Validação: `AdminAuthenticationTest` com 8 testes / 40 assertions;
+`AdminLayoutTest` com 10 testes / 31 assertions; suíte completa com 42 testes /
+124 assertions; Pint sem violações; `git diff --check` limpo.
+
+**Escopo entregue**
+
+- [x] Dashboard estrutural inicial
+- [x] Identificação do usuário autenticado
+- [x] Estado ativo do Dashboard na sidebar, derivado da rota atual
+- [x] `aria-current="page"` no item ativo
+- [x] Ausência de links para páginas administrativas inexistentes
+- [x] Regressão de proteção de `/admin` após logout
+- [x] Testes estruturais de layout e navegação
+- [x] Validação de que não existe autorização granular na F2.2
+- [x] Validação de layout administrativo único
+
+**O dashboard é estrutural, não analítico.** Ele descreve o que a fundação
+oferece e cita as próximas áreas em texto corrido, sem link — enquanto as
+páginas não existirem, transformá-las em `href` produziria caminhos quebrados.
+Nenhuma consulta a banco foi introduzida: o único acesso a dados é o nome do
+usuário já carregado da sessão.
+
+**Não foram implementados:** métricas, KPIs, gráficos, consultas de negócio,
+services ou repositories de dashboard, menu dinâmico, breadcrumbs dinâmicos,
+Livewire ou Alpine para navegação, e autorização granular.
+
+**Nota sobre os testes:** a primeira versão do teste de estado ativo procurava
+`aria-current="page"` na página e teria passado mesmo sem o estado ativo — os
+breadcrumbs também usam esse atributo. Foi reescrita para casar contra o
+próprio `<a>` da sidebar e confirmada removendo o atributo do link e observando
+o teste falhar.
 
 **Dependência:** F2.2-B concluída.
 
-**Dependências posteriores:** F2.3, F2.4 e F2.7 dependem da F2.2 completa;
-F2.5 depende da F2.2 completa e da F2.7; F2.6 depende da F2.2 completa e da
-F2.4. Concluir subfases da F2.2 isoladamente — A, B ou ambas — não libera
-essas subfases: é preciso a F2.2 inteira, incluindo a F2.2-C.
+**Dependências posteriores:** com a F2.2 concluída, a dependência que
+bloqueava F2.3, F2.4 e F2.7 está satisfeita — as três ficam **liberadas para
+início**, mantendo o status de planejadas até que o trabalho comece.
+
+As dependências adicionais continuam valendo: a **F2.5 depende da F2.7** (os
+banners consomem a biblioteca de mídia) e a **F2.6 depende da F2.4** (itens de
+menu que apontam para páginas). A ordem de execução segue
+F2.3 → F2.4 → F2.7 → F2.5 → F2.6.
 
 ---
 
@@ -369,8 +419,9 @@ esta subfase não deve reimplementá-los.
 
 **Dependências:** F2.1 (fundação e cache), F2.2 (layout e rotas admin).
 
-**Bloqueadores / decisões pendentes:** nenhuma decisão arquitetural pendente;
-depende da implementação da F2.2 e de seu critério provisório de autenticação.
+**Bloqueadores / decisões pendentes:** nenhum. A F2.2 está concluída e o
+critério provisório de autenticação vale para toda a Fase 2: qualquer usuário
+autenticado acessa `/admin`.
 
 **Nota técnica preservada:** componente Blade para o color picker.
 
@@ -400,8 +451,8 @@ depende da implementação da F2.2 e de seu critério provisório de autenticaç
 
 **Dependências:** F2.2 (layout e rotas admin).
 
-**Bloqueadores / decisões pendentes:** nenhuma decisão arquitetural pendente;
-depende da implementação da F2.2.
+**Bloqueadores / decisões pendentes:** nenhum. A dependência da F2.2 está
+satisfeita.
 
 ---
 
@@ -436,8 +487,8 @@ armazenamento/upload para banners. Isso evita duas rotas de upload, dois
 formatos de armazenamento e a duplicação do processamento de imagens — e é o
 motivo de a F2.7 ser executada antes da F2.5.
 
-**Bloqueadores / decisões pendentes:** nenhuma decisão arquitetural pendente;
-depende da implementação da F2.2.
+**Bloqueadores / decisões pendentes:** nenhum. A dependência da F2.2 está
+satisfeita.
 
 ---
 
@@ -467,8 +518,8 @@ depende da implementação da F2.2.
 **Dependências:** F2.2 (layout e rotas admin), F2.4 (para itens que apontam
 para páginas).
 
-**Bloqueadores / decisões pendentes:** nenhuma decisão arquitetural pendente;
-depende da implementação da F2.2.
+**Bloqueadores / decisões pendentes:** nenhum. A dependência da F2.2 está
+satisfeita.
 
 ---
 
@@ -500,8 +551,8 @@ foi instalado na Fase 1.
 **Consumidores:** a **F2.5 (Banners)** depende desta subfase — por isso a F2.7
 é executada antes dela.
 
-**Bloqueadores / decisões pendentes:** nenhuma decisão arquitetural pendente;
-depende da implementação da F2.2.
+**Bloqueadores / decisões pendentes:** nenhum. A dependência da F2.2 está
+satisfeita.
 
 ---
 
@@ -518,18 +569,20 @@ Preservadas da versão anterior deste Roadmap:
 
 #### Bloqueadores da Fase 2
 
-- Nenhum bloqueador arquitetural pendente. F2.2-A e F2.2-B estão concluídas —
-  autenticação mínima e fundação visual do painel; a F2.2 segue em
-  desenvolvimento até a F2.2-C. A autorização granular permanece na Fase 3.
+- Nenhum bloqueador arquitetural pendente. A **F2.2 — Fundação do Admin está
+  concluída** (A, B e C), com autenticação mínima, layout e navegação do painel
+  entregues e validados. F2.3, F2.4 e F2.7 ficam liberadas para início.
+- A autorização granular permanece na Fase 3. Durante toda a Fase 2, qualquer
+  usuário autenticado acessa `/admin`.
 
 #### Dependências
 
 - ✅ Fase 1 (concluída)
 
 #### Próximo Passo
-→ **F2.2-C — Dashboard, navegação ativa e hardening.** F2.2-A e F2.2-B estão
-concluídas; a F2.2 só será encerrada após a F2.2-C. A Fase 3 permanece após a
-conclusão da Fase 2.
+→ **F2.3 — Configurações Globais.** Com a F2.2 concluída, a fundação do painel
+está pronta e a F2.3 é a próxima na ordem de execução da Fase 2. A Fase 3
+permanece após a conclusão da Fase 2.
 
 ---
 
@@ -1310,8 +1363,10 @@ Atualizado toda segunda-feira com progresso real.
 ## ⚠️ Bloqueadores Conhecidos
 
 - ✅ **F2.1 — Fundação do CMS:** concluída.
-- Nenhum bloqueador arquitetural conhecido. F2.2-A e F2.2-B estão concluídas;
-  a F2.2 prossegue na F2.2-C. A autorização granular permanece na Fase 3.
+- ✅ **F2.2 — Fundação do Admin:** concluída (A, B e C).
+- Nenhum bloqueador arquitetural conhecido. F2.3, F2.4 e F2.7 estão liberadas
+  para início; F2.5 ainda depende da F2.7 e F2.6 da F2.4. A autorização
+  granular permanece na Fase 3.
 
 ---
 
@@ -1349,6 +1404,13 @@ Atualizado toda segunda-feira com progresso real.
   responsividade básica sem JavaScript. Commit:
   `a178dd8d6fa865433f6fe407b223ca98d276a96d`. A F2.2 segue em desenvolvimento
   até a conclusão da F2.2-C.
+- **2026-09-04:** F2.2-C concluída e validada — dashboard estrutural,
+  navegação ativa e testes de hardening de autenticação, layout e navegação.
+  Commit: `359bdf16afe4d97ff7982e49de85c866491f85d7`.
+- **2026-09-04:** **F2.2 — Fundação do Admin encerrada** com as três subfases
+  concluídas e validadas. A dependência que bloqueava F2.3, F2.4 e F2.7 está
+  satisfeita; as três ficam liberadas para início. Próxima subfase: F2.3 —
+  Configurações Globais.
 - *Próxima revisão: 2026-09-11*
 
 ---
@@ -1359,10 +1421,10 @@ Atualizado toda segunda-feira com progresso real.
 R: Aproximadamente 30 dias (4 semanas) até Fase 8 concluída.
 
 **P: Posso usar em produção agora?**  
-R: Não. O ambiente de desenvolvimento já roda a aplicação; a F2.1, a F2.2-A e
-a F2.2-B estão concluídas, e a F2.2 segue em desenvolvimento até a F2.2-C. As
-demais funcionalidades de e-commerce e a preparação para produção continuam
-previstas para as próximas fases.
+R: Não. O ambiente de desenvolvimento já roda a aplicação e as fundações do
+CMS (F2.1) e do painel administrativo (F2.2) estão concluídas, mas a Fase 2
+segue em desenvolvimento a partir da F2.3. As funcionalidades de e-commerce e a
+preparação para produção continuam previstas para as próximas fases.
 
 **P: Preciso implementar tudo?**  
 R: Não. Priorize as fases 1-6 para MVP. Fases 7-9 são para release.
