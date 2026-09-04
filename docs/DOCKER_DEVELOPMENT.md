@@ -19,7 +19,7 @@ O `compose.yaml` define os seguintes serviços:
 - Arquivo config: `docker/nginx.conf`
 
 ### 3. **mysql** (Database)
-- MySQL 8.4
+- MySQL 8.4 (imagem própria: `docker/Dockerfile.mysql`)
 - Porta exposta: `${DOCKER_MYSQL_PORT}` (padrão 3306)
 - Volume nomeado: `mysql_data` (persiste dados)
 - Credenciais: veja `.env`
@@ -246,6 +246,47 @@ docker compose down
 docker compose up -d
 ```
 
+
+
+---
+
+### ❌ mysql.cnf não surte efeito (Windows/WSL)
+
+**Sintoma:** As configurações de `docker/mysql.cnf` são ignoradas. Nos logs:
+
+```
+mysqld: [Warning] World-writable config file '/etc/mysql/conf.d/mysql.cnf' is ignored.
+```
+
+**Causa:** Bind mounts no Windows expõem arquivos como world-writable (0777).
+O MySQL recusa ler arquivos de configuração graváveis por todos, por segurança —
+e apenas emite um *warning*, sem falhar. O servidor sobe com os padrões.
+
+**Solução (já aplicada):** o `mysql.cnf` é copiado para dentro da imagem via
+`docker/Dockerfile.mysql` (`COPY` resulta em 0644), em vez de montado.
+
+**Conferir se pegou:**
+```bash
+docker compose exec mysql mysql -uroot -p${DB_ROOT_PASSWORD}   -e "SELECT @@innodb_buffer_pool_size, @@max_connections;"
+# esperado: 268435456 (256M) e 100 — não 134217728 e 151
+```
+
+---
+
+### ❌ Healthcheck falha com "Connection refused" em localhost
+
+**Causa:** o `wget` do BusyBox resolve `localhost` para `::1` (IPv6) primeiro,
+mas o nginx do container escuta apenas em IPv4.
+
+**Solução:** usar `127.0.0.1` explicitamente no healthcheck, nunca `localhost`.
+
+---
+
+### ⚠️ `GET /` retorna 403 antes de instalar o Laravel
+
+Esperado: `public/` ainda não tem `index.php`, e a listagem de diretório está
+desligada. Use `/health.php` para verificar a stack antes do Laravel existir.
+
 ---
 
 ## 🔐 Senhas e Dados Sensíveis
@@ -327,7 +368,9 @@ services:
       - redis
 
   mysql:
-    image: mysql:8.4
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.mysql
     container_name: loja-mysql
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}

@@ -1,0 +1,7 @@
+FROM mysql:8.4
+
+# The config is baked in rather than bind-mounted: on Windows/WSL bind mounts
+# expose files as world-writable (0777) and MySQL silently ignores such config
+# files, leaving every tuning here without effect. COPY lands it as 0644 root.
+COPY docker/mysql.cnf /etc/mysql/conf.d/mysql.cnf
+RUN chmod 0644 /etc/mysql/conf.d/mysql.cnf

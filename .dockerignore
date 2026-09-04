@@ -1,0 +1,48 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Node
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Composer
+vendor
+composer.lock
+
+# Laravel
+storage
+bootstrap/cache
+.env
+.env.*.local
+.env.local
+*.log
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Docker
+docker-compose.override.yml
+Dockerfile
+.dockerignore
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Testing
+coverage
+.phpunit.result.cache
+
+# Build artifacts
+/public/hot
+/public/storage
+dist
+build

@@ -250,8 +250,10 @@ loja-online/
 │   └── INTEGRACAO_FRETE.md          # Integrações (futuro)
 ├── docker/                           # Configurações Docker
 │   ├── Dockerfile                   # Imagem PHP-FPM
+│   ├── Dockerfile.mysql             # Imagem MySQL (config embutida)
 │   ├── nginx.conf                   # Configuração Nginx
 │   ├── php.ini                      # Configurações PHP
+│   ├── php-fpm.conf                 # Pool php-fpm
 │   └── mysql.cnf                    # Configurações MySQL
 ├── app/
 │   ├── Models/                      # Eloquent models

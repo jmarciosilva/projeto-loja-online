@@ -1,0 +1,42 @@
+# MySQL 8.4 configuration for local development.
+#
+# Kept deliberately small: MySQL refuses to start on unknown variables, and
+# several once-common directives were removed in 8.x (query_cache_*, and
+# skip-slave-start in 8.4). Error/slow logs go to stderr so `docker compose
+# logs mysql` shows them, instead of a /var/log/mysql path the image lacks.
+
+[mysqld]
+max_connections = 100
+max_allowed_packet = 256M
+
+character-set-server = utf8mb4
+collation-server = utf8mb4_unicode_ci
+
+default-storage-engine = InnoDB
+innodb_buffer_pool_size = 256M
+innodb_flush_log_at_trx_commit = 1
+innodb_lock_wait_timeout = 50
+
+# Empty value = stderr, captured by Docker.
+log_error =
+log_error_verbosity = 2
+
+slow_query_log = 1
+slow_query_log_file = /var/lib/mysql/slow-query.log
+long_query_time = 2
+
+sql_mode = 'STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION'
+
+default_time_zone = '+00:00'
+
+bind-address = 0.0.0.0
+port = 3306
+
+[mysql]
+default-character-set = utf8mb4
+
+[mysqldump]
+quick
+quote-names
+max_allowed_packet = 256M
+default-character-set = utf8mb4
