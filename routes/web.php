@@ -26,14 +26,14 @@ Route::get('/health', function () {
     try {
         DB::connection()->getPdo();
         $checks['database'] = 'ok';
-    } catch (\Throwable $e) {
+    } catch (Throwable $e) {
         $checks['database'] = 'falhou: '.$e->getMessage();
     }
 
     try {
         Cache::put('health:probe', '1', 10);
         $checks['cache'] = Cache::get('health:probe') === '1' ? 'ok' : 'falhou: valor não retornou';
-    } catch (\Throwable $e) {
+    } catch (Throwable $e) {
         $checks['cache'] = 'falhou: '.$e->getMessage();
     }
 
