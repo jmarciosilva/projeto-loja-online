@@ -45,7 +45,12 @@ Antes de começar, leia:
 
 ### 2. Configure o Ambiente
 
-Siga [docs/INSTALACAO_RAPIDA.md](./docs/INSTALACAO_RAPIDA.md) para rodar a aplicação localmente.
+Siga [docs/INSTALACAO_RAPIDA.md](./docs/INSTALACAO_RAPIDA.md).
+
+⚠️ **Estado atual:** só a infraestrutura Docker está pronta. O Laravel ainda
+não foi instalado, então não há aplicação para rodar — `GET /` responde 403.
+A primeira contribuição útil é justamente a etapa 1b do
+[ROADMAP](./ROADMAP.md): instalar o Laravel 12 no container.
 
 ### 3. Escolha uma Issue
 
@@ -83,18 +88,20 @@ git checkout -b docs/sua-documentacao
 
 ### Passo 3: Teste Localmente
 
+⏳ Os scripts abaixo **ainda não existem** — serão definidos no `composer.json`
+quando o Laravel for instalado (Fase 1b) e a suíte montada (Fase 8):
+
 ```bash
-# Testes automatizados
-docker compose exec app composer test
+docker compose exec app composer test      # PHPUnit
+docker compose exec app composer lint      # PHP-CS-Fixer
+docker compose exec app composer phpstan   # análise estática
+```
 
-# Linting
-docker compose exec app composer lint
+Enquanto isso, o que dá para verificar:
 
-# Verifique tipos (PHPStan)
-docker compose exec app composer phpstan
-
-# Teste manualmente no browser
-# Acesse http://localhost
+```bash
+docker compose ps                      # serviços healthy
+curl http://localhost/health.php        # stack respondendo
 ```
 
 ### Passo 4: Faça o Push
@@ -287,17 +294,12 @@ class OrderTest extends TestCase {
 
 ### Rodar Testes
 
+⏳ Planejado para a Fase 8 — os scripts serão definidos no `composer.json`:
+
 ```bash
-# Todos os testes
-docker compose exec app composer test
-
-# Testes de feature
+docker compose exec app composer test            # todos
 docker compose exec app composer test:feature
-
-# Testes unitários
 docker compose exec app composer test:unit
-
-# Com coverage
 docker compose exec app composer test:coverage
 ```
 
@@ -464,8 +466,8 @@ Alta / Média / Baixa
 Antes de fazer push, verifique:
 
 - [ ] Código segue PSR-12
-- [ ] Testes passam (`composer test`)
-- [ ] Sem warnings do linter (`composer lint`)
+- [ ] Testes passam (`composer test`) — quando a suíte existir (Fase 8)
+- [ ] Sem warnings do linter (`composer lint`) — idem
 - [ ] Migrations são reversíveis
 - [ ] `.env.example` atualizado (se necessário)
 - [ ] Documentação atualizada

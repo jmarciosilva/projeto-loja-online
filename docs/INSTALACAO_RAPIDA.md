@@ -1,182 +1,149 @@
-# ⚡ Instalação Rápida — 5 Minutos
+# ⚡ Instalação Rápida
 
-Guia mínimo para começar a desenvolver **agora mesmo**.
+Setup do ambiente de desenvolvimento.
 
----
-
-## 📋 Pré-requisitos
-
-- **Docker Desktop** instalado e rodando
-- **Git** instalado
-- **Editor de código** (VS Code recomendado)
+> **Estado atual:** a infraestrutura Docker está pronta; o Laravel ainda não
+> foi instalado. Os passos 1 a 3 funcionam hoje. O passo 4 é o bootstrap da
+> aplicação, que ainda não foi executado por ninguém (Fase 1b do
+> [ROADMAP](../ROADMAP.md)).
 
 ---
 
-## 🚀 Passo 1: Clonar e Setup (1 minuto)
+## Pré-requisitos
+
+- **Docker Desktop** rodando
+- **Git**
+
+Não é preciso PHP, MySQL nem Node.js instalados no host.
+
+---
+
+## 1. Clonar e configurar
 
 ```bash
-# Clone o repositório
-git clone https://github.com/jmarciosilva/loja-online.git
-cd loja-online
-
-# Copie o arquivo de ambiente
+git clone git@github.com:jmarciosilva/projeto-loja-online.git
+cd projeto-loja-online
 cp .env.example .env
 ```
 
----
+Se as portas 80, 3306, 8081 ou 8025 estiverem ocupadas, ajuste no `.env`:
 
-## 🐳 Passo 2: Docker Compose Up (2 minutos)
-
-```bash
-# Build e inicie os containers
-docker compose up -d
-
-# Aguarde ~30 segundos para tudo estar pronto
-docker compose logs -f
-# Ctrl+C para sair dos logs
-```
-
-> Se tiver erro de porta já em uso, edite `.env` alterando `DOCKER_HTTP_PORT=80` para outra porta (ex: 8080)
-
----
-
-## 🔧 Passo 3: Instalar Dependências (1 minuto)
-
-```bash
-# Composer install (PHP)
-docker compose exec app composer install
-
-# Gerar chave de aplicação
-docker compose exec app php artisan key:generate
-
-# Rodas migrations e seeders
-docker compose exec app php artisan migrate --seed
-
-# NPM install (Node)
-docker compose exec node npm install
-```
-
----
-
-## ✅ Passo 4: Verificar e Acessar (1 minuto)
-
-Abra no browser:
-
-| O quê | URL |
-|-------|-----|
-| **Aplicação** | http://localhost |
-| **phpMyAdmin** | http://localhost:8081 |
-| **MailPit (Emails)** | http://localhost:8025 |
-
----
-
-## 👤 Login com Credenciais Padrão
-
-**Admin:**
-- Email: `admin@loja.com`
-- Senha: `password`
-
-**Cliente:**
-- Email: `customer@teste.com`
-- Senha: `password`
-
-> ⚠️ Altere essas senhas em produção!
-
----
-
-## 📝 Comandos Diários
-
-### Iniciar servidor
-```bash
-docker compose up -d
-```
-
-### Parar servidor
-```bash
-docker compose down
-```
-
-### Ver logs
-```bash
-docker compose logs -f app        # Apenas app
-docker compose logs -f            # Todos os serviços
-```
-
-### Executar Artisan
-```bash
-docker compose exec app php artisan <comando>
-
-# Exemplos
-docker compose exec app php artisan tinker
-docker compose exec app php artisan make:model Post -m
-```
-
-### Executar npm
-```bash
-docker compose exec node npm run dev    # Watch mode
-docker compose exec node npm run build  # Build production
-```
-
-### Acessar shell do container
-```bash
-docker compose exec app bash
-docker compose exec node bash
-```
-
----
-
-## 🧪 Rodar Testes
-
-```bash
-docker compose exec app composer test
-# ou com coverage
-docker compose exec app composer test:coverage
-```
-
----
-
-## 🆘 Troubleshooting
-
-### "Port 80 already in use"
-Altere em `.env`:
 ```env
 DOCKER_HTTP_PORT=8080
+DOCKER_MYSQL_PORT=3307
 ```
-Depois acesse: http://localhost:8080
 
-### "mysql connection refused"
-Aguarde o MySQL iniciar (30-60 segundos) e tente novamente.
+---
 
-### "Permission denied" em Linux
+## 2. Subir os containers
+
 ```bash
-sudo usermod -aG docker $USER
-# Logout e login depois
+docker compose up -d --build
 ```
 
-### Limpar tudo e recomeçar
+O primeiro build leva alguns minutos (compila as extensões PHP). Nos
+seguintes, o cache resolve em segundos.
+
+---
+
+## 3. Verificar
+
 ```bash
-docker compose down -v     # Remove tudo
-docker compose up -d       # Recria
-docker compose exec app php artisan migrate --seed
+docker compose ps
+```
+
+Esperado — os 5 serviços com health check devem estar `healthy` (node e phpMyAdmin não têm um):
+
+```
+loja-app          Up (healthy)
+loja-nginx        Up (healthy)
+loja-mysql        Up (healthy)
+loja-redis        Up (healthy)
+loja-node         Up
+loja-phpmyadmin   Up
+loja-mailpit      Up (healthy)
+```
+
+Smoke test:
+
+```bash
+curl http://localhost/health.php     # OK
+```
+
+| Serviço | URL |
+| --- | --- |
+| Aplicação | http://localhost |
+| phpMyAdmin | http://localhost:8081 |
+| MailPit | http://localhost:8025 |
+
+**`http://localhost` retorna 403 neste momento** — é o esperado enquanto o
+Laravel não estiver instalado: `public/` não tem `index.php`. Use
+`/health.php` para confirmar que a stack está de pé.
+
+---
+
+## 4. Instalar o Laravel (ainda não feito)
+
+```bash
+docker compose exec app composer create-project laravel/laravel:^12 .
+docker compose exec app php artisan key:generate
+docker compose exec app php artisan migrate
+docker compose exec node npm install
+docker compose exec node npm run build
+```
+
+É `create-project` e não `composer install`: o repositório ainda não tem
+`composer.json`. Depois que o Laravel existir e for commitado, novos clones
+usam `composer install`.
+
+Feito isso, `http://localhost` passa a servir a aplicação.
+
+---
+
+## Comandos do dia a dia
+
+```bash
+docker compose up -d          # iniciar
+docker compose down           # parar
+docker compose logs -f app    # acompanhar logs
+docker compose exec app sh    # shell no container
+```
+
+> As imagens são Alpine: use `sh`, não `bash`. `docker compose exec app bash`
+> falha com `executable file not found`.
+
+Após o Laravel instalado:
+
+```bash
+docker compose exec app php artisan tinker
+docker compose exec app php artisan migrate
+docker compose exec node npm run dev
 ```
 
 ---
 
-## 📚 Próximos Passos
+## Problemas comuns
 
-1. Leia [README.md](../README.md) para visão geral
-2. Consulte [ROADMAP.md](../ROADMAP.md) para saber o que fazer
-3. Veja [docs/ARQUITETURA.md](./ARQUITETURA.md) para entender a estrutura
-4. Se tiver dúvidas sobre Docker: [docs/DOCKER_DEVELOPMENT.md](./DOCKER_DEVELOPMENT.md)
+**Porta já em uso** — ajuste `DOCKER_HTTP_PORT` no `.env` e recrie:
+`docker compose down && docker compose up -d`.
+
+**MySQL recusando conexão** — aguarde o health check (~20s). Confirme que o
+`.env` usa `DB_HOST=mysql`, não `localhost`.
+
+**Recomeçar do zero** (apaga o banco):
+
+```bash
+docker compose down -v
+docker compose up -d --build
+```
+
+Mais casos em [DOCKER_DEVELOPMENT.md](./DOCKER_DEVELOPMENT.md).
 
 ---
 
-## 🎉 Pronto!
+## Próximos passos
 
-Você está com a aplicação rodando. Agora comece a codar!
-
-Quer entender melhor como o Docker funciona aqui? Veja [DOCKER_DEVELOPMENT.md](./DOCKER_DEVELOPMENT.md).
-
----
-
-**Última atualização:** 2026-09-04
+- [README.md](../README.md) — visão geral e estado atual
+- [ROADMAP.md](../ROADMAP.md) — o que fazer em seguida
+- [docs/ARQUITETURA.md](./ARQUITETURA.md) — desenho técnico alvo
+- [docker/VERIFICACAO.md](../docker/VERIFICACAO.md) — como a stack foi validada

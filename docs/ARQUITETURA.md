@@ -1,5 +1,16 @@
 # 🏗️ Arquitetura — Loja Online
 
+> ⚠️ **Este documento descreve o desenho-alvo, não o código atual.**
+>
+> Em 2026-09-04 nada da camada de aplicação existe no repositório: não há
+> `app/`, `routes/`, models, services nem policies. Os exemplos de código
+> abaixo são especificação de como o projeto deve ser escrito, e servem de
+> referência ao implementar cada fase — não são trechos extraídos do código.
+>
+> O que **existe e está validado** é a infraestrutura Docker
+> ([`docker/VERIFICACAO.md`](../docker/VERIFICACAO.md)). Para o estado real de
+> cada fase, veja o [ROADMAP](../ROADMAP.md).
+
 ## Diagrama de Arquitetura (Alto Nível)
 
 ```

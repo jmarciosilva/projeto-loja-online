@@ -26,20 +26,28 @@
 
 ---
 
-## ✨ MVP Demonstrável
+## ✨ O que já roda hoje
 
-Este projeto implementa as seguintes funcionalidades (atualizado: 2026-09-04):
+**Estado em 2026-09-04: a infraestrutura Docker está pronta e validada; o
+Laravel ainda não foi instalado.**
 
-### Fase 1 — Infraestrutura Docker & Setup Base ✅
-- [x] Docker Compose com todos os serviços (PHP-FPM, Nginx, MySQL, Redis, Node, MailPit, phpMyAdmin)
-- [x] Laravel 12 base completo
-- [x] Database schema estruturada com migrations
-- [x] Vite + TailwindCSS v4 configurado
-- [x] Livewire 4 integrado
-- [x] Health checks em serviços críticos
+### ✅ Pronto — Infraestrutura Docker
 
-### Fases 2-9 — Em Planejamento
-Veja o **[📊 Status do Projeto](#-status-do-projeto)** abaixo e consulte o [ROADMAP.md](./ROADMAP.md) para detalhes completos.
+- Os 7 serviços sobem e ficam `healthy` a partir de `docker compose up -d --build`
+- PHP 8.3 com bcmath, gd, mbstring, pdo_mysql, pcntl, sockets, zip, redis, xdebug
+- MySQL 8.4 e Redis acessíveis a partir do container da aplicação
+- Nginx servindo via php-fpm (`/health.php` → HTTP 200)
+- phpMyAdmin e MailPit acessíveis
+- Reprodutível do zero — resultados em [`docker/VERIFICACAO.md`](./docker/VERIFICACAO.md)
+
+### ⏳ Ainda não existe
+
+Nada da aplicação foi escrito. Não há `composer.json`, `artisan`, `app/`,
+`routes/`, migrations, models nem seeders. **`GET /` responde 403** porque
+`public/` não tem `index.php`.
+
+A Stack Técnica abaixo descreve o alvo do projeto, não o que está instalado.
+Para o estado real por fase, veja o [ROADMAP.md](./ROADMAP.md).
 
 ---
 
@@ -79,53 +87,39 @@ Veja o **[📊 Status do Projeto](#-status-do-projeto)** abaixo e consulte o [RO
 
 ## 🚀 Como Rodar
 
-### Opção A: Docker (Recomendado ⭐)
+### Passo 1 — Subir a infraestrutura (funciona hoje)
 
 ```bash
-# 1. Clone o repositório
-git clone https://github.com/jmarciosilva/loja-online.git
-cd loja-online
+git clone git@github.com:jmarciosilva/projeto-loja-online.git
+cd projeto-loja-online
 
-# 2. Copie o arquivo de ambiente
 cp .env.example .env
 
-# 3. Build e inicie os containers
-docker compose up -d
+docker compose up -d --build
+```
 
-# 4. Instale dependências PHP
-docker compose exec app composer install
+Aguarde os health checks e confirme:
 
-# 5. Gere a chave da aplicação
+```bash
+docker compose ps                      # todos Up, os com healthcheck healthy
+curl http://localhost/health.php        # deve responder OK
+```
+
+### Passo 2 — Instalar o Laravel (ainda não feito)
+
+O projeto Laravel ainda não existe no repositório. Para criá-lo:
+
+```bash
+docker compose exec app composer create-project laravel/laravel:^12 .
 docker compose exec app php artisan key:generate
-
-# 6. Execute as migrations e seeders
-docker compose exec app php artisan migrate --seed
-
-# 7. Instale dependências frontend
+docker compose exec app php artisan migrate
 docker compose exec node npm install
-
-# 8. Compile assets (Vite)
 docker compose exec node npm run build
 ```
 
-**Pronto!** Acesse http://localhost
-
-### Opção B: Local (sem Docker)
-
-Se preferir instalar localmente (não recomendado):
-
-```bash
-# Requisitos: PHP 8.3, Composer, MySQL 8.4, Node.js 20+
-git clone ...
-cd loja-online
-cp .env.example .env
-composer install
-php artisan key:generate
-php artisan migrate --seed
-npm install
-npm run build
-php artisan serve
-```
+> Note que é `create-project`, não `composer install`: não há `composer.json`
+> no repositório ainda. Depois que o Laravel existir, `composer install` passa
+> a ser o comando correto para novos clones.
 
 ---
 
@@ -137,7 +131,7 @@ php artisan serve
 | **MySQL** | 3306 | localhost:3306 | Banco de dados (conexão interna) |
 | **phpMyAdmin** | 8081 | http://localhost:8081 | Gerenciador visual de BD |
 | **MailPit** | 8025 | http://localhost:8025 | Interceptar emails em desenvolvimento |
-| **Vite Dev Server** | 5173 | (interno ao container) | Hot reload para assets |
+| **Vite Dev Server** | — | não publicado | Publicar a porta no `compose.yaml` se for usar o dev server |
 | **Redis** | 6379 | (interno ao container) | Cache e sessions |
 
 ---
@@ -167,17 +161,11 @@ php artisan serve
 
 ## 👥 Usuários de Teste
 
-Após executar `php artisan migrate --seed`, os seguintes usuários estão disponíveis:
+⏳ **Ainda não existem.** Dependem dos seeders da Fase 3 (Autenticação e Roles).
 
-| Email | Senha | Papel | Acesso |
-|-------|-------|-------|--------|
-| admin@loja.com | password | Admin | /admin (painel completo) |
-| gerente@loja.com | password | Gerente | /admin (funcionalidades limitadas) |
-| editor@loja.com | password | Editor | /admin (edição de conteúdo) |
-| lojista@loja.com | password | Lojista | /admin (gerenciar produtos) |
-| customer@teste.com | password | Cliente | Comprar, perfil pessoal |
-
-> ⚠️ **Não use essas credenciais em produção!** Altere as senhas após setup.
+Os papéis planejados são admin, gerente, editor, lojista e customer — a
+definição está no [ROADMAP.md](./ROADMAP.md#fase-3--autenticação-roles-e-permissions).
+Quando os seeders forem escritos, as credenciais de desenvolvimento entram aqui.
 
 ---
 
@@ -205,7 +193,7 @@ docker compose logs -f app
 docker compose logs -f mysql
 ```
 
-### Executar comandos Artisan
+### Executar comandos Artisan (após instalar o Laravel)
 ```bash
 docker compose exec app php artisan <comando>
 
@@ -215,146 +203,110 @@ docker compose exec app php artisan make:model Product -m
 docker compose exec app php artisan migrate:rollback
 ```
 
-### Executar npm/node
+### Executar npm/node (após instalar o Laravel)
 ```bash
 docker compose exec node npm run dev
 docker compose exec node npm run build
 ```
 
-### Acessar bash do container
+### Acessar o shell do container
 ```bash
-docker compose exec app bash
-docker compose exec node bash
+docker compose exec app sh
+docker compose exec node sh
 ```
+
+> As imagens são Alpine e **não têm `bash`** — `docker compose exec app bash`
+> falha com `executable file not found`. Use `sh`.
 
 ---
 
 ## 📂 Estrutura de Diretórios
 
+### O que existe hoje
+
 ```
-loja-online/
-├── .github/                          # GitHub templates e workflows
-│   ├── ISSUE_TEMPLATE/
-│   │   ├── bug.md
-│   │   ├── feature.md
-│   │   └── documentation.md
-│   ├── PULL_REQUEST_TEMPLATE.md
-│   └── workflows/
-│       ├── tests.yml
-│       └── lint.yml
-├── docs/                             # Documentação técnica
-│   ├── ARQUITETURA.md               # Visão técnica detalhada
-│   ├── DOCKER_DEVELOPMENT.md        # Desenvolvimento com Docker
-│   ├── INSTALACAO_RAPIDA.md         # Setup em 5 minutos
-│   ├── API.md                       # Documentação da API
-│   └── INTEGRACAO_FRETE.md          # Integrações (futuro)
-├── docker/                           # Configurações Docker
-│   ├── Dockerfile                   # Imagem PHP-FPM
-│   ├── Dockerfile.mysql             # Imagem MySQL (config embutida)
-│   ├── nginx.conf                   # Configuração Nginx
-│   ├── php.ini                      # Configurações PHP
-│   ├── php-fpm.conf                 # Pool php-fpm
-│   └── mysql.cnf                    # Configurações MySQL
+projeto-loja-online/
+├── .github/
+│   └── PULL_REQUEST_TEMPLATE.md
+├── docker/
+│   ├── Dockerfile                # Imagem PHP-FPM 8.3 + extensões
+│   ├── Dockerfile.mysql          # MySQL 8.4 com mysql.cnf embutido
+│   ├── nginx.conf                # Reverse proxy → php-fpm
+│   ├── php.ini                   # Overrides de PHP
+│   ├── php-fpm.conf              # Pool php-fpm + endpoint /ping
+│   ├── mysql.cnf                 # Tuning do MySQL
+│   └── VERIFICACAO.md            # Resultados da validação da stack
+├── docs/
+│   ├── ARQUITETURA.md
+│   ├── DOCKER_DEVELOPMENT.md
+│   └── INSTALACAO_RAPIDA.md
+├── public/
+│   └── health.php                # Endpoint de liveness
+├── compose.yaml
+├── .env.example
+├── .dockerignore
+├── .gitignore
+├── README.md
+├── ROADMAP.md
+├── CONTRIBUTING.md
+└── prompt-loja-online.md         # Especificação original do projeto
+```
+
+### Estrutura planejada (após instalar o Laravel)
+
+O layout abaixo é o alvo descrito em [docs/ARQUITETURA.md](./docs/ARQUITETURA.md).
+**Nenhuma dessas pastas existe ainda.**
+
+```
 ├── app/
-│   ├── Models/                      # Eloquent models
-│   ├── Http/
-│   │   ├── Controllers/
-│   │   │   ├── Admin/              # Controllers do painel
-│   │   │   ├── Api/                # Controllers da API
-│   │   │   └── (públicos)          # Frontend controllers
-│   │   ├── Requests/               # Form requests e validação
-│   │   ├── Middleware/             # Middlewares customizados
-│   │   └── Resources/              # API resources
-│   ├── Services/                   # Lógica de negócio
-│   ├── Policies/                   # Autorização por modelo
-│   ├── Livewire/                   # Componentes Livewire
-│   ├── Enums/                      # Enums (OrderStatus, UserRole, etc)
-│   └── Exceptions/                 # Exceções customizadas
-├── database/
-│   ├── migrations/                 # Migrations do banco
-│   ├── factories/                  # Model factories para testes
-│   └── seeders/                    # Seeders para populate dados
-├── resources/
-│   ├── views/
-│   │   ├── layouts/               # Layouts base
-│   │   ├── admin/                 # Views do painel admin
-│   │   ├── public/                # Views públicas
-│   │   ├── components/            # Componentes Blade reutilizáveis
-│   │   └── livewire/              # Views dos componentes Livewire
-│   ├── css/                       # Estilos (TailwindCSS)
-│   └── js/                        # JavaScripts (AlpineJS)
-├── routes/
-│   ├── web.php                    # Rotas web (frontend e admin)
-│   ├── api.php                    # Rotas API REST
-│   └── admin.php                  # Rotas admin (middleware group)
-├── storage/                       # Arquivos de armazenamento
-├── public/                        # Arquivos públicos (CSS, JS, imagens)
-├── bootstrap/                     # Bootstrap da aplicação
-├── config/                        # Arquivos de configuração
-├── tests/
-│   ├── Feature/                   # Testes de funcionalidade
-│   └── Unit/                      # Testes unitários
-├── compose.yaml                   # Docker Compose
-├── README.md                       # Este arquivo
-├── ROADMAP.md                     # Fases do projeto
-├── CONTRIBUTING.md                # Guia de contribuição
-├── .env.example                   # Variáveis de ambiente (template)
-├── .dockerignore                  # Arquivos ignorados no Docker build
-├── .gitignore                     # Arquivos ignorados pelo Git
-├── composer.json                  # Dependências PHP
-├── package.json                   # Dependências Node.js
-├── vite.config.js                 # Configuração Vite
-├── tailwind.config.js             # Configuração TailwindCSS
-├── phpunit.xml                    # Configuração PHPUnit
-└── CHANGELOG.md                   # Histórico de versões
+│   ├── Models/
+│   ├── Http/{Controllers,Requests,Middleware,Resources}/
+│   ├── Services/                 # Lógica de negócio
+│   ├── Policies/                 # Autorização por modelo
+│   ├── Livewire/                 # Componentes reativos
+│   └── Enums/
+├── database/{migrations,factories,seeders}/
+├── resources/{views,css,js}/
+├── routes/{web.php,api.php}
+├── tests/{Feature,Unit}/
+├── config/  bootstrap/  storage/
+├── composer.json  package.json
+├── vite.config.js  tailwind.config.js
+└── phpunit.xml
 ```
 
 ---
 
 ## 🧪 Testes
 
-A aplicação usa **PHPUnit** para testes automatizados.
+⏳ **Ainda não há testes** — dependem do Laravel instalado (Fase 1b) e são o
+foco da Fase 8.
 
-### Rodar testes
-```bash
-# Testes Feature
-docker compose exec app composer test:feature
-
-# Testes Unit
-docker compose exec app composer test:unit
-
-# Todos os testes
-docker compose exec app composer test
-
-# Com coverage
-docker compose exec app composer test:coverage
-```
-
-### Escrita de testes
-Veja exemplos em `tests/Feature` e `tests/Unit`. Cada feature nova deve ter testes correspondentes.
+O plano é PHPUnit com SQLite em memória, cobertura mínima de 70%, e scripts
+`composer test` / `composer lint` definidos no `composer.json`. Detalhes em
+[ROADMAP.md](./ROADMAP.md) e nas convenções do [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ---
 
 ## 📊 Status do Projeto
 
-**Fase Atual:** Fase 1 — Infraestrutura Docker & Setup Base ✅  
-**Data de Início:** 2026-09-04  
-**Data Estimada de MVP:** 2026-09-30  
-**Data Estimada de v1.0:** 2026-10-30  
+**Fase Atual:** Fase 1 — Infraestrutura Docker & Setup Base ⏳ **parcial**
+(Docker concluído, Laravel pendente)
+**Data de Início:** 2026-09-04
+**Progresso:** ~6% (metade da Fase 1 de 9)
 
-### Roadmap Simplificado
-
-| Fase | Status | Entregável | Data Estimada |
-|------|--------|-----------|---------------|
-| Fase 1 — Setup Docker & Base Laravel | ✅ Concluída | Infraestrutura rodando | Semana 1 |
-| Fase 2 — CMS e Admin | ⏳ Planejado | Painel admin com cores, menus, páginas | Semana 2 |
-| Fase 3 — Autenticação & Roles | ⏳ Planejado | Roles, permissions, CRUD usuários | Semana 2 |
-| Fase 4 — Produtos e Categorias | ⏳ Planejado | CRUD produtos com upload de imagens | Semana 3 |
-| Fase 5 — Carrinho e Checkout | ⏳ Planejado | Fluxo completo de compra | Semana 4 |
-| Fase 6 — Pedidos e Rastreamento | ⏳ Planejado | Gestão de pedidos e status | Semana 4 |
-| Fase 7 — API Mobile (Sanctum) | ⏳ Planejado | Endpoints REST autenticados | Semana 5 |
-| Fase 8 — Testes e Qualidade | ⏳ Planejado | Testes unitários e feature | Semana 5 |
-| Fase 9 — Deploy e Produção | ⏳ Planejado | CI/CD, backup, monitoramento | Semana 6 |
+| Fase | Status | Entregável |
+|------|--------|-----------|
+| 1a — Infraestrutura Docker | ✅ Concluída | 7 serviços healthy, validados |
+| 1b — Bootstrap do Laravel | ⏳ Pendente | Laravel 12, Vite, Livewire |
+| 2 — CMS e Admin | ⏳ Planejado | Configurações, páginas, banners, menus |
+| 3 — Autenticação & Roles | ⏳ Planejado | Roles, permissions, CRUD usuários |
+| 4 — Produtos e Categorias | ⏳ Planejado | CRUD com upload de imagens |
+| 5 — Carrinho e Checkout | ⏳ Planejado | Fluxo completo de compra |
+| 6 — Pedidos e Rastreamento | ⏳ Planejado | Gestão de pedidos e status |
+| 7 — API Mobile (Sanctum) | ⏳ Planejado | Endpoints REST autenticados |
+| 8 — Testes e Qualidade | ⏳ Planejado | PHPUnit, cobertura 70%+ |
+| 9 — Deploy e Produção | ⏳ Planejado | CI/CD, backup, monitoramento |
 
 **→ [Ver ROADMAP.md completo](./ROADMAP.md)**
 
@@ -362,7 +314,8 @@ Veja exemplos em `tests/Feature` e `tests/Unit`. Cada feature nova deve ter test
 
 ## 🔒 Segurança e Permissões
 
-Esta aplicação implementa múltiplas camadas de segurança:
+⏳ **Planejado** — nada abaixo está implementado; depende das Fases 3 em diante.
+Descreve as camadas de segurança previstas para a aplicação:
 
 ### Roles (Papéis)
 - **Admin** — Acesso total ao sistema
@@ -371,14 +324,14 @@ Esta aplicação implementa múltiplas camadas de segurança:
 - **Lojista** — Gerenciamento de produtos e categorias
 - **Customer** — Usuário final, pode comprar
 
-### Proteções
-- ✅ **CSRF Protection** — Tokens em todos os forms
-- ✅ **SQL Injection** — Eloquent ORM com prepared statements
-- ✅ **XSS** — Blade auto-escaping
-- ✅ **Rate Limiting** — Proteção contra brute-force na API
-- ✅ **Validação de Entrada** — Form Requests customizados
-- ✅ **Autorização** — Policies por modelo
-- ✅ **Sanitização** — Inputs limpos antes do banco
+### Proteções previstas
+- **CSRF Protection** — Tokens em todos os forms
+- **SQL Injection** — Eloquent ORM com prepared statements
+- **XSS** — Blade auto-escaping
+- **Rate Limiting** — Proteção contra brute-force na API
+- **Validação de Entrada** — Form Requests customizados
+- **Autorização** — Policies por modelo
+- **Sanitização** — Inputs limpos antes do banco
 
 ---
 
@@ -386,12 +339,14 @@ Esta aplicação implementa múltiplas camadas de segurança:
 
 | Documento | Descrição |
 |-----------|-----------|
-| [ROADMAP.md](./ROADMAP.md) | Fases detalhadas com progresso e bloqueadores |
-| [docs/ARQUITETURA.md](./docs/ARQUITETURA.md) | Diagrama técnico, padrões de código, relacionamentos |
-| [docs/INSTALACAO_RAPIDA.md](./docs/INSTALACAO_RAPIDA.md) | Setup em 5 minutos para novo dev |
-| [docs/DOCKER_DEVELOPMENT.md](./docs/DOCKER_DEVELOPMENT.md) | Troubleshooting e dicas WSL2 |
-| [CONTRIBUTING.md](./CONTRIBUTING.md) | Como contribuir, padrões de código |
-| [docs/API.md](./docs/API.md) | Documentação OpenAPI da REST API |
+| [ROADMAP.md](./ROADMAP.md) | Fases, progresso real e bloqueadores |
+| [docker/VERIFICACAO.md](./docker/VERIFICACAO.md) | Resultados da validação da stack Docker |
+| [docs/INSTALACAO_RAPIDA.md](./docs/INSTALACAO_RAPIDA.md) | Setup do ambiente |
+| [docs/DOCKER_DEVELOPMENT.md](./docs/DOCKER_DEVELOPMENT.md) | Troubleshooting e debugging |
+| [docs/ARQUITETURA.md](./docs/ARQUITETURA.md) | Desenho técnico alvo (ainda não implementado) |
+| [CONTRIBUTING.md](./CONTRIBUTING.md) | Padrões de código e fluxo de contribuição |
+
+Planejados: `docs/API.md` (Fase 7) e `CHANGELOG.md` (primeira release).
 
 ---
 
@@ -463,7 +418,7 @@ Somos uma comunidade amigável e inclusiva. Trate todos com respeito.
 
 ## 📄 License
 
-Este projeto está licenciado sob a **MIT License** — veja o arquivo [LICENSE](./LICENSE) para detalhes.
+**MIT** pretendida. ⏳ O arquivo `LICENSE` ainda não foi adicionado ao repositório.
 
 ---
 

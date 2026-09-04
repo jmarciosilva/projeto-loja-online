@@ -2,53 +2,87 @@
 
 ## Status Geral
 
-- **Fase Atual:** Fase 1 — Infraestrutura Docker & Setup Base ✅
+- **Fase Atual:** Fase 1 — Infraestrutura Docker & Setup Base ⏳ (Docker pronto, Laravel pendente)
 - **Data de Início:** 2026-09-04
 - **Data Estimada de MVP Completo:** 2026-09-30
 - **Data Estimada de v1.0 Production:** 2026-10-30
-- **Progresso Geral:** 11% (Fase 1/9)
+- **Progresso Geral:** ~6% (metade da Fase 1 de 9)
+
+> **Como ler este arquivo:** um item só é marcado `[x]` depois de existir no
+> repositório e ter sido executado com sucesso. Itens `[ ]` são planejamento —
+> inclusive quando a tecnologia já aparece na Stack Técnica do README.
 
 ---
 
 ## 📊 Fases do Projeto
 
-### Fase 1 — Infraestrutura Docker & Setup Base ✅ CONCLUÍDA
+### Fase 1 — Infraestrutura Docker & Setup Base ⏳ EM ANDAMENTO
 
-**Status:** ✅ **Concluída**  
-**Duração Estimada:** Semana 1 (2026-09-04 → 2026-09-10)  
-**Responsável:** Arquitetura  
+**Status:** ⏳ **Parcial** — infraestrutura Docker concluída, Laravel ainda não instalado
+**Duração Estimada:** Semana 1 (2026-09-04 → 2026-09-10)
+**Responsável:** Arquitetura
 
-#### Entregáveis
-- [x] Docker Compose com todos os serviços configurados
-  - PHP-FPM 8.3
-  - Nginx 1.27
-  - MySQL 8.4
-  - Redis 7.x
-  - Node.js 20 LTS
-  - MailPit (SMTP fake)
-  - phpMyAdmin (admin de BD)
-- [x] Laravel 12 base instalado e funcionando
-- [x] Database schema estruturada
-- [x] Migrations base para usuários, roles, permissions
-- [x] Seeders base (roles, admin user)
-- [x] Vite 7 + TailwindCSS 4 configurado
-- [x] Livewire 4 integrado
-- [x] AlpineJS 3 pronto
-- [x] Health checks em serviços críticos
-- [x] .env.example com todas as variáveis
-- [x] README.md completo
-- [x] ROADMAP.md
-- [x] Documentação inicial (docs/)
+#### 1a. Infraestrutura Docker ✅ Concluída
 
-#### Notas Técnicas
-- Volumes nomeados para vendor e node_modules (performance)
-- WSL2 compatibility verificado
-- Git configurado com .gitignore
-- Composer e npm já instalados nos containers
-- Artisan tinker acessível
+- [x] Docker Compose com os 7 serviços
+  - [x] PHP-FPM 8.3 (imagem própria, `docker/Dockerfile`)
+  - [x] Nginx 1.27 (`docker/nginx.conf`)
+  - [x] MySQL 8.4 (imagem própria, `docker/Dockerfile.mysql`)
+  - [x] Redis 7
+  - [x] Node.js 20 LTS
+  - [x] MailPit (SMTP fake)
+  - [x] phpMyAdmin
+- [x] Extensões PHP compiladas e carregando: bcmath, gd, mbstring, pdo_mysql,
+      pcntl, sockets, zip, redis, xdebug
+- [x] Health checks em app, nginx, mysql e redis (todos `healthy`)
+- [x] Endpoint de liveness (`public/health.php`) respondendo HTTP 200
+- [x] Conectividade app → MySQL 8.4.11 e app → Redis verificada
+- [x] Tuning do `mysql.cnf` confirmado ativo (não apenas presente)
+- [x] `.env.example` com todas as variáveis
+- [x] `.dockerignore` e `.gitignore`
+- [x] Documentação: README, ROADMAP, ARQUITETURA, INSTALACAO_RAPIDA,
+      DOCKER_DEVELOPMENT, CONTRIBUTING, template de PR
+- [x] Reprodutível a partir de `docker compose down -v && docker compose up -d --build`
+
+Resultados completos em [`docker/VERIFICACAO.md`](./docker/VERIFICACAO.md).
+
+#### 1b. Bootstrap do Laravel ⏳ Pendente
+
+Nada abaixo existe ainda no repositório. O container serve `public/health.php`;
+`GET /` responde 403 porque não há `index.php`.
+
+- [ ] `composer create-project laravel/laravel:^12 .` dentro do container
+- [ ] `php artisan key:generate` (APP_KEY ainda vazia no `.env`)
+- [ ] Primeira migration executada contra o MySQL do compose
+- [ ] Vite 7 + TailwindCSS 4 instalados e compilando
+- [ ] Livewire 4 instalado
+- [ ] AlpineJS 3 disponível
+- [ ] `npm install` e `npm run dev` funcionando no container `node`
+- [ ] Publicar a porta 5173 no compose se for usar o dev server do Vite
+- [ ] Scripts `composer test` / `composer lint` definidos no `composer.json`
+
+#### Notas Técnicas (do que já foi feito)
+
+Cada decisão abaixo veio de uma falha real ao subir a stack — estão detalhadas
+em [`docs/DOCKER_DEVELOPMENT.md`](./docs/DOCKER_DEVELOPMENT.md):
+
+- `ext/sockets` exige `linux-headers`; sem ele o build quebra.
+- As libs de runtime (libpng, libjpeg-turbo, freetype, libzip, oniguruma) ficam
+  permanentes na imagem — descartá-las com as build deps faz `gd` e `zip`
+  compilarem mas não carregarem.
+- `mysql.cnf` é embutido na imagem, não bind-mountado: no Windows/WSL o bind
+  mount o expõe como world-writable e o MySQL o ignora silenciosamente.
+- Healthchecks usam `127.0.0.1`, não `localhost` — o wget do BusyBox resolve
+  `localhost` como `::1` e o nginx só escuta IPv4.
+- `public/health.php` vive no repositório porque o bind mount `./:/app`
+  sombreia qualquer arquivo criado no build.
+- Volumes nomeados para `vendor` e `node_modules` (performance no Windows).
+  Efeito colateral: essas pastas não ficam visíveis no host.
+- As imagens são Alpine — use `sh`, não `bash`, no `docker compose exec`.
+- Testado em Windows 11 + Docker Desktop. **Não** testado em WSL2 nem Linux.
 
 #### Próximo Passo
-→ **Fase 2** (CMS e Configurações Admin)
+→ Concluir **1b** e então seguir para a **Fase 2** (CMS e Configurações Admin)
 
 ---
 
@@ -60,7 +94,7 @@
 
 #### Entregáveis
 - [ ] **SiteSetting Model**
-  - [x] Migration para site_settings (chave => valor JSON)
+  - [ ] Migration para site_settings (chave => valor JSON)
   - [ ] Model com cache Redis
   - [ ] Setter/getter helpers
 
@@ -118,7 +152,7 @@
 - ❌ Nenhum
 
 #### Dependências
-- ✅ Fase 1 (done)
+- ⏳ Fase 1 — bloqueada pela etapa 1b (Laravel ainda não instalado)
 
 #### Próximo Passo
 → **Fase 3** (Autenticação, Roles e Permissions)
@@ -196,8 +230,8 @@
 - ❌ Nenhum
 
 #### Dependências
-- ✅ Fase 1 (done)
-- ✅ Fase 2 (deve estar concluída)
+- ⏳ Fase 1 (etapa 1b pendente)
+- ⏳ Fase 2 (deve estar concluída)
 
 #### Próximo Passo
 → **Fase 4** (Produtos e Categorias)
@@ -854,7 +888,7 @@
 
 ```
 Setembro 2026
-├── 04-10: Fase 1 — Setup ✅ [CONCLUÍDA]
+├── 04-10: Fase 1 — Docker ✅ / Laravel ⏳ [PARCIAL]
 ├── 10-17: Fase 2 — CMS & Admin ⏳
 ├── 17-24: Fase 3 — Auth & Roles ⏳
 └── 24-30: Fase 4 — Produtos ⏳
@@ -895,14 +929,19 @@ Atualizado toda segunda-feira com progresso real.
 
 ## ⚠️ Bloqueadores Conhecidos
 
-- [ ] Nenhum no momento
+- **Fase 2 em diante depende da etapa 1b.** Sem o Laravel instalado não há
+  `artisan`, migrations nem models — nenhuma tarefa das fases seguintes pode
+  começar.
 
 ---
 
 ## 📝 Últimas Atualizações
 
 - **2026-09-04:** Criação inicial do ROADMAP
-- **2026-09-04:** Fase 1 — Infraestrutura completa ✅
+- **2026-09-04:** Fase 1a — infraestrutura Docker concluída e validada ✅
+- **2026-09-04:** Varredura de fidelidade na documentação: itens que estavam
+  marcados como prontos sem existir no repositório (Laravel, migrations,
+  seeders, Vite, Livewire) foram revertidos para pendente
 - *Próxima revisão: 2026-09-11*
 
 ---
@@ -913,7 +952,8 @@ Atualizado toda segunda-feira com progresso real.
 R: Aproximadamente 30 dias (4 semanas) até Fase 8 concluída.
 
 **P: Posso usar em produção agora?**  
-R: Fase 1 está pronta para desenvolvimento. Espere Fase 9 para produção.
+R: Não. Nem em desenvolvimento ainda: a infraestrutura Docker sobe, mas o
+Laravel não foi instalado (Fase 1b). Produção só a partir da Fase 9.
 
 **P: Preciso implementar tudo?**  
 R: Não. Priorize as fases 1-6 para MVP. Fases 7-9 são para release.

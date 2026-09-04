@@ -51,15 +51,27 @@ O `compose.yaml` define os seguintes serviços:
 
 ### Volumes Nomeados (Persistidos)
 ```yaml
-mysql_data:     # Banco de dados (persiste entre restart)
-redis_data:     # Cache data
+mysql_data:          # Banco de dados (persiste entre restart)
+redis_data:          # Cache
+mailpit_data:        # Emails capturados
+app_vendor:          # /app/vendor
+app_node_modules:    # /app/node_modules
 ```
 
 ### Volumes com Bind Mount (Código)
 ```yaml
-./ → /app           # Seu código sincronizado em tempo real
-./docker → /docker  # Configurações Docker
+./ → /app            # Seu código sincronizado em tempo real
 ```
+
+⚠️ **`vendor/` e `node_modules/` ficam em volumes nomeados**, não no host. Isso
+evita a lentidão de sincronizar milhares de arquivos pequenos no Windows, mas
+tem um custo: **essas pastas não aparecem no seu editor**, então o autocomplete
+da IDE não enxerga as dependências. Se preferir o autocomplete à performance,
+remova as duas linhas do serviço `app` no `compose.yaml`.
+
+Consequência prática: `composer install` precisa rodar **dentro** do container
+(`docker compose exec app composer install`) — rodar no host preenche um
+`vendor/` que o container não usa.
 
 ---
 
@@ -89,22 +101,32 @@ docker compose up -d
 
 ---
 
-## 🔄 Hot Reload (Desenvolviment Automático)
+## 🔄 Hot Reload
 
-### PHP (Livewire + AlpineJS)
-Alterações em `.php` e `.blade.php` recarregam **automaticamente** no browser (via Livewire).
+⏳ **Depende do Laravel instalado** (Fase 1b) — nada disso funciona ainda.
 
-Não precisa reiniciar container!
+### PHP
+O bind mount `./:/app` sincroniza o código em tempo real e o OPcache está com
+`validate_timestamps=1`, então alterações em `.php` valem na próxima requisição
+sem reiniciar o container.
 
 ### CSS/JS (Vite)
-Alterações em `resources/css` e `resources/js` recompilam **automaticamente**.
+Após instalar o Laravel:
 
 ```bash
-# Deixe rodando durante desenvolvimento
 docker compose exec node npm run dev
 ```
 
-Acesse http://localhost:5173 para ver Vite dev server (ou http://localhost se tudo integrado).
+⚠️ **A porta 5173 não está publicada no `compose.yaml`.** Para acessar o dev
+server do Vite a partir do host, adicione ao serviço `node`:
+
+```yaml
+    ports:
+      - "5173:5173"
+```
+
+e rode o Vite com `--host 0.0.0.0` para que ele aceite conexões de fora do
+container.
 
 ---
 
@@ -123,7 +145,18 @@ docker compose exec app php artisan tinker
 
 ### 2. Xdebug (Breakpoints)
 
-Xdebug já está instalado em `docker/Dockerfile`. Configure no VS Code:
+Xdebug está instalado, mas **desligado por padrão** (`xdebug.mode = off` em
+`docker/php.ini`) — com `start_with_request=yes` toda requisição tenta abrir
+conexão com o depurador, o que deixa o dia a dia lento.
+
+Para depurar, edite `docker/php.ini`:
+
+```ini
+xdebug.mode = debug
+xdebug.start_with_request = yes
+```
+
+e recrie o container: `docker compose up -d --build app`. Depois configure o VS Code:
 
 **VS Code extensions necessário:**
 - Felixbecker.php-debug
@@ -313,11 +346,15 @@ php artisan tinker
 ```bash
 docker compose ps
 
-# Output:
-# NAME      IMAGE      STATUS
-# app       php:8.3    Up 5 minutes
-# mysql     mysql:8.4  Up 5 minutes
-# ...
+# Output real:
+# NAME              STATUS
+# loja-app          Up (healthy)
+# loja-nginx        Up (healthy)
+# loja-mysql        Up (healthy)
+# loja-redis        Up (healthy)
+# loja-mailpit      Up (healthy)
+# loja-node         Up
+# loja-phpmyadmin   Up
 ```
 
 ### Ver uso de recursos
