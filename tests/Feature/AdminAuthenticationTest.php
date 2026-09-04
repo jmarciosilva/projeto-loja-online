@@ -68,6 +68,18 @@ class AdminAuthenticationTest extends TestCase
         $this->assertGuest();
     }
 
+    public function test_admin_is_protected_again_after_logout(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->get('/admin')->assertOk();
+
+        $this->post('/logout')->assertRedirect('/');
+
+        $this->assertGuest();
+        $this->get('/admin')->assertRedirect('/login');
+    }
+
     public function test_optional_fortify_routes_are_not_available(): void
     {
         foreach ([

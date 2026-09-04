@@ -13,8 +13,18 @@
     <nav aria-label="Navegação administrativa" class="px-4 pb-4 sm:px-6 lg:px-4">
         <ul class="space-y-1">
             <li>
+                {{--
+                    O estado ativo sai direto de routeIs(), sem serviço ou registro
+                    de navegação: com um item só, qualquer abstração custaria mais
+                    do que resolve. Novos módulos repetem este mesmo padrão.
+                --}}
                 <a href="{{ route('admin') }}"
-                   class="block rounded-lg bg-gray-100 px-3 py-2 text-sm font-medium text-gray-900 hover:bg-gray-200 focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2 focus-visible:outline-none">
+                   @if (request()->routeIs('admin')) aria-current="page" @endif
+                   @class([
+                       'block rounded-lg px-3 py-2 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2 focus-visible:outline-none',
+                       'bg-gray-900 text-white' => request()->routeIs('admin'),
+                       'text-gray-700 hover:bg-gray-100' => ! request()->routeIs('admin'),
+                   ])>
                     Dashboard
                 </a>
             </li>
