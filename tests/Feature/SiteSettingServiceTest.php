@@ -137,6 +137,99 @@ class SiteSettingServiceTest extends TestCase
         }
     }
 
+    public function test_set_many_persists_a_batch_and_returns_the_models(): void
+    {
+        $service = $this->service();
+
+        $settings = $service->setMany([
+            'store.name' => ['type' => 'string', 'value' => 'Loja Online'],
+            'store.products_per_page' => ['type' => 'integer', 'value' => 12],
+            'store.maintenance' => ['type' => 'boolean', 'value' => false],
+        ]);
+
+        $this->assertSame(
+            ['store.name', 'store.products_per_page', 'store.maintenance'],
+            array_keys($settings),
+        );
+        $this->assertInstanceOf(SiteSetting::class, $settings['store.name']);
+
+        $this->assertDatabaseCount('site_settings', 3);
+        $this->assertSame('Loja Online', $service->get('store.name'));
+        $this->assertSame(12, $service->get('store.products_per_page'));
+        $this->assertFalse($service->get('store.maintenance'));
+    }
+
+    public function test_a_failing_batch_is_rolled_back_completely(): void
+    {
+        $service = $this->service();
+        $service->set('store.name', 'string', 'Valor A');
+        $service->set('store.tagline', 'string', 'Tagline A');
+
+        try {
+            $service->setMany([
+                'store.name' => ['type' => 'string', 'value' => 'Valor B'],
+                'store.tagline' => ['type' => 'string', 'value' => 'Tagline B'],
+                'store.products_per_page' => ['type' => 'integer', 'value' => 'nao e inteiro'],
+            ]);
+            $this->fail('An incompatible value should be rejected.');
+        } catch (InvalidArgumentException) {
+            // O lote é atômico: nenhum item pode permanecer alterado.
+            $this->assertDatabaseHas('site_settings', ['key' => 'store.name', 'value' => 'Valor A']);
+            $this->assertDatabaseHas('site_settings', ['key' => 'store.tagline', 'value' => 'Tagline A']);
+            $this->assertDatabaseMissing('site_settings', ['key' => 'store.products_per_page']);
+            $this->assertSame(2, SiteSetting::query()->count());
+        }
+    }
+
+    public function test_a_rolled_back_batch_does_not_invalidate_the_cache(): void
+    {
+        $service = $this->service();
+        $service->set('store.name', 'string', 'Valor A');
+
+        $this->assertSame('Valor A', $service->get('store.name'));
+
+        try {
+            $service->setMany([
+                'store.name' => ['type' => 'string', 'value' => 'Valor B'],
+                'store.products_per_page' => ['type' => 'integer', 'value' => 'nao e inteiro'],
+            ]);
+            $this->fail('An incompatible value should be rejected.');
+        } catch (InvalidArgumentException) {
+            // A escrita direta abaixo só existe para provar que a leitura vem do
+            // cache: se o rollback tivesse chamado forget(), o valor mudaria.
+            DB::table('site_settings')
+                ->where('key', 'store.name')
+                ->update(['value' => 'Valor C']);
+
+            $this->assertSame('Valor A', $service->get('store.name'));
+        }
+    }
+
+    public function test_a_committed_batch_invalidates_every_changed_key(): void
+    {
+        $service = $this->service();
+        $service->set('store.name', 'string', 'Valor A');
+        $service->set('store.tagline', 'string', 'Tagline A');
+
+        $this->assertSame('Valor A', $service->get('store.name'));
+        $this->assertSame('Tagline A', $service->get('store.tagline'));
+
+        $service->setMany([
+            'store.name' => ['type' => 'string', 'value' => 'Valor B'],
+            'store.tagline' => ['type' => 'string', 'value' => 'Tagline B'],
+        ]);
+
+        $this->assertSame('Valor B', $service->get('store.name'));
+        $this->assertSame('Tagline B', $service->get('store.tagline'));
+    }
+
+    public function test_an_empty_batch_does_nothing(): void
+    {
+        $this->assertSame([], $this->service()->setMany([]));
+
+        $this->assertDatabaseCount('site_settings', 0);
+    }
+
     public function test_the_cache_ttl_is_five_minutes(): void
     {
         $this->assertSame(300, SiteSettingService::CACHE_TTL_SECONDS);

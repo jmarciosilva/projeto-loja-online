@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\SiteSettingController;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
@@ -9,6 +10,21 @@ Route::get('/', fn () => view('home'))->name('home');
 Route::get('/admin', fn () => view('admin.index'))
     ->middleware('auth')
     ->name('admin');
+
+/*
+ * Rotas administrativas nomeadas sob o prefixo `admin.`. O dashboard acima
+ * mantém o nome `admin`, sem ponto, para não quebrar os testes e a navegação
+ * da F2.2 — renomeá-lo seria refactor fora do escopo desta subfase.
+ */
+Route::middleware('auth')
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function (): void {
+        Route::get('configuracoes', [SiteSettingController::class, 'edit'])
+            ->name('settings.edit');
+        Route::put('configuracoes', [SiteSettingController::class, 'update'])
+            ->name('settings.update');
+    });
 
 /*
  * Health check da aplicação: confirma que o Laravel alcança MySQL e Redis.
