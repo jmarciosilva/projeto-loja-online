@@ -5,7 +5,8 @@
 - **Fase Atual:** Fase 2 — CMS e Configurações Admin ⏳ (iniciada em 2026-09-04)
   - F2.1 — Fundação do CMS: ✅ concluída
   - F2.2 — Fundação do Admin: ✅ concluída
-  - Próxima subfase: **F2.3-A — Configurações gerais**
+  - F2.3-A — Configurações gerais: ✅ concluída
+  - Próxima subfase: **F2.3-B — Tema e cores**
 - **Fase 1:** ✅ Concluída em 2026-09-04
 - **Data de Início:** 2026-09-04
 - **Data Estimada de MVP Completo:** 2026-09-30
@@ -194,7 +195,7 @@ no repositório e foi executado/validado com sucesso.**
 | --- | --- | --- | --- |
 | F2.1 — Fundação do CMS | ✅ Concluída | Domínio e infraestrutura de configuração | Fase 1 |
 | F2.2 — Fundação do Admin | ✅ Concluída | Autenticação, rotas, layout e navegação de `/admin` | Fase 1 |
-| F2.3 — Configurações Globais | 📋 Planejado | Configurações gerais, tema e identidade visual integrada à F2.7 | F2.1, F2.2 (C também da F2.7) |
+| F2.3 — Configurações Globais | ⏳ Em desenvolvimento | Configurações gerais, tema e identidade visual integrada à F2.7 | F2.1, F2.2 (C também da F2.7) |
 | F2.4 — Páginas Estáticas | 📋 Planejado | CRUD de páginas com SEO e publicação | F2.2 |
 | F2.7 — Biblioteca de Mídia | 📋 Planejado | Upload, processamento e consulta de mídia | F2.2 |
 | F2.5 — Banners | 📋 Planejado | CRUD de banners com ordenação, sobre a mídia da F2.7 | F2.2, **F2.7** |
@@ -401,7 +402,7 @@ F2.3-A → F2.3-B → F2.4 → F2.7 → F2.3-C → F2.5 → F2.6.
 
 ---
 
-#### F2.3 — Configurações Globais 📋 Planejado
+#### F2.3 — Configurações Globais ⏳ Em desenvolvimento
 
 **Objetivo:** fornecer a interface administrativa de configurações globais
 consumindo o `SiteSettingService`, sem reimplementar persistência ou cache e
@@ -441,7 +442,7 @@ log, pacote externo, histórico before/after ou eventos de auditoria.
 
 | Subfase | Status | Depende de |
 | --- | --- | --- |
-| F2.3-A — Configurações gerais | 📋 Planejada | F2.1, F2.2 |
+| F2.3-A — Configurações gerais | ✅ Concluída | F2.1, F2.2 |
 | F2.3-B — Tema e cores | 📋 Planejada | F2.3-A |
 | F2.3-C — Logo e favicon | 📋 Planejada | F2.3-A **+ F2.7** |
 
@@ -462,33 +463,58 @@ Na prática, a F2.3 fica **parcialmente executada** após a conclusão de A e B,
 retomando quando a biblioteca de mídia existir. Isso é intencional: dividir a
 subfase é preferível a duplicar upload de arquivos só para fechá-la antes.
 
+Com a F2.3-A concluída, a F2.3 está **parcialmente aberta**: falta implementar
+a F2.3-B e, depois da F2.7, a F2.3-C.
+
 **Dependências:** F2.1 (fundação e cache), F2.2 (layout e rotas admin) — ambas
 concluídas.
 
 ---
 
-##### F2.3-A — Configurações gerais 📋 Planejada
+##### F2.3-A — Configurações gerais ✅ Concluída
 
 **Objetivo:** entregar a primeira interface administrativa funcional para
 edição das configurações textuais globais da loja.
 
+**Concluída e validada em 2026-09-04.**
+Commit: `07ce5221669af5b150393c2d57525057f97e1e4e`
+(`feat(fase-2): adiciona configuracoes gerais do CMS`)
+
+Validação: 64 testes / 197 assertions na suíte completa; Pint sem violações;
+`composer validate` válido; `git diff --check` limpo.
+
+**Entregue:** página `/admin/configuracoes` com `GET` e `PUT` protegidos por
+`auth`, em Controller + Blade + Form Request. As quatro chaves — `site.name`,
+`site.support_email`, `site.phone` e `site.address` — são persistidas como
+`string` exclusivamente via `SiteSettingService`; a leitura aplica defaults sem
+persistir, opcionais vazios são normalizados para `''`, e a interface fica
+restrita ao conjunto suportado, sem CRUD genérico de `site_settings`. Sidebar e
+breadcrumbs integrados. Nada da F2.3-B ou F2.3-C foi antecipado.
+
+**Extensão controlada da fundação F2.1**
+
+A F2.3-A introduziu `SiteSettingService::setMany()` para permitir persistência
+atômica de múltiplas configurações, com rollback integral e invalidação
+granular de cache somente após o commit. É extensão compatível: `set()` manteve
+assinatura e comportamento, e a **F2.1 permanece concluída**, sem reabertura.
+
 **Escopo**
 
-- [ ] Nome da loja/site
-- [ ] Email de suporte
-- [ ] Telefone
-- [ ] Endereço
-- [ ] Formulário administrativo
-- [ ] Carregamento dos valores já persistidos
-- [ ] Persistência via `SiteSettingService`
-- [ ] Validações
-- [ ] Feedback de sucesso e de erro
-- [ ] Integração com o layout administrativo da F2.2
-- [ ] Integração com a sidebar — **somente quando a rota realmente existir**
-- [ ] Estado ativo da navegação, no padrão iniciado na F2.2-C
-- [ ] Testes de integração
+- [x] Nome da loja/site
+- [x] Email de suporte
+- [x] Telefone
+- [x] Endereço
+- [x] Formulário administrativo
+- [x] Carregamento dos valores já persistidos
+- [x] Persistência via `SiteSettingService`
+- [x] Validações
+- [x] Feedback de sucesso e de erro
+- [x] Integração com o layout administrativo da F2.2
+- [x] Integração com a sidebar — **somente quando a rota realmente existir**
+- [x] Estado ativo da navegação, no padrão iniciado na F2.2-C
+- [x] Testes de integração
 
-**Chaves previstas** (contrato inicial, sujeito à implementação)
+**Chaves implementadas**
 
 ```text
 site.name
@@ -497,26 +523,26 @@ site.phone
 site.address
 ```
 
-Os valores podem inicialmente usar o tipo `string`, respeitando o contrato já
-fornecido pela F2.1. Estas chaves **não** viram tabela ou configuração dinâmica
-de formulário — são um conjunto conhecido, definido em código.
+Os valores usam o tipo `string`, respeitando o contrato já fornecido pela
+F2.1. Estas chaves **não** viram tabela ou configuração dinâmica de formulário
+— são um conjunto conhecido, definido em código.
 
-**Critérios de aceite planejados**
+**Critérios de aceite**
 
-- [ ] Guest não acessa a página administrativa
-- [ ] Usuário autenticado acessa a página
-- [ ] O formulário carrega os valores já persistidos
-- [ ] Ausência de configuração usa comportamento/default explicitamente definido
-- [ ] Submissão válida persiste via `SiteSettingService`
-- [ ] A alteração reflete na leitura posterior
-- [ ] Email inválido é rejeitado
-- [ ] Valores inválidos não sobrescrevem configuração válida
-- [ ] Sucesso gera feedback ao usuário
-- [ ] A interface não permite editar chaves arbitrárias
-- [ ] A sidebar só ganha o link quando a rota existir
-- [ ] Suíte completa permanece verde
-- [ ] Pint passa
-- [ ] `git diff --check` passa
+- [x] Guest não acessa a página administrativa
+- [x] Usuário autenticado acessa a página
+- [x] O formulário carrega os valores já persistidos
+- [x] Ausência de configuração usa comportamento/default explicitamente definido
+- [x] Submissão válida persiste via `SiteSettingService`
+- [x] A alteração reflete na leitura posterior
+- [x] Email inválido é rejeitado
+- [x] Valores inválidos não sobrescrevem configuração válida
+- [x] Sucesso gera feedback ao usuário
+- [x] A interface não permite editar chaves arbitrárias
+- [x] A sidebar só ganha o link quando a rota existir
+- [x] Suíte completa permanece verde
+- [x] Pint passa
+- [x] `git diff --check` passa
 
 **Fora do escopo:** logo, favicon, editor de cores, CSS variables, preview de
 tema, upload, mídia, auditoria persistente e CRUD genérico de `site_settings`.
@@ -822,9 +848,9 @@ Preservadas da versão anterior deste Roadmap:
 - ✅ Fase 1 (concluída)
 
 #### Próximo Passo
-→ **F2.3-A — Configurações gerais.** Com a F2.2 concluída, a fundação do painel
-está pronta e a F2.3-A é a próxima na ordem de execução — ainda como próximo
-passo planejado, não iniciado. A Fase 3 permanece após a conclusão da Fase 2.
+→ **F2.3-B — Tema e cores.** Com a F2.3-A concluída, a F2.3-B é a próxima na
+ordem de execução — ainda como próximo passo planejado, não iniciado. A Fase 3
+permanece após a conclusão da Fase 2.
 
 ---
 
@@ -1653,6 +1679,11 @@ Atualizado toda segunda-feira com progresso real.
   concluídas e validadas. A dependência que bloqueava F2.3, F2.4 e F2.7 está
   satisfeita; as três ficam liberadas para início. Próxima subfase: F2.3 —
   Configurações Globais.
+- **2026-09-04:** F2.3-A concluída e validada — configurações gerais do CMS
+  (nome, email de suporte, telefone e endereço) sobre `SiteSettingService`, que
+  ganhou `setMany()` transacional. Commit:
+  `07ce5221669af5b150393c2d57525057f97e1e4e`. 64 testes / 197 assertions.
+  Próxima subfase: F2.3-B — Tema e cores.
 - *Próxima revisão: 2026-09-11*
 
 ---
