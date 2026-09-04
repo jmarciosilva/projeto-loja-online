@@ -145,82 +145,326 @@ detalhadas em [`docs/DOCKER_DEVELOPMENT.md`](./docs/DOCKER_DEVELOPMENT.md):
 **Duração Estimada:** Semana 2 (2026-09-10 → 2026-09-17)
 **Responsável:** TBD
 
-#### Próximas tarefas
+A Fase 2 está dividida em sete subfases incrementais. Cada uma é fechada,
+testável e entregável por conta própria — o objetivo é evitar um bloco único de
+trabalho que só possa ser validado no fim.
 
-- [ ] Model `SiteSetting` com cache
-- [ ] CRUD de configurações globais (nome, logo, cores, contato)
-- [ ] Editor de cores com CSS variables dinâmicas
-- [ ] CRUD de páginas estáticas
-- [ ] CRUD de banners
-- [ ] CRUD de menus e itens
-- [ ] Upload e gestão de mídia (Intervention/Image)
-- [ ] Layout do painel admin (sidebar, topbar, breadcrumbs)
-- [ ] Middleware de autenticação para rotas `/admin`
+**Sequência pretendida:** F2.1 → F2.2 → F2.3 → F2.4 → F2.7 → F2.5 → F2.6.
+Uma subfase posterior não começa automaticamente ao término da anterior.
 
-#### Entregáveis detalhados
-- [ ] **SiteSetting Model**
-  - [ ] Migration para site_settings (chave => valor JSON)
-  - [ ] Model com cache Redis
-  - [ ] Setter/getter helpers
+A F2.7 é executada antes da F2.5 por decisão arquitetural: os banners consomem
+a biblioteca de mídia em vez de manter armazenamento próprio (ver F2.5). A
+numeração das subfases é mantida — apenas a ordem de execução muda.
 
-- [ ] **Painel Admin Base**
-  - [ ] Middleware de autenticação admin
-  - [ ] Layout admin com sidebar
-  - [ ] Dashboard inicial
-  - [ ] Menu de navegação
+#### Vocabulário de status
 
-- [ ] **Configurações Globais**
-  - [ ] CRUD de site_settings
-  - [ ] Editor de cores (primária, secundária, destaque)
-  - [ ] CSS variables gerado dinamicamente
-  - [ ] Preview em tempo real
-  - [ ] Gerenciar: logo, favicon, email suporte, telefone, endereço
+| Marcador | Significado |
+| --- | --- |
+| ✅ Concluída | Existe no repositório e foi executada/validada com sucesso |
+| ⏳ Em desenvolvimento | Trabalho em andamento |
+| 📋 Planejado | Escopo definido, sem trabalho iniciado |
+| 🚧 Aguardando decisão | Há uma decisão arquitetural pendente que precede a implementação |
 
-- [ ] **Gerenciar Páginas Estáticas**
-  - [ ] Model Page
-  - [ ] CRUD de páginas (criar, editar, deletar, publicar)
-  - [ ] Slug automático
-  - [ ] Meta title e meta description (SEO)
-  - [ ] Editor WYSIWYG (Summernote ou similar)
-  - [ ] Preview antes de publicar
+Vale o princípio já adotado no projeto: **um item só recebe `[x]` quando existe
+no repositório e foi executado/validado com sucesso.**
 
-- [ ] **Gerenciar Banners**
-  - [ ] Model Banner
-  - [ ] CRUD de banners
-  - [ ] Upload de imagens
-  - [ ] Ordenação (order field)
-  - [ ] Posição (hero, sidebar, footer)
-  - [ ] Status ativo/inativo
+#### Panorama das subfases
 
-- [ ] **Gerenciar Menus**
-  - [ ] Model Menu + MenuItem
-  - [ ] CRUD de menus
-  - [ ] Itens com parent/child (hierarquia)
-  - [ ] Drag-and-drop de reordenação
-  - [ ] URLs customizáveis ou links para pages
+| Subfase | Status | Entregável | Depende de |
+| --- | --- | --- | --- |
+| F2.1 — Fundação do CMS | 📋 Planejado | Domínio e infraestrutura de configuração | Fase 1 |
+| F2.2 — Fundação do Admin | 🚧 Aguardando decisão | Rotas, layout e navegação de `/admin` | Fase 1 |
+| F2.3 — Configurações Globais | 📋 Planejado | Interface administrativa de `SiteSetting` | F2.1, F2.2 |
+| F2.4 — Páginas Estáticas | 📋 Planejado | CRUD de páginas com SEO e publicação | F2.2 |
+| F2.7 — Biblioteca de Mídia | 📋 Planejado | Upload, processamento e consulta de mídia | F2.2 |
+| F2.5 — Banners | 📋 Planejado | CRUD de banners com ordenação, sobre a mídia da F2.7 | F2.2, **F2.7** |
+| F2.6 — Menus | 📋 Planejado | Menus hierárquicos e itens | F2.2, F2.4 |
 
-- [ ] **Galeria de Mídia**
-  - [ ] Model Media
-  - [ ] Upload de arquivos (imagens, documentos)
-  - [ ] Visualização em grid
-  - [ ] Delete com validação (avisar se está em uso)
-  - [ ] Compressão de imagens (Intervention/Image)
+> A tabela segue a **ordem de execução**, não a numeração: a F2.7 precede a
+> F2.5 porque os banners dependem da biblioteca de mídia.
 
-#### Notas Técnicas
-- SiteSetting com cache Redis (5min TTL)
-- Intervention/Image para processamento de imagens
-- Blade component para color picker
-- Middleware CheckIfAdmin para proteger rotas
-- Logs de alterações em site_settings
+---
 
-#### Bloqueadores
-- ❌ Nenhum
+#### F2.1 — Fundação do CMS 📋 Planejado
+
+**Objetivo:** estabelecer o domínio e a infraestrutura de configuração do CMS
+antes de qualquer interface, para que as subfases seguintes consumam uma base
+já testada.
+
+**Escopo:** apenas domínio, persistência e cache. **Sem** interface
+administrativa, componentes Livewire administrativos ou páginas de
+configuração — isso é escopo da F2.3.
+
+**Entregáveis**
+
+- [ ] Migration `site_settings`
+- [ ] Model `SiteSetting`
+- [ ] Definição do formato `key`/`value`, incluindo a estratégia para valores
+      JSON (como serializar, quando desserializar, e como tipar a leitura)
+- [ ] Service Layer responsável pelas operações de configuração
+- [ ] Integração com Redis para cache
+- [ ] Estratégia explícita de invalidação do cache após alterações
+- [ ] Helpers/getters/setters — **somente se realmente necessários**; não criar
+      açúcar sintático sem uso comprovado
+
+**Testes / critério de aceite**
+
+- [ ] Persistência: gravar uma configuração e recuperá-la do banco
+- [ ] Leitura: ler valores escalares e valores JSON, com o tipo correto
+- [ ] Atualização: sobrescrever um valor existente
+- [ ] Cache: leitura subsequente vem do Redis, não do banco
+- [ ] Invalidação: após alteração, a leitura reflete o novo valor — este é o
+      teste que pega o defeito mais provável desta subfase
+
+**Dependências:** Fase 1 (concluída).
+
+**Bloqueadores / decisões pendentes:** nenhum.
+
+---
+
+#### F2.2 — Fundação do Admin 🚧 Aguardando decisão arquitetural
+
+**Objetivo:** entregar a infraestrutura visual e de navegação do painel
+administrativo, separada da lógica de configuração.
+
+**Escopo:** rotas, layout e navegação. Nenhum CRUD de conteúdo.
+
+**Entregáveis**
+
+- [ ] Estrutura de rotas `/admin`
+- [ ] Layout administrativo
+- [ ] Sidebar
+- [ ] Topbar
+- [ ] Breadcrumbs
+- [ ] Dashboard inicial
+- [ ] Organização da navegação administrativa (menu de navegação do painel)
+- [ ] **Definir a estratégia de autenticação/autorização** (ver decisão
+      pendente abaixo) — tarefa de análise, anterior à implementação da
+      proteção definitiva
+
+**Testes / critério de aceite**
+
+- [ ] As rotas `/admin` respondem e renderizam o layout
+- [ ] A navegação (sidebar/topbar/breadcrumbs) reflete a rota atual
+- [ ] Critério de proteção de rota: **a definir**, dependente da decisão abaixo
+
+**Dependências:** Fase 1 (concluída).
+
+**🚧 Decisão arquitetural pendente — proteção de `/admin`**
+
+Há uma dependência entre fases que precisa ser resolvida **antes** de
+implementar a proteção definitiva das rotas administrativas:
+
+- a Fase 2 prevê proteger as rotas de `/admin`;
+- a implementação completa de autenticação, papéis e permissões está planejada
+  para a **Fase 3**.
+
+Implementar a Fase 3 inteira aqui, de forma implícita, esvaziaria a fase
+seguinte e faria a F2.2 crescer sem controle. As alternativas são:
+
+1. **Autenticação mínima na F2.2** — apenas o suficiente para proteger
+   `/admin`, deixando papéis e permissões granulares para a Fase 3.
+2. **Antecipar formalmente parte da Fase 3** — mover explicitamente um recorte
+   de autenticação/autorização para a Fase 2, atualizando o Roadmap e o escopo
+   da Fase 3 em vez de fazê-lo em silêncio.
+3. **Reorganizar a dependência entre as Fases 2 e 3** — por exemplo, inverter a
+   ordem, ou tratar a Fase 3 como pré-requisito da F2.2.
+
+**Nenhuma alternativa foi escolhida.** A decisão exige análise e deve ser
+registrada aqui, com a justificativa, antes de a implementação começar.
+
+---
+
+#### F2.3 — Configurações Globais 📋 Planejado
+
+**Objetivo:** expor as configurações do site em interface administrativa,
+consumindo a fundação criada na F2.1.
+
+**Escopo:** interface e validação. A persistência e o cache já vêm da F2.1 —
+esta subfase não deve reimplementá-los.
+
+**Entregáveis**
+
+- [ ] Interface administrativa para `SiteSetting` (CRUD de `site_settings`)
+- [ ] Nome da loja/site
+- [ ] Logo
+- [ ] Favicon
+- [ ] Email de suporte
+- [ ] Telefone
+- [ ] Endereço
+- [ ] Editor de cores: primária, secundária e destaque
+- [ ] CSS variables dinâmicas, geradas a partir das cores configuradas
+- [ ] Preview das configurações, quando aplicável
+- [ ] Validações
+- [ ] Registro/log das alterações
+
+**Testes / critério de aceite**
+
+- [ ] Alterar uma configuração pela interface reflete na leitura da aplicação
+- [ ] Validações rejeitam entradas inválidas (cor malformada, email inválido)
+- [ ] As CSS variables refletem as cores configuradas
+- [ ] As alterações ficam registradas no log
+
+**Dependências:** F2.1 (fundação e cache), F2.2 (layout e rotas admin).
+
+**Bloqueadores / decisões pendentes:** herda a decisão pendente da F2.2 —
+enquanto a proteção de `/admin` não estiver definida, esta interface não tem
+um critério de acesso estabelecido.
+
+**Nota técnica preservada:** componente Blade para o color picker.
+
+---
+
+#### F2.4 — Páginas Estáticas 📋 Planejado
+
+**Objetivo:** permitir a criação e publicação de páginas de conteúdo estático.
+
+**Entregáveis**
+
+- [ ] Model `Page`
+- [ ] Migration
+- [ ] CRUD (criar, editar, deletar)
+- [ ] Slug
+- [ ] Publicação (rascunho/publicado)
+- [ ] SEO: `meta_title` e `meta_description`
+- [ ] Editor de conteúdo
+- [ ] Preview antes de publicar
+
+**Testes / critério de aceite**
+
+- [ ] CRUD completo exercitado por testes
+- [ ] Slug gerado e único
+- [ ] Página não publicada não é acessível publicamente
+- [ ] Campos de SEO persistem e são renderizados
+
+**Dependências:** F2.2 (layout e rotas admin).
+
+**Bloqueadores / decisões pendentes:** herda a decisão pendente da F2.2.
+
+---
+
+#### F2.5 — Banners 📋 Planejado
+
+**Objetivo:** gerenciar banners posicionáveis no site.
+
+**Entregáveis**
+
+- [ ] Model e migration `Banner`
+- [ ] CRUD
+- [ ] Seleção de imagem a partir da Biblioteca de Mídia (F2.7) — sem upload
+      próprio
+- [ ] Ordenação
+- [ ] Posições (ex.: hero, sidebar, footer)
+- [ ] Status ativo/inativo
+
+**Testes / critério de aceite**
+
+- [ ] CRUD completo exercitado por testes
+- [ ] A imagem do banner é referenciada a partir da Biblioteca de Mídia
+- [ ] Excluir uma mídia em uso por um banner é impedido (integra com a F2.7)
+- [ ] A ordenação é respeitada na consulta
+- [ ] Banner inativo não aparece na listagem pública
+
+**Dependências:** F2.2 (layout e rotas admin) e **F2.7 (obrigatória)** — a
+biblioteca de mídia precisa existir antes desta subfase.
+
+**Decisão arquitetural (resolvida):** os banners **utilizam a Biblioteca de
+Mídia centralizada da F2.7**. Não criar subsistema independente de
+armazenamento/upload para banners. Isso evita duas rotas de upload, dois
+formatos de armazenamento e a duplicação do processamento de imagens — e é o
+motivo de a F2.7 ser executada antes da F2.5.
+
+**Bloqueadores / decisões pendentes:** herda a decisão pendente da F2.2.
+
+---
+
+#### F2.6 — Menus 📋 Planejado
+
+**Objetivo:** montar a navegação do site a partir de menus hierárquicos.
+
+**Entregáveis**
+
+- [ ] Model `Menu`
+- [ ] Model `MenuItem`
+- [ ] Migrations
+- [ ] Hierarquia parent/child
+- [ ] Ordenação
+- [ ] URLs customizadas
+- [ ] Relacionamento com páginas, quando aplicável
+- [ ] Drag-and-drop — **somente na camada de interface**; a ordenação em si é
+      persistida por um campo de ordem, não pelo componente visual
+
+**Testes / critério de aceite**
+
+- [ ] CRUD de menus e itens exercitado por testes
+- [ ] Hierarquia parent/child persiste e é lida corretamente
+- [ ] A ordenação é respeitada na renderização
+- [ ] Item apontando para uma página resolve a URL correta
+
+**Dependências:** F2.2 (layout e rotas admin), F2.4 (para itens que apontam
+para páginas).
+
+**Bloqueadores / decisões pendentes:** herda a decisão pendente da F2.2.
+
+---
+
+#### F2.7 — Biblioteca de Mídia 📋 Planejado
+
+**Objetivo:** centralizar upload, processamento e reuso de arquivos de mídia.
+
+**Entregáveis**
+
+- [ ] Model e migration `Media`
+- [ ] Upload
+- [ ] Armazenamento
+- [ ] Processamento/compressão de imagens com Intervention Image
+- [ ] Grid/consulta da biblioteca
+- [ ] Exclusão (delete) de itens da biblioteca
+- [ ] Proteção contra exclusão de mídia em uso
+
+**Testes / critério de aceite**
+
+- [ ] Upload persiste o arquivo e o registro correspondente
+- [ ] Imagem é processada/comprimida conforme configurado
+- [ ] Consulta da biblioteca retorna os itens esperados
+- [ ] **Excluir mídia em uso é impedido** — este é o critério que justifica a
+      subfase existir separada
+
+**Dependências:** F2.2 (layout e rotas admin). O `intervention/image 4.3.2` já
+foi instalado na Fase 1.
+
+**Consumidores:** a **F2.5 (Banners)** depende desta subfase — por isso a F2.7
+é executada antes dela.
+
+**Bloqueadores / decisões pendentes:** herda a decisão pendente da F2.2.
+
+---
+
+#### Notas Técnicas da Fase 2
+
+Preservadas da versão anterior deste Roadmap:
+
+- `SiteSetting` com cache Redis (TTL de 5 minutos) — F2.1
+- Intervention/Image para processamento de imagens — F2.7
+- Componente Blade para o color picker — F2.3
+- Middleware para proteger as rotas administrativas — F2.2, sujeito à decisão
+  arquitetural pendente
+- Log de alterações em `site_settings` — F2.3
+
+#### Bloqueadores da Fase 2
+
+- 🚧 **Proteção de `/admin` (F2.2)** — decisão arquitetural pendente sobre a
+  fronteira entre Fase 2 e Fase 3. Bloqueia a implementação da proteção
+  definitiva das rotas administrativas e, por consequência, o critério de
+  acesso das subfases F2.3 a F2.7.
+- A **F2.1 não é afetada** por essa decisão e pode ser iniciada de imediato.
 
 #### Dependências
+
 - ✅ Fase 1 (concluída)
 
 #### Próximo Passo
-→ **Fase 3** (Autenticação, Roles e Permissions)
+→ **F2.1** (Fundação do CMS). A Fase 3 permanece após a conclusão da Fase 2.
 
 ---
 
@@ -292,11 +536,21 @@ detalhadas em [`docs/DOCKER_DEVELOPMENT.md`](./docs/DOCKER_DEVELOPMENT.md):
 | customer | Cliente final | Comprar, perfil, pedidos |
 
 #### Bloqueadores
-- ❌ Nenhum
+- 🚧 **Fronteira F2.2 / Fase 3** — decisão arquitetural pendente sobre onde
+  termina a autenticação necessária ao painel e onde começa o escopo desta
+  fase. Não bloqueia o planejamento aqui, mas pode redistribuir escopo entre as
+  duas fases. Nenhuma implementação foi antecipada.
 
 #### Dependências
 - ✅ Fase 1 (concluída)
 - ⏳ Fase 2 (deve estar concluída)
+
+> ⚠️ **Escopo sujeito à decisão pendente da F2.2.** A proteção das rotas
+> `/admin` é prevista na Fase 2, enquanto autenticação, papéis e permissões
+> completos estão planejados aqui. Dependendo da alternativa escolhida na
+> [F2.2](#f22--fundação-do-admin--aguardando-decisão-arquitetural), parte deste
+> escopo pode ser antecipada para a Fase 2 — ou a ordem entre as duas fases
+> pode mudar. Nada foi decidido; o escopo abaixo permanece como está até lá.
 
 #### Próximo Passo
 → **Fase 4** (Produtos e Categorias)
@@ -994,7 +1248,12 @@ Atualizado toda segunda-feira com progresso real.
 
 ## ⚠️ Bloqueadores Conhecidos
 
-- Nenhum. A Fase 2 pode começar.
+- **F2.1 — Fundação do CMS:** sem bloqueadores. Pode ser iniciada.
+- 🚧 **F2.2 — Fundação do Admin:** decisão arquitetural pendente sobre
+  autenticação/autorização das rotas `/admin`, na fronteira entre a Fase 2 e a
+  Fase 3. Bloqueia a implementação da proteção definitiva do painel.
+- Essa decisão **não impede a execução da F2.1**, que não toca em rotas
+  administrativas.
 
 ---
 

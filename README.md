@@ -284,7 +284,7 @@ docker compose exec app vendor/bin/pint
 
 ## 📊 Status do Projeto
 
-**Fase Atual:** Fase 2 — CMS e Configurações Admin (a iniciar)
+**Fase Atual:** Fase 2 — CMS e Configurações Admin (em desenvolvimento; próximo passo: F2.1 — Fundação do CMS)
 **Data de Início:** 2026-09-04
 **Progresso:** ~11% (Fase 1 de 9 concluída)
 
@@ -292,7 +292,7 @@ docker compose exec app vendor/bin/pint
 |------|--------|-----------|
 | 1a — Infraestrutura Docker | ✅ Concluída | 7 serviços healthy, validados |
 | 1b — Bootstrap do Laravel | ✅ Concluída | Laravel 12.69.1, Livewire 4.4.3, Vite 7 |
-| 2 — CMS e Admin | ⏳ Planejado | Configurações, páginas, banners, menus |
+| 2 — CMS e Admin | ⏳ Em desenvolvimento | Configurações, páginas, banners, menus |
 | 3 — Autenticação & Roles | ⏳ Planejado | Roles, permissions, CRUD usuários |
 | 4 — Produtos e Categorias | ⏳ Planejado | CRUD com upload de imagens |
 | 5 — Carrinho e Checkout | ⏳ Planejado | Fluxo completo de compra |
