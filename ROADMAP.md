@@ -6,7 +6,9 @@
   - F2.1 — Fundação do CMS: ✅ concluída
   - F2.2 — Fundação do Admin: ✅ concluída
   - F2.3-A — Configurações gerais: ✅ concluída
-  - Próxima subfase: **F2.3-B — Tema e cores**
+  - F2.3-B — Tema e cores: ✅ concluída
+  - F2.3 permanece parcialmente aberta: a F2.3-C aguarda a F2.7
+  - Próxima subfase planejada: **F2.4 — Páginas Estáticas** (não iniciada)
 - **Fase 1:** ✅ Concluída em 2026-09-04
 - **Data de Início:** 2026-09-04
 - **Data Estimada de MVP Completo:** 2026-09-30
@@ -443,7 +445,7 @@ log, pacote externo, histórico before/after ou eventos de auditoria.
 | Subfase | Status | Depende de |
 | --- | --- | --- |
 | F2.3-A — Configurações gerais | ✅ Concluída | F2.1, F2.2 |
-| F2.3-B — Tema e cores | 📋 Planejada | F2.3-A |
+| F2.3-B — Tema e cores | ✅ Concluída | F2.3-A |
 | F2.3-C — Logo e favicon | 📋 Planejada | F2.3-A **+ F2.7** |
 
 **Dependências internas**
@@ -463,8 +465,9 @@ Na prática, a F2.3 fica **parcialmente executada** após a conclusão de A e B,
 retomando quando a biblioteca de mídia existir. Isso é intencional: dividir a
 subfase é preferível a duplicar upload de arquivos só para fechá-la antes.
 
-Com a F2.3-A concluída, a F2.3 está **parcialmente aberta**: falta implementar
-a F2.3-B e, depois da F2.7, a F2.3-C.
+Com a F2.3-A e a F2.3-B concluídas, a F2.3 está **parcialmente aberta**: falta
+apenas a F2.3-C, que aguarda a F2.7. A ordem de execução da Fase 2 segue para a
+F2.4 antes de retomar aqui.
 
 **Dependências:** F2.1 (fundação e cache), F2.2 (layout e rotas admin) — ambas
 concluídas.
@@ -553,28 +556,52 @@ tema, upload, mídia, auditoria persistente e CRUD genérico de `site_settings`.
 
 ---
 
-##### F2.3-B — Tema e cores 📋 Planejada
+##### F2.3-B — Tema e cores ✅ Concluída
 
 **Objetivo:** adicionar as configurações visuais básicas do tema sobre a mesma
 fundação do `SiteSettingService`.
 
-**Dependência:** F2.3-A concluída.
+**Concluída e validada em 2026-09-04.**
+Commit: `98244c3028d9e087669c8c8826ea1ba13bed29ef`
+(`feat(fase-2): adiciona tema e cores configuraveis`)
 
-**Escopo**
+Validação: 96 testes / 307 assertions na suíte completa; Pint sem violações;
+`composer validate` válido; `git diff --check` limpo.
 
-- [ ] Cor primária
-- [ ] Cor secundária
-- [ ] Cor de destaque
-- [ ] Campos administrativos para as três
-- [ ] Validação de formato de cor
-- [ ] Persistência via `SiteSettingService`
-- [ ] Leitura das cores configuradas
-- [ ] CSS variables
-- [ ] Aplicação das CSS variables na interface
-- [ ] Preview mínimo
-- [ ] Testes
+**Arquitetura entregue**
 
-**Chaves previstas** (contrato inicial)
+`ThemeSettingController` + `UpdateThemeSettingsRequest` + Blade, com escrita por
+`SiteSettingService::setMany()` e leitura por um `ThemeService` que concentra
+chaves, defaults e acesso. O `ThemeService` não tem persistência própria e não
+acessa Model, DB ou Cache diretamente. A fundação da F2.1 e da F2.3-A foi
+reutilizada **sem alteração** — nenhuma das duas foi redesenhada.
+
+As cores chegam ao layout público por um **View Composer específico de
+`layouts.app`**, e daí para o HTML como CSS variables de runtime.
+
+**Rotas** — `GET` e `PUT` em `/admin/configuracoes/tema`, nomeadas
+`admin.settings.theme.edit` e `admin.settings.theme.update`, protegidas por
+`auth`. As rotas de configurações gerais permanecem intactas.
+
+**Navegação** — navegação local de Configurações com **Gerais** e **Tema e
+cores**. "Identidade visual" não aparece: a F2.3-C ainda não existe. Breadcrumb
+da tela de tema: `Dashboard / Configurações / Tema e cores`.
+
+**Escopo entregue**
+
+- [x] Cor primária
+- [x] Cor secundária
+- [x] Cor de destaque
+- [x] Campos administrativos para as três
+- [x] Validação de formato de cor
+- [x] Persistência via `SiteSettingService`
+- [x] Leitura das cores configuradas
+- [x] CSS variables
+- [x] Aplicação das CSS variables na interface
+- [x] Preview mínimo
+- [x] Testes
+
+**Chaves implementadas**
 
 ```text
 theme.primary_color
@@ -582,15 +609,31 @@ theme.secondary_color
 theme.accent_color
 ```
 
+Todas com `type = string`, no contrato `#RRGGBB`, **normalizadas para
+maiúsculas antes de persistir** — `#abcdef` e `#ABCDEF` são a mesma cor, e
+gravar as duas formas faria comparações divergirem.
+
+Defaults, centralizados no `ThemeService`:
+
+```text
+theme.primary_color   → #111827
+theme.secondary_color → #4B5563
+theme.accent_color    → #2563EB
+```
+
+A leitura aplica os defaults **sem materializar registros**: abrir a página não
+cria configurações que o administrador nunca salvou.
+
 **Validação**
 
-Formato de cor validado explicitamente. Preferir um contrato simples e
-inequívoco — hexadecimal, por exemplo. Não construir editor visual complexo.
+O contrato é estreito de propósito: formas abreviadas de três dígitos, `rgb()`,
+`rgba()`, `hsl()`, nomes de cor, `var()` e `url()` são rejeitados. Como os
+valores são interpolados dentro de um bloco `<style>`, é esse contrato que
+impede conteúdo arbitrário de chegar lá.
 
-**CSS variables**
+**CSS variables — decisão arquitetural**
 
-O resultado esperado é que as configurações fiquem disponíveis por variáveis
-equivalentes a:
+As cores são configurações de **runtime** e são expostas no HTML renderizado:
 
 ```text
 --color-primary
@@ -598,31 +641,45 @@ equivalentes a:
 --color-accent
 ```
 
-O mecanismo de exposição fica a cargo da execução. Este Roadmap registra o
-resultado esperado, não impõe a arquitetura.
+Elas **não** são gravadas no bloco `@theme` do Tailwind, que o Vite compila.
+Como consequência, alterar as cores **não** modifica `resources/css/app.css`,
+**não** exige `npm run build` e **não** exige rebuild ou deploy do frontend — a
+mudança aparece nas requisições seguintes, a partir do valor persistido e
+cacheado. O `app.css` contém apenas classes semânticas que consomem
+`var(--color-*)`.
+
+**Frontend e admin**
+
+As variáveis são aplicadas ao layout público, com consumo real mínimo — não
+ficam apenas declaradas. O **painel administrativo permanece visualmente
+neutro**: as cores da loja não tematizam sidebar, topbar ou botões do admin, e
+aparecem lá somente no contexto da própria configuração e do preview. Decisão
+deliberada.
 
 **Preview mínimo**
 
-"Preview" aqui significa **visualização simples das cores configuradas**. Esta
-subfase não é um theme builder.
+Visualização simples das cores configuradas, **server-side**: reflete o que
+está persistido depois de salvar e recarregar, não acompanha a digitação. Sem
+JavaScript, sem Livewire e sem Alpine. Não é um theme builder nem tem autosave.
 
-**Critérios de aceite planejados**
+**Critérios de aceite**
 
-- [ ] As três cores podem ser configuradas
-- [ ] Valores válidos são persistidos
-- [ ] Valores inválidos são rejeitados
-- [ ] As CSS variables refletem os valores configurados
-- [ ] O preview mínimo reflete as cores
-- [ ] Defaults definidos para configurações ausentes
-- [ ] Suíte completa permanece verde
-- [ ] Pint passa
-- [ ] `git diff --check` passa
+- [x] As três cores podem ser configuradas
+- [x] Valores válidos são persistidos
+- [x] Valores inválidos são rejeitados
+- [x] As CSS variables refletem os valores configurados
+- [x] O preview mínimo reflete as cores
+- [x] Defaults definidos para configurações ausentes
+- [x] Suíte completa permanece verde
+- [x] Pint passa
+- [x] `git diff --check` passa
 
 **Fora do escopo:** seleção de fontes, construtor visual completo, presets de
 tema, dark mode configurável, drag-and-drop, dezenas de propriedades CSS, logo,
 favicon, upload e biblioteca de mídia.
 
-**Bloqueadores / decisões pendentes:** depende da F2.3-A.
+**Bloqueadores / decisões pendentes:** nenhum. A F2.3-A, sua dependência,
+estava concluída.
 
 ---
 
@@ -827,7 +884,7 @@ Preservadas da versão anterior deste Roadmap:
 
 - `SiteSetting` com cache Redis (TTL de 5 minutos) — F2.1
 - Intervention/Image para processamento de imagens — F2.7
-- Componente Blade para o color picker — F2.3-B
+- Campos nativos de cor no formulário Blade, com preview server-side — F2.3-B
 - Middleware `auth` para proteger as rotas administrativas — F2.2; autorização
   granular permanece na Fase 3
 - Auditoria persistente de alterações administrativas **saiu do escopo
@@ -848,9 +905,9 @@ Preservadas da versão anterior deste Roadmap:
 - ✅ Fase 1 (concluída)
 
 #### Próximo Passo
-→ **F2.3-B — Tema e cores.** Com a F2.3-A concluída, a F2.3-B é a próxima na
-ordem de execução — ainda como próximo passo planejado, não iniciado. A Fase 3
-permanece após a conclusão da Fase 2.
+→ **F2.4 — Páginas Estáticas** — 📋 planejada, não iniciada. Com F2.3-A e
+F2.3-B concluídas, a F2.4 é a próxima na ordem de execução; a F2.3-C só é
+retomada depois da F2.7. A Fase 3 permanece após a conclusão da Fase 2.
 
 ---
 
@@ -1684,6 +1741,12 @@ Atualizado toda segunda-feira com progresso real.
   ganhou `setMany()` transacional. Commit:
   `07ce5221669af5b150393c2d57525057f97e1e4e`. 64 testes / 197 assertions.
   Próxima subfase: F2.3-B — Tema e cores.
+- **2026-09-04:** F2.3-B — Tema e cores concluída. Commit técnico:
+  `98244c3028d9e087669c8c8826ea1ba13bed29ef`. Três cores configuráveis em
+  `#RRGGBB` sobre o `ThemeService`, persistidas por
+  `SiteSettingService::setMany()`, expostas como CSS variables de runtime, com
+  preview server-side e integração mínima ao frontend público. Validação: 96
+  testes / 307 assertions. Próxima subfase planejada: F2.4 — Páginas Estáticas.
 - *Próxima revisão: 2026-09-11*
 
 ---
