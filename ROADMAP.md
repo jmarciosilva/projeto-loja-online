@@ -2,7 +2,8 @@
 
 ## Status Geral
 
-- **Fase Atual:** Fase 1 — Infraestrutura Docker & Setup Base ✅ Concluída
+- **Fase Atual:** Fase 2 — CMS e Configurações Admin ⏳ (iniciada em 2026-09-04)
+- **Fase 1:** ✅ Concluída em 2026-09-04
 - **Data de Início:** 2026-09-04
 - **Data Estimada de MVP Completo:** 2026-09-30
 - **Data Estimada de v1.0 Production:** 2026-10-30
@@ -19,8 +20,12 @@
 ### Fase 1 — Infraestrutura Docker & Setup Base ✅ CONCLUÍDA
 
 **Status:** ✅ **Concluída** — infraestrutura Docker e bootstrap do Laravel
+**Data de Conclusão:** 2026-09-04
 **Duração Estimada:** Semana 1 (2026-09-04 → 2026-09-10)
 **Responsável:** Arquitetura
+
+**Resultado final:** 7 containers rodando, 4 endpoints de health em 200,
+`composer test` passando.
 
 #### 1a. Infraestrutura Docker ✅ Concluída
 
@@ -52,18 +57,42 @@ Resultados completos em [`docker/VERIFICACAO.md`](./docker/VERIFICACAO.md).
 - [x] `APP_KEY` gerada
 - [x] Migrations iniciais aplicadas contra o MySQL do compose
       (`users`, `cache`, `jobs` — 3 migrations, schema padrão do framework)
-- [x] Vite 7.3.6 + TailwindCSS 4 instalados e compilando (`npm run build`)
+- [x] Vite 7.3.6 + TailwindCSS 4 compilando — configuração CSS-first via
+      `@theme` em `resources/css/app.css` (sem `tailwind.config.js`)
 - [x] Livewire 4.4.3 instalado (traz o AlpineJS embutido)
 - [x] `npm install` funcionando no container `node`
 - [x] `composer test` passando (2 testes do esqueleto)
 - [x] Laravel Pint disponível para formatação (`vendor/bin/pint`)
 - [x] `GET /` serve a aplicação (HTTP 200) com os assets do Vite
 - [x] Cache confirmado no Redis (database 1, via `CACHE_STORE=redis`)
+- [x] Extensões PHP completas: pdo_mysql, gd, bcmath, intl, exif, opcache,
+      zip, redis, sockets, mbstring, pcntl
+- [x] Pacotes do projeto instalados: spatie/laravel-permission 8.3.0,
+      laravel/sanctum 4.3.3, intervention/image 4.3.2,
+      barryvdh/laravel-dompdf 3.1.2
+- [x] `routes/api.php` criado via `artisan install:api`
+- [x] Layout base (`layouts/app.blade.php`) e home placeholder
+- [x] Health checks: `/health` (app + MySQL + Redis), `/api/health`,
+      `/up` (nativo do Laravel) e `/health.php` (estático, sem Laravel)
 
 Pendente, mas não bloqueante:
 
 - [ ] Publicar a porta 5173 no `compose.yaml` para usar o dev server do Vite
       (`npm run build` funciona; só o hot reload a partir do host depende disso)
+
+Decisões tomadas contra a especificação original, por serem contraproducentes:
+
+- **`alpinejs` não foi adicionado ao `package.json`.** O Livewire 4 já embute o
+  Alpine; instalar em separado cria duas instâncias e o console acusa
+  `Alpine has already been initialized`.
+- **`tailwind.config.js` não foi criado.** O TailwindCSS 4 é CSS-first — a
+  configuração vive no `@theme` do `resources/css/app.css`. Um config JS seria
+  peso morto.
+- **Não há migration separada de `password_reset_tokens`.** No Laravel 12 essa
+  tabela já é criada dentro de `create_users_table`; uma segunda quebraria o
+  `migrate`.
+- **As migrations do spatie/laravel-permission não foram publicadas.** Isso é
+  escopo da Fase 3, junto com os papéis e as policies.
 
 #### Notas Técnicas
 
@@ -95,6 +124,13 @@ detalhadas em [`docs/DOCKER_DEVELOPMENT.md`](./docs/DOCKER_DEVELOPMENT.md):
   para o Redis.
 - O cache do Laravel usa o **database 1** do Redis (`REDIS_CACHE_DB`), então
   `redis-cli KEYS` no db 0 não mostra nada — use `redis-cli -n 1`.
+- O bloco `location = /health` do nginx foi removido: ele interceptava a rota
+  antes do Laravel, e qualquer rota `/health` da aplicação nasceria morta.
+- Editar `docker/nginx.conf` não basta — o arquivo é bind-mount read-only e o
+  nginx segue com a config carregada no boot. Exige
+  `docker compose restart nginx`.
+- `opcache` já vem ativo na imagem oficial e aparece como `Zend OPcache` no
+  `php -m` — procurar por "opcache" dá falso negativo.
 - Testado em Windows 11 + Docker Desktop. **Não** testado em WSL2 nem Linux.
 
 #### Próximo Passo
@@ -104,11 +140,24 @@ detalhadas em [`docs/DOCKER_DEVELOPMENT.md`](./docs/DOCKER_DEVELOPMENT.md):
 
 ### Fase 2 — CMS e Configurações Admin ⏳ EM DESENVOLVIMENTO
 
-**Status:** ⏳ **Planejado**  
-**Duração Estimada:** Semana 2 (2026-09-10 → 2026-09-17)  
-**Responsável:** TBD  
+**Status:** ⏳ **Em desenvolvimento**
+**Data de Início:** 2026-09-04
+**Duração Estimada:** Semana 2 (2026-09-10 → 2026-09-17)
+**Responsável:** TBD
 
-#### Entregáveis
+#### Próximas tarefas
+
+- [ ] Model `SiteSetting` com cache
+- [ ] CRUD de configurações globais (nome, logo, cores, contato)
+- [ ] Editor de cores com CSS variables dinâmicas
+- [ ] CRUD de páginas estáticas
+- [ ] CRUD de banners
+- [ ] CRUD de menus e itens
+- [ ] Upload e gestão de mídia (Intervention/Image)
+- [ ] Layout do painel admin (sidebar, topbar, breadcrumbs)
+- [ ] Middleware de autenticação para rotas `/admin`
+
+#### Entregáveis detalhados
 - [ ] **SiteSetting Model**
   - [ ] Migration para site_settings (chave => valor JSON)
   - [ ] Model com cache Redis
