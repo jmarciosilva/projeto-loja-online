@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\SiteSettingController;
+use App\Http\Controllers\Admin\ThemeSettingController;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
@@ -24,6 +25,11 @@ Route::middleware('auth')
             ->name('settings.edit');
         Route::put('configuracoes', [SiteSettingController::class, 'update'])
             ->name('settings.update');
+
+        Route::get('configuracoes/tema', [ThemeSettingController::class, 'edit'])
+            ->name('settings.theme.edit');
+        Route::put('configuracoes/tema', [ThemeSettingController::class, 'update'])
+            ->name('settings.theme.update');
     });
 
 /*

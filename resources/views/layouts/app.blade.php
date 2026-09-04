@@ -11,13 +11,17 @@
          senão duas instâncias competem e o console acusa
          "Alpine has already been initialized". --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    {{-- Depois do @vite para que as variáveis de runtime vençam o CSS compilado. --}}
+    @include('partials.theme-styles')
+
     @livewireStyles
 </head>
 <body class="h-full bg-gray-50 text-gray-900 antialiased">
 
-    <header class="border-b border-gray-200 bg-white">
+    <header class="theme-border-accent border-t-4 border-b border-b-gray-200 bg-white">
         <nav class="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-            <a href="{{ route('home') }}" class="text-lg font-semibold tracking-tight">
+            <a href="{{ route('home') }}" class="theme-text-primary text-lg font-semibold tracking-tight">
                 {{ config('app.name') }}
             </a>
             {{-- Menu, carrinho e área do cliente entram nas Fases 2 e 5. --}}

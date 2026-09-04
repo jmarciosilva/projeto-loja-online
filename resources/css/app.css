@@ -9,3 +9,25 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+/*
+ * Consumo das cores do tema. Os valores vivem em `--color-*`, emitidas em
+ * runtime por resources/views/partials/theme-styles.blade.php a partir do
+ * banco — por isso não são declaradas aqui nem no bloco @theme, que o Vite
+ * compila e exigiria rebuild a cada alteração salva no painel.
+ */
+.theme-text-primary {
+    color: var(--color-primary);
+}
+
+.theme-bg-primary {
+    background-color: var(--color-primary);
+}
+
+.theme-text-accent {
+    color: var(--color-accent);
+}
+
+.theme-border-accent {
+    border-color: var(--color-accent);
+}

@@ -5,6 +5,8 @@
 @section('content')
     <div class="max-w-2xl space-y-6">
 
+        @include('admin.settings.partials.navigation')
+
         @if (session('status'))
             <div role="status" class="rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-800">
                 {{ session('status') }}
