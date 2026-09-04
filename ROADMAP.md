@@ -172,7 +172,7 @@ no repositório e foi executado/validado com sucesso.**
 
 | Subfase | Status | Entregável | Depende de |
 | --- | --- | --- | --- |
-| F2.1 — Fundação do CMS | ⏳ Em desenvolvimento | Domínio e infraestrutura de configuração | Fase 1 |
+| F2.1 — Fundação do CMS | ✅ Concluída | Domínio e infraestrutura de configuração | Fase 1 |
 | F2.2 — Fundação do Admin | 🚧 Aguardando decisão | Rotas, layout e navegação de `/admin` | Fase 1 |
 | F2.3 — Configurações Globais | 📋 Planejado | Interface administrativa de `SiteSetting` | F2.1, F2.2 |
 | F2.4 — Páginas Estáticas | 📋 Planejado | CRUD de páginas com SEO e publicação | F2.2 |
@@ -185,7 +185,7 @@ no repositório e foi executado/validado com sucesso.**
 
 ---
 
-#### F2.1 — Fundação do CMS ⏳ Em desenvolvimento
+#### F2.1 — Fundação do CMS ✅ Concluída
 
 **Objetivo:** estabelecer o domínio e a infraestrutura de configuração do CMS
 antes de qualquer interface, para que as subfases seguintes consumam uma base
@@ -197,7 +197,8 @@ já testada.
   - Commit: `5c9194a9e50a6cbaa13df950de0beee3a4d936d3`
 - [x] **F2.1-B — Service Layer, Redis, TTL e invalidação**
   - Commit: `db113a0255791b35f2a8fb88081b6afe95c2f663`
-- [ ] **F2.1-C — Hardening e fechamento da fundação do CMS**
+- [x] **F2.1-C — Hardening e fechamento da fundação do CMS**
+  - Commit: `d79f83c77b20947b4565eb52f99f2ae3273ebb2b`
 
 **Escopo:** apenas domínio, persistência e cache. **Sem** interface
 administrativa, componentes Livewire administrativos ou páginas de
@@ -465,16 +466,17 @@ Preservadas da versão anterior deste Roadmap:
   fronteira entre Fase 2 e Fase 3. Bloqueia a implementação da proteção
   definitiva das rotas administrativas e, por consequência, o critério de
   acesso das subfases F2.3 a F2.7.
-- A **F2.1 não é afetada** por essa decisão; F2.1-A e F2.1-B já foram concluídas
-  e a F2.1-C permanece pendente.
+- ✅ **F2.1 — Fundação do CMS:** concluída; a decisão pendente da F2.2 não
+  afeta sua implementação.
 
 #### Dependências
 
 - ✅ Fase 1 (concluída)
 
 #### Próximo Passo
-→ **F2.1-C — Hardening e fechamento da fundação do CMS.** A Fase 3 permanece
-após a conclusão da Fase 2.
+→ **F2.2 — Fundação do Admin:** decidir a estratégia de autenticação e
+autorização antes de iniciar sua implementação. A Fase 3 permanece após a
+conclusão da Fase 2.
 
 ---
 
@@ -1258,12 +1260,10 @@ Atualizado toda segunda-feira com progresso real.
 
 ## ⚠️ Bloqueadores Conhecidos
 
-- **F2.1 — Fundação do CMS:** sem bloqueadores. Em desenvolvimento.
+- ✅ **F2.1 — Fundação do CMS:** concluída.
 - 🚧 **F2.2 — Fundação do Admin:** decisão arquitetural pendente sobre
   autenticação/autorização das rotas `/admin`, na fronteira entre a Fase 2 e a
   Fase 3. Bloqueia a implementação da proteção definitiva do painel.
-- Essa decisão **não afeta a continuidade da F2.1**, que não toca em rotas
-  administrativas; F2.1-A e F2.1-B estão concluídas e a F2.1-C permanece pendente.
 
 ---
 
@@ -1281,6 +1281,8 @@ Atualizado toda segunda-feira com progresso real.
   Commit: `5c9194a9e50a6cbaa13df950de0beee3a4d936d3`
 - **2026-09-04:** F2.1-B concluída — SiteSettingService, cache Redis com TTL
   de 5 minutos e invalidação explícita. Commit: `db113a0255791b35f2a8fb88081b6afe95c2f663`
+- **2026-09-04:** F2.1-C concluída — hardening e testes de regressão da
+  fundação de SiteSetting. Commit: `d79f83c77b20947b4565eb52f99f2ae3273ebb2b`
 - *Próxima revisão: 2026-09-11*
 
 ---
