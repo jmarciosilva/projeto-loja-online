@@ -173,7 +173,7 @@ no repositório e foi executado/validado com sucesso.**
 | Subfase | Status | Entregável | Depende de |
 | --- | --- | --- | --- |
 | F2.1 — Fundação do CMS | ✅ Concluída | Domínio e infraestrutura de configuração | Fase 1 |
-| F2.2 — Fundação do Admin | 🚧 Aguardando decisão | Rotas, layout e navegação de `/admin` | Fase 1 |
+| F2.2 — Fundação do Admin | 📋 Planejada — pronta para implementação | Rotas, layout e navegação de `/admin` | Fase 1 |
 | F2.3 — Configurações Globais | 📋 Planejado | Interface administrativa de `SiteSetting` | F2.1, F2.2 |
 | F2.4 — Páginas Estáticas | 📋 Planejado | CRUD de páginas com SEO e publicação | F2.2 |
 | F2.7 — Biblioteca de Mídia | 📋 Planejado | Upload, processamento e consulta de mídia | F2.2 |
@@ -231,12 +231,13 @@ configuração — isso é escopo da F2.3.
 
 ---
 
-#### F2.2 — Fundação do Admin 🚧 Aguardando decisão arquitetural
+#### F2.2 — Fundação do Admin 📋 Planejada — pronta para implementação
 
 **Objetivo:** entregar a infraestrutura visual e de navegação do painel
 administrativo, separada da lógica de configuração.
 
-**Escopo:** rotas, layout e navegação. Nenhum CRUD de conteúdo.
+**Escopo:** rotas, layout e navegação, com a autenticação mínima necessária
+para proteger `/admin`. Nenhum CRUD de conteúdo.
 
 **Entregáveis**
 
@@ -247,40 +248,35 @@ administrativo, separada da lógica de configuração.
 - [ ] Breadcrumbs
 - [ ] Dashboard inicial
 - [ ] Organização da navegação administrativa (menu de navegação do painel)
-- [ ] **Definir a estratégia de autenticação/autorização** (ver decisão
-      pendente abaixo) — tarefa de análise, anterior à implementação da
-      proteção definitiva
+- [ ] Login, sessão autenticada e logout mínimos para a infraestrutura admin
+- [ ] Proteção das rotas `/admin` com autenticação e redirecionamento de
+      visitantes não autenticados para o fluxo de login
 
 **Testes / critério de aceite**
 
 - [ ] As rotas `/admin` respondem e renderizam o layout
 - [ ] A navegação (sidebar/topbar/breadcrumbs) reflete a rota atual
-- [ ] Critério de proteção de rota: **a definir**, dependente da decisão abaixo
+- [ ] Visitante não autenticado não acessa `/admin`; usuário autenticado acessa
+      a infraestrutura administrativa da F2.2
 
 **Dependências:** Fase 1 (concluída).
 
-**🚧 Decisão arquitetural pendente — proteção de `/admin`**
+**Decisão arquitetural registrada — Opção 1: autenticação mínima na F2.2**
 
-Há uma dependência entre fases que precisa ser resolvida **antes** de
-implementar a proteção definitiva das rotas administrativas:
+A F2.2 implementará somente o necessário para login, sessão autenticada,
+logout e proteção de `/admin`. Visitantes não autenticados serão direcionados
+ao fluxo de login; usuários autenticados poderão acessar a infraestrutura
+administrativa desta subfase.
 
-- a Fase 2 prevê proteger as rotas de `/admin`;
-- a implementação completa de autenticação, papéis e permissões está planejada
-  para a **Fase 3**.
+Essa proteção é uma **barreira de autenticação provisória**. O middleware
+`auth` da F2.2 não representa a política definitiva de segurança/autorização
+administrativa e não equivale, de forma permanente, à autorização para acessar
+o painel.
 
-Implementar a Fase 3 inteira aqui, de forma implícita, esvaziaria a fase
-seguinte e faria a F2.2 crescer sem controle. As alternativas são:
-
-1. **Autenticação mínima na F2.2** — apenas o suficiente para proteger
-   `/admin`, deixando papéis e permissões granulares para a Fase 3.
-2. **Antecipar formalmente parte da Fase 3** — mover explicitamente um recorte
-   de autenticação/autorização para a Fase 2, atualizando o Roadmap e o escopo
-   da Fase 3 em vez de fazê-lo em silêncio.
-3. **Reorganizar a dependência entre as Fases 2 e 3** — por exemplo, inverter a
-   ordem, ou tratar a Fase 3 como pré-requisito da F2.2.
-
-**Nenhuma alternativa foi escolhida.** A decisão exige análise e deve ser
-registrada aqui, com a justificativa, antes de a implementação começar.
+Continuam exclusivamente na **Fase 3**: roles, permissions, autorização
+granular, policies, middleware baseado em role ou permission, CRUD de usuários
+e roles, a definição definitiva dos perfis que acessam `/admin` e as regras de
+`admin`, `gerente`, `editor`, `lojista` e `customer`.
 
 ---
 
@@ -316,9 +312,8 @@ esta subfase não deve reimplementá-los.
 
 **Dependências:** F2.1 (fundação e cache), F2.2 (layout e rotas admin).
 
-**Bloqueadores / decisões pendentes:** herda a decisão pendente da F2.2 —
-enquanto a proteção de `/admin` não estiver definida, esta interface não tem
-um critério de acesso estabelecido.
+**Bloqueadores / decisões pendentes:** nenhuma decisão arquitetural pendente;
+depende da implementação da F2.2 e de seu critério provisório de autenticação.
 
 **Nota técnica preservada:** componente Blade para o color picker.
 
@@ -348,7 +343,8 @@ um critério de acesso estabelecido.
 
 **Dependências:** F2.2 (layout e rotas admin).
 
-**Bloqueadores / decisões pendentes:** herda a decisão pendente da F2.2.
+**Bloqueadores / decisões pendentes:** nenhuma decisão arquitetural pendente;
+depende da implementação da F2.2.
 
 ---
 
@@ -383,7 +379,8 @@ armazenamento/upload para banners. Isso evita duas rotas de upload, dois
 formatos de armazenamento e a duplicação do processamento de imagens — e é o
 motivo de a F2.7 ser executada antes da F2.5.
 
-**Bloqueadores / decisões pendentes:** herda a decisão pendente da F2.2.
+**Bloqueadores / decisões pendentes:** nenhuma decisão arquitetural pendente;
+depende da implementação da F2.2.
 
 ---
 
@@ -413,7 +410,8 @@ motivo de a F2.7 ser executada antes da F2.5.
 **Dependências:** F2.2 (layout e rotas admin), F2.4 (para itens que apontam
 para páginas).
 
-**Bloqueadores / decisões pendentes:** herda a decisão pendente da F2.2.
+**Bloqueadores / decisões pendentes:** nenhuma decisão arquitetural pendente;
+depende da implementação da F2.2.
 
 ---
 
@@ -445,7 +443,8 @@ foi instalado na Fase 1.
 **Consumidores:** a **F2.5 (Banners)** depende desta subfase — por isso a F2.7
 é executada antes dela.
 
-**Bloqueadores / decisões pendentes:** herda a decisão pendente da F2.2.
+**Bloqueadores / decisões pendentes:** nenhuma decisão arquitetural pendente;
+depende da implementação da F2.2.
 
 ---
 
@@ -456,27 +455,23 @@ Preservadas da versão anterior deste Roadmap:
 - `SiteSetting` com cache Redis (TTL de 5 minutos) — F2.1
 - Intervention/Image para processamento de imagens — F2.7
 - Componente Blade para o color picker — F2.3
-- Middleware para proteger as rotas administrativas — F2.2, sujeito à decisão
-  arquitetural pendente
+- Middleware `auth` para proteger as rotas administrativas — F2.2; autorização
+  granular permanece na Fase 3
 - Log de alterações em `site_settings` — F2.3
 
 #### Bloqueadores da Fase 2
 
-- 🚧 **Proteção de `/admin` (F2.2)** — decisão arquitetural pendente sobre a
-  fronteira entre Fase 2 e Fase 3. Bloqueia a implementação da proteção
-  definitiva das rotas administrativas e, por consequência, o critério de
-  acesso das subfases F2.3 a F2.7.
-- ✅ **F2.1 — Fundação do CMS:** concluída; a decisão pendente da F2.2 não
-  afeta sua implementação.
+- Nenhum bloqueador arquitetural pendente para a F2.2. A subfase começa com
+  autenticação mínima para `/admin`; autorização granular permanece na Fase 3.
 
 #### Dependências
 
 - ✅ Fase 1 (concluída)
 
 #### Próximo Passo
-→ **F2.2 — Fundação do Admin:** decidir a estratégia de autenticação e
-autorização antes de iniciar sua implementação. A Fase 3 permanece após a
-conclusão da Fase 2.
+→ **F2.2 — Fundação do Admin:** iniciar sua implementação incremental,
+começando pela autenticação mínima necessária à proteção de `/admin`. A Fase 3
+permanece após a conclusão da Fase 2.
 
 ---
 
@@ -548,21 +543,18 @@ conclusão da Fase 2.
 | customer | Cliente final | Comprar, perfil, pedidos |
 
 #### Bloqueadores
-- 🚧 **Fronteira F2.2 / Fase 3** — decisão arquitetural pendente sobre onde
-  termina a autenticação necessária ao painel e onde começa o escopo desta
-  fase. Não bloqueia o planejamento aqui, mas pode redistribuir escopo entre as
-  duas fases. Nenhuma implementação foi antecipada.
+- Nenhum bloqueador arquitetural pendente. A F2.2 entrega autenticação mínima
+  para `/admin`; esta fase preserva a autorização definitiva, sem antecipação
+  de escopo.
 
 #### Dependências
 - ✅ Fase 1 (concluída)
 - ⏳ Fase 2 (deve estar concluída)
 
-> ⚠️ **Escopo sujeito à decisão pendente da F2.2.** A proteção das rotas
-> `/admin` é prevista na Fase 2, enquanto autenticação, papéis e permissões
-> completos estão planejados aqui. Dependendo da alternativa escolhida na
-> [F2.2](#f22--fundação-do-admin--aguardando-decisão-arquitetural), parte deste
-> escopo pode ser antecipada para a Fase 2 — ou a ordem entre as duas fases
-> pode mudar. Nada foi decidido; o escopo abaixo permanece como está até lá.
+> **Fronteira definida com a F2.2.** A F2.2 entrega somente autenticação mínima
+> para proteger `/admin`. Esta Fase 3 preserva o modelo definitivo de
+> identidade e autorização: papéis, permissões, policies, controles granulares
+> e administração de usuários e roles. Nenhum desses itens foi antecipado.
 
 #### Próximo Passo
 → **Fase 4** (Produtos e Categorias)
@@ -1261,9 +1253,8 @@ Atualizado toda segunda-feira com progresso real.
 ## ⚠️ Bloqueadores Conhecidos
 
 - ✅ **F2.1 — Fundação do CMS:** concluída.
-- 🚧 **F2.2 — Fundação do Admin:** decisão arquitetural pendente sobre
-  autenticação/autorização das rotas `/admin`, na fronteira entre a Fase 2 e a
-  Fase 3. Bloqueia a implementação da proteção definitiva do painel.
+- Nenhum bloqueador arquitetural conhecido para a F2.2. A subfase está
+  planejada para iniciar com autenticação mínima em `/admin`.
 
 ---
 
@@ -1283,6 +1274,9 @@ Atualizado toda segunda-feira com progresso real.
   de 5 minutos e invalidação explícita. Commit: `db113a0255791b35f2a8fb88081b6afe95c2f663`
 - **2026-09-04:** F2.1-C concluída — hardening e testes de regressão da
   fundação de SiteSetting. Commit: `d79f83c77b20947b4565eb52f99f2ae3273ebb2b`
+- **2026-09-04:** Decisão arquitetural da F2.2 resolvida — autenticação mínima
+  para `/admin` na F2.2; autorização granular permanece na Fase 3. F2.2 pronta
+  para implementação.
 - *Próxima revisão: 2026-09-11*
 
 ---
