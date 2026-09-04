@@ -28,26 +28,31 @@
 
 ## ✨ O que já roda hoje
 
-**Estado em 2026-09-04: a infraestrutura Docker está pronta e validada; o
-Laravel ainda não foi instalado.**
+**Estado em 2026-09-04: ambiente de desenvolvimento completo e funcionando.
+Nenhuma funcionalidade de e-commerce foi escrita ainda.**
 
-### ✅ Pronto — Infraestrutura Docker
+### ✅ Pronto — Fase 1
 
-- Os 7 serviços sobem e ficam `healthy` a partir de `docker compose up -d --build`
-- PHP 8.3 com bcmath, gd, mbstring, pdo_mysql, pcntl, sockets, zip, redis, xdebug
-- MySQL 8.4 e Redis acessíveis a partir do container da aplicação
-- Nginx servindo via php-fpm (`/health.php` → HTTP 200)
-- phpMyAdmin e MailPit acessíveis
-- Reprodutível do zero — resultados em [`docker/VERIFICACAO.md`](./docker/VERIFICACAO.md)
+- Os 7 serviços Docker sobem e ficam `healthy`
+- **Laravel 12.69.1** servindo em http://localhost (HTTP 200)
+- **Livewire 4.4.3** instalado (traz o AlpineJS embutido)
+- **Vite 7.3.6 + TailwindCSS 4** compilando assets
+- MySQL 8.4 com as migrations iniciais aplicadas (`users`, `cache`, `jobs`)
+- Cache e filas no Redis (`CACHE_STORE=redis`, database 1)
+- `composer test` passando
+- Laravel Pint disponível para formatação
+
+Detalhes da validação em [`docker/VERIFICACAO.md`](./docker/VERIFICACAO.md).
 
 ### ⏳ Ainda não existe
 
-Nada da aplicação foi escrito. Não há `composer.json`, `artisan`, `app/`,
-`routes/`, migrations, models nem seeders. **`GET /` responde 403** porque
-`public/` não tem `index.php`.
+Tudo que é específico desta loja: produtos, categorias, carrinho, checkout,
+pedidos, painel administrativo, CMS, autenticação por papéis e a API mobile.
+O `app/` contém apenas o esqueleto padrão do Laravel — não há `Services/`,
+`Policies/`, `Livewire/` nem `Enums/` ainda.
 
-A Stack Técnica abaixo descreve o alvo do projeto, não o que está instalado.
-Para o estado real por fase, veja o [ROADMAP.md](./ROADMAP.md).
+A Stack Técnica abaixo mistura o que já está instalado com o que é alvo do
+projeto. Para o estado real por fase, veja o [ROADMAP.md](./ROADMAP.md).
 
 ---
 
@@ -87,8 +92,6 @@ Para o estado real por fase, veja o [ROADMAP.md](./ROADMAP.md).
 
 ## 🚀 Como Rodar
 
-### Passo 1 — Subir a infraestrutura (funciona hoje)
-
 ```bash
 git clone git@github.com:jmarciosilva/projeto-loja-online.git
 cd projeto-loja-online
@@ -96,30 +99,27 @@ cd projeto-loja-online
 cp .env.example .env
 
 docker compose up -d --build
-```
 
-Aguarde os health checks e confirme:
-
-```bash
-docker compose ps                      # todos Up, os com healthcheck healthy
-curl http://localhost/health.php        # deve responder OK
-```
-
-### Passo 2 — Instalar o Laravel (ainda não feito)
-
-O projeto Laravel ainda não existe no repositório. Para criá-lo:
-
-```bash
-docker compose exec app composer create-project laravel/laravel:^12 .
+docker compose exec app composer install
 docker compose exec app php artisan key:generate
 docker compose exec app php artisan migrate
 docker compose exec node npm install
 docker compose exec node npm run build
 ```
 
-> Note que é `create-project`, não `composer install`: não há `composer.json`
-> no repositório ainda. Depois que o Laravel existir, `composer install` passa
-> a ser o comando correto para novos clones.
+Acesse http://localhost.
+
+> `vendor/` e `node_modules/` ficam em volumes nomeados do Docker, não no
+> host — por isso `composer install` e `npm install` precisam rodar **dentro**
+> dos containers. Rodar no host preenche pastas que os containers não usam.
+
+### Verificar
+
+```bash
+docker compose ps                       # serviços Up, os com healthcheck healthy
+curl http://localhost/health.php         # OK — responde mesmo sem o Laravel
+docker compose exec app composer test    # suíte de testes
+```
 
 ---
 
@@ -222,83 +222,63 @@ docker compose exec node sh
 
 ## 📂 Estrutura de Diretórios
 
-### O que existe hoje
-
 ```
 projeto-loja-online/
-├── .github/
-│   └── PULL_REQUEST_TEMPLATE.md
+├── app/                          # Esqueleto padrão do Laravel por enquanto
+│   ├── Http/Controllers/
+│   ├── Models/
+│   └── Providers/
+├── bootstrap/  config/  database/  resources/  routes/  storage/  tests/
 ├── docker/
-│   ├── Dockerfile                # Imagem PHP-FPM 8.3 + extensões
+│   ├── Dockerfile                # PHP-FPM 8.3 + extensões
 │   ├── Dockerfile.mysql          # MySQL 8.4 com mysql.cnf embutido
-│   ├── nginx.conf                # Reverse proxy → php-fpm
-│   ├── php.ini                   # Overrides de PHP
-│   ├── php-fpm.conf              # Pool php-fpm + endpoint /ping
-│   ├── mysql.cnf                 # Tuning do MySQL
+│   ├── entrypoint.sh             # Corrige permissões de storage/ no boot
+│   ├── nginx.conf  php.ini  php-fpm.conf  mysql.cnf
 │   └── VERIFICACAO.md            # Resultados da validação da stack
 ├── docs/
-│   ├── ARQUITETURA.md
-│   ├── DOCKER_DEVELOPMENT.md
-│   └── INSTALACAO_RAPIDA.md
+│   ├── ARQUITETURA.md  DOCKER_DEVELOPMENT.md  INSTALACAO_RAPIDA.md
 ├── public/
-│   └── health.php                # Endpoint de liveness
+│   ├── index.php                 # Front controller do Laravel
+│   └── health.php                # Liveness, independente da aplicação
 ├── compose.yaml
-├── .env.example
-├── .dockerignore
-├── .gitignore
-├── README.md
-├── ROADMAP.md
-├── CONTRIBUTING.md
+├── composer.json  package.json  vite.config.js  phpunit.xml
+├── README.md  ROADMAP.md  CONTRIBUTING.md
 └── prompt-loja-online.md         # Especificação original do projeto
 ```
 
-### Estrutura planejada (após instalar o Laravel)
-
-O layout abaixo é o alvo descrito em [docs/ARQUITETURA.md](./docs/ARQUITETURA.md).
-**Nenhuma dessas pastas existe ainda.**
-
-```
-├── app/
-│   ├── Models/
-│   ├── Http/{Controllers,Requests,Middleware,Resources}/
-│   ├── Services/                 # Lógica de negócio
-│   ├── Policies/                 # Autorização por modelo
-│   ├── Livewire/                 # Componentes reativos
-│   └── Enums/
-├── database/{migrations,factories,seeders}/
-├── resources/{views,css,js}/
-├── routes/{web.php,api.php}
-├── tests/{Feature,Unit}/
-├── config/  bootstrap/  storage/
-├── composer.json  package.json
-├── vite.config.js  tailwind.config.js
-└── phpunit.xml
-```
+As pastas do desenho-alvo que **ainda não existem** — `app/Services/`,
+`app/Policies/`, `app/Livewire/`, `app/Enums/` — estão descritas em
+[docs/ARQUITETURA.md](./docs/ARQUITETURA.md).
 
 ---
 
 ## 🧪 Testes
 
-⏳ **Ainda não há testes** — dependem do Laravel instalado (Fase 1b) e são o
-foco da Fase 8.
+```bash
+docker compose exec app composer test
+```
 
-O plano é PHPUnit com SQLite em memória, cobertura mínima de 70%, e scripts
-`composer test` / `composer lint` definidos no `composer.json`. Detalhes em
-[ROADMAP.md](./ROADMAP.md) e nas convenções do [CONTRIBUTING.md](./CONTRIBUTING.md).
+Hoje passam os 2 testes do esqueleto do Laravel. A suíte de verdade — carrinho,
+checkout, permissões, API — é o escopo da Fase 8, com meta de 70% de cobertura.
+
+Formatação com Laravel Pint:
+
+```bash
+docker compose exec app vendor/bin/pint
+```
 
 ---
 
 ## 📊 Status do Projeto
 
-**Fase Atual:** Fase 1 — Infraestrutura Docker & Setup Base ⏳ **parcial**
-(Docker concluído, Laravel pendente)
+**Fase Atual:** Fase 2 — CMS e Configurações Admin (a iniciar)
 **Data de Início:** 2026-09-04
-**Progresso:** ~6% (metade da Fase 1 de 9)
+**Progresso:** ~11% (Fase 1 de 9 concluída)
 
 | Fase | Status | Entregável |
 |------|--------|-----------|
 | 1a — Infraestrutura Docker | ✅ Concluída | 7 serviços healthy, validados |
-| 1b — Bootstrap do Laravel | ⏳ Pendente | Laravel 12, Vite, Livewire |
+| 1b — Bootstrap do Laravel | ✅ Concluída | Laravel 12.69.1, Livewire 4.4.3, Vite 7 |
 | 2 — CMS e Admin | ⏳ Planejado | Configurações, páginas, banners, menus |
 | 3 — Autenticação & Roles | ⏳ Planejado | Roles, permissions, CRUD usuários |
 | 4 — Produtos e Categorias | ⏳ Planejado | CRUD com upload de imagens |

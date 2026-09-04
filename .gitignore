@@ -45,3 +45,21 @@ _ide_helper.php
 # Node
 .npm
 .eslintcache
+
+# Laravel (mesclado do .gitignore oficial ao instalar o framework)
+/public/build
+/storage/pail
+/.phpunit.cache
+/auth.json
+.env.backup
+.env.production
+Homestead.json
+Homestead.yaml
+.phpactor.json
+
+# Editores
+/.idea
+/.vscode
+/.fleet
+/.nova
+/.zed

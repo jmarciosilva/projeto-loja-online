@@ -103,15 +103,12 @@ docker compose up -d
 
 ## 🔄 Hot Reload
 
-⏳ **Depende do Laravel instalado** (Fase 1b) — nada disso funciona ainda.
-
 ### PHP
 O bind mount `./:/app` sincroniza o código em tempo real e o OPcache está com
 `validate_timestamps=1`, então alterações em `.php` valem na próxima requisição
 sem reiniciar o container.
 
 ### CSS/JS (Vite)
-Após instalar o Laravel:
 
 ```bash
 docker compose exec node npm run dev
@@ -319,6 +316,55 @@ mas o nginx do container escuta apenas em IPv4.
 
 Esperado: `public/` ainda não tem `index.php`, e a listagem de diretório está
 desligada. Use `/health.php` para verificar a stack antes do Laravel existir.
+
+---
+
+### ❌ HTTP 500: `tempnam(): file created in the system's temporary directory`
+
+**Causa:** `storage/` e `bootstrap/cache` chegam pelo bind mount com o dono do
+host (root no Windows), mas os workers do php-fpm rodam como `www-data`. Sem
+permissão de escrita, o PHP tenta o `/tmp` do sistema e emite um warning que o
+Laravel converte em exceção — a mensagem não menciona permissão, o que torna o
+diagnóstico enganoso.
+
+**Solução (já aplicada):** `docker/entrypoint.sh` ajusta o dono a cada boot do
+container. Fazer o `chown` no Dockerfile **não** funciona: o bind mount
+substitui, em runtime, o que a imagem tiver nesses caminhos.
+
+Se aparecer, recrie o container:
+
+```bash
+docker compose up -d --force-recreate app
+```
+
+Conferir manualmente:
+
+```bash
+docker compose exec app ls -ld /app/storage
+# esperado: www-data www-data
+```
+
+---
+
+### ⚠️ Cache não vai para o Redis mesmo com `CACHE_DRIVER=redis`
+
+O Laravel 11+ lê **`CACHE_STORE`**. A antiga `CACHE_DRIVER` é ignorada em
+silêncio — a aplicação segue no cache de arquivo sem qualquer aviso.
+
+```bash
+docker compose exec app php artisan about --only=drivers   # Cache deve dizer "redis"
+```
+
+---
+
+### ⚠️ `redis-cli KEYS` não mostra as chaves de cache
+
+O cache do Laravel usa o **database 1** do Redis (`REDIS_CACHE_DB`), enquanto o
+`redis-cli` abre o database 0 por padrão:
+
+```bash
+docker compose exec redis redis-cli -n 1 KEYS '*'
+```
 
 ---
 

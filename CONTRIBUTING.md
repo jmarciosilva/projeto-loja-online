@@ -47,10 +47,9 @@ Antes de começar, leia:
 
 Siga [docs/INSTALACAO_RAPIDA.md](./docs/INSTALACAO_RAPIDA.md).
 
-⚠️ **Estado atual:** só a infraestrutura Docker está pronta. O Laravel ainda
-não foi instalado, então não há aplicação para rodar — `GET /` responde 403.
-A primeira contribuição útil é justamente a etapa 1b do
-[ROADMAP](./ROADMAP.md): instalar o Laravel 12 no container.
+**Estado atual:** o ambiente roda (Laravel 12 + Livewire + Vite), mas nenhuma
+funcionalidade de e-commerce foi escrita. O trabalho começa pela Fase 2 do
+[ROADMAP](./ROADMAP.md) — CMS e painel administrativo.
 
 ### 3. Escolha uma Issue
 
@@ -88,21 +87,12 @@ git checkout -b docs/sua-documentacao
 
 ### Passo 3: Teste Localmente
 
-⏳ Os scripts abaixo **ainda não existem** — serão definidos no `composer.json`
-quando o Laravel for instalado (Fase 1b) e a suíte montada (Fase 8):
-
 ```bash
-docker compose exec app composer test      # PHPUnit
-docker compose exec app composer lint      # PHP-CS-Fixer
-docker compose exec app composer phpstan   # análise estática
+docker compose exec app composer test        # PHPUnit
+docker compose exec app vendor/bin/pint      # formatação (Laravel Pint)
 ```
 
-Enquanto isso, o que dá para verificar:
-
-```bash
-docker compose ps                      # serviços healthy
-curl http://localhost/health.php        # stack respondendo
-```
+Análise estática (PHPStan) ainda não foi adicionada — está no escopo da Fase 8.
 
 ### Passo 4: Faça o Push
 
@@ -294,14 +284,12 @@ class OrderTest extends TestCase {
 
 ### Rodar Testes
 
-⏳ Planejado para a Fase 8 — os scripts serão definidos no `composer.json`:
-
 ```bash
-docker compose exec app composer test            # todos
-docker compose exec app composer test:feature
-docker compose exec app composer test:unit
-docker compose exec app composer test:coverage
+docker compose exec app composer test
 ```
+
+Scripts adicionais (`test:feature`, `test:unit`, `test:coverage`) serão
+definidos na Fase 8, junto com a meta de 70% de cobertura.
 
 ### Mínimo de Cobertura
 
@@ -466,8 +454,8 @@ Alta / Média / Baixa
 Antes de fazer push, verifique:
 
 - [ ] Código segue PSR-12
-- [ ] Testes passam (`composer test`) — quando a suíte existir (Fase 8)
-- [ ] Sem warnings do linter (`composer lint`) — idem
+- [ ] Testes passam (`composer test`)
+- [ ] Código formatado (`vendor/bin/pint`)
 - [ ] Migrations são reversíveis
 - [ ] `.env.example` atualizado (se necessário)
 - [ ] Documentação atualizada

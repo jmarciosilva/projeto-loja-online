@@ -2,10 +2,8 @@
 
 Setup do ambiente de desenvolvimento.
 
-> **Estado atual:** a infraestrutura Docker está pronta; o Laravel ainda não
-> foi instalado. Os passos 1 a 3 funcionam hoje. O passo 4 é o bootstrap da
-> aplicação, que ainda não foi executado por ninguém (Fase 1b do
-> [ROADMAP](../ROADMAP.md)).
+> **Estado atual:** ambiente completo — Docker + Laravel 12 + Livewire + Vite.
+> Todos os passos abaixo funcionam.
 
 ---
 
@@ -76,27 +74,26 @@ curl http://localhost/health.php     # OK
 | phpMyAdmin | http://localhost:8081 |
 | MailPit | http://localhost:8025 |
 
-**`http://localhost` retorna 403 neste momento** — é o esperado enquanto o
-Laravel não estiver instalado: `public/` não tem `index.php`. Use
-`/health.php` para confirmar que a stack está de pé.
+`/health.php` responde mesmo antes de instalar as dependências da aplicação —
+serve para separar "a stack está de pé" de "o Laravel está funcionando".
+Se `/` devolver 403, é porque o passo 4 ainda não foi executado.
 
 ---
 
-## 4. Instalar o Laravel (ainda não feito)
+## 4. Instalar as dependências da aplicação
 
 ```bash
-docker compose exec app composer create-project laravel/laravel:^12 .
+docker compose exec app composer install
 docker compose exec app php artisan key:generate
 docker compose exec app php artisan migrate
 docker compose exec node npm install
 docker compose exec node npm run build
 ```
 
-É `create-project` e não `composer install`: o repositório ainda não tem
-`composer.json`. Depois que o Laravel existir e for commitado, novos clones
-usam `composer install`.
+`vendor/` e `node_modules/` ficam em volumes nomeados do Docker, não no host —
+por isso esses comandos precisam rodar **dentro** dos containers.
 
-Feito isso, `http://localhost` passa a servir a aplicação.
+Feito isso, http://localhost serve a aplicação.
 
 ---
 
@@ -112,11 +109,10 @@ docker compose exec app sh    # shell no container
 > As imagens são Alpine: use `sh`, não `bash`. `docker compose exec app bash`
 > falha com `executable file not found`.
 
-Após o Laravel instalado:
-
 ```bash
 docker compose exec app php artisan tinker
 docker compose exec app php artisan migrate
+docker compose exec app composer test
 docker compose exec node npm run dev
 ```
 
@@ -136,6 +132,11 @@ docker compose exec node npm run dev
 docker compose down -v
 docker compose up -d --build
 ```
+
+**500 com `tempnam(): file created in the system's temporary directory`** —
+é `storage/` sem permissão de escrita para o `www-data`. O
+`docker/entrypoint.sh` corrige isso a cada boot; se aparecer, recrie o
+container: `docker compose up -d --force-recreate app`.
 
 Mais casos em [DOCKER_DEVELOPMENT.md](./DOCKER_DEVELOPMENT.md).
 

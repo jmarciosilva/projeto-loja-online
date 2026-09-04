@@ -56,6 +56,10 @@ RUN printf '%s\n' \
     > /usr/local/bin/php-fpm-healthcheck \
     && chmod +x /usr/local/bin/php-fpm-healthcheck
 
+COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
 EXPOSE 9000
 
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["php-fpm"]

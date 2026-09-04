@@ -2,11 +2,11 @@
 
 ## Status Geral
 
-- **Fase Atual:** Fase 1 — Infraestrutura Docker & Setup Base ⏳ (Docker pronto, Laravel pendente)
+- **Fase Atual:** Fase 1 — Infraestrutura Docker & Setup Base ✅ Concluída
 - **Data de Início:** 2026-09-04
 - **Data Estimada de MVP Completo:** 2026-09-30
 - **Data Estimada de v1.0 Production:** 2026-10-30
-- **Progresso Geral:** ~6% (metade da Fase 1 de 9)
+- **Progresso Geral:** ~11% (Fase 1 de 9 concluída)
 
 > **Como ler este arquivo:** um item só é marcado `[x]` depois de existir no
 > repositório e ter sido executado com sucesso. Itens `[ ]` são planejamento —
@@ -16,9 +16,9 @@
 
 ## 📊 Fases do Projeto
 
-### Fase 1 — Infraestrutura Docker & Setup Base ⏳ EM ANDAMENTO
+### Fase 1 — Infraestrutura Docker & Setup Base ✅ CONCLUÍDA
 
-**Status:** ⏳ **Parcial** — infraestrutura Docker concluída, Laravel ainda não instalado
+**Status:** ✅ **Concluída** — infraestrutura Docker e bootstrap do Laravel
 **Duração Estimada:** Semana 1 (2026-09-04 → 2026-09-10)
 **Responsável:** Arquitetura
 
@@ -46,25 +46,29 @@
 
 Resultados completos em [`docker/VERIFICACAO.md`](./docker/VERIFICACAO.md).
 
-#### 1b. Bootstrap do Laravel ⏳ Pendente
+#### 1b. Bootstrap do Laravel ✅ Concluída
 
-Nada abaixo existe ainda no repositório. O container serve `public/health.php`;
-`GET /` responde 403 porque não há `index.php`.
+- [x] Laravel 12.69.1 instalado no container
+- [x] `APP_KEY` gerada
+- [x] Migrations iniciais aplicadas contra o MySQL do compose
+      (`users`, `cache`, `jobs` — 3 migrations, schema padrão do framework)
+- [x] Vite 7.3.6 + TailwindCSS 4 instalados e compilando (`npm run build`)
+- [x] Livewire 4.4.3 instalado (traz o AlpineJS embutido)
+- [x] `npm install` funcionando no container `node`
+- [x] `composer test` passando (2 testes do esqueleto)
+- [x] Laravel Pint disponível para formatação (`vendor/bin/pint`)
+- [x] `GET /` serve a aplicação (HTTP 200) com os assets do Vite
+- [x] Cache confirmado no Redis (database 1, via `CACHE_STORE=redis`)
 
-- [ ] `composer create-project laravel/laravel:^12 .` dentro do container
-- [ ] `php artisan key:generate` (APP_KEY ainda vazia no `.env`)
-- [ ] Primeira migration executada contra o MySQL do compose
-- [ ] Vite 7 + TailwindCSS 4 instalados e compilando
-- [ ] Livewire 4 instalado
-- [ ] AlpineJS 3 disponível
-- [ ] `npm install` e `npm run dev` funcionando no container `node`
-- [ ] Publicar a porta 5173 no compose se for usar o dev server do Vite
-- [ ] Scripts `composer test` / `composer lint` definidos no `composer.json`
+Pendente, mas não bloqueante:
 
-#### Notas Técnicas (do que já foi feito)
+- [ ] Publicar a porta 5173 no `compose.yaml` para usar o dev server do Vite
+      (`npm run build` funciona; só o hot reload a partir do host depende disso)
 
-Cada decisão abaixo veio de uma falha real ao subir a stack — estão detalhadas
-em [`docs/DOCKER_DEVELOPMENT.md`](./docs/DOCKER_DEVELOPMENT.md):
+#### Notas Técnicas
+
+Cada decisão abaixo veio de uma falha real ao montar o ambiente — estão
+detalhadas em [`docs/DOCKER_DEVELOPMENT.md`](./docs/DOCKER_DEVELOPMENT.md):
 
 - `ext/sockets` exige `linux-headers`; sem ele o build quebra.
 - As libs de runtime (libpng, libjpeg-turbo, freetype, libzip, oniguruma) ficam
@@ -79,10 +83,22 @@ em [`docs/DOCKER_DEVELOPMENT.md`](./docs/DOCKER_DEVELOPMENT.md):
 - Volumes nomeados para `vendor` e `node_modules` (performance no Windows).
   Efeito colateral: essas pastas não ficam visíveis no host.
 - As imagens são Alpine — use `sh`, não `bash`, no `docker compose exec`.
+- `storage/` e `bootstrap/cache` chegam pelo bind mount com dono do host
+  (root), mas os workers do php-fpm rodam como `www-data`. Sem correção o
+  Laravel devolve 500 com `tempnam(): file created in the system's temporary
+  directory` — o PHP caindo no /tmp após falhar a escrita. Resolvido por
+  `docker/entrypoint.sh`, que ajusta o dono a cada boot; fazer isso no
+  Dockerfile não adianta, porque o bind mount substitui o que a imagem tiver
+  nesses caminhos.
+- O Laravel 11+ lê `CACHE_STORE`; a antiga `CACHE_DRIVER` é ignorada em
+  silêncio. O `.env.example` já vinha com a errada e o cache não estaria indo
+  para o Redis.
+- O cache do Laravel usa o **database 1** do Redis (`REDIS_CACHE_DB`), então
+  `redis-cli KEYS` no db 0 não mostra nada — use `redis-cli -n 1`.
 - Testado em Windows 11 + Docker Desktop. **Não** testado em WSL2 nem Linux.
 
 #### Próximo Passo
-→ Concluir **1b** e então seguir para a **Fase 2** (CMS e Configurações Admin)
+→ **Fase 2** (CMS e Configurações Admin)
 
 ---
 
@@ -152,7 +168,7 @@ em [`docs/DOCKER_DEVELOPMENT.md`](./docs/DOCKER_DEVELOPMENT.md):
 - ❌ Nenhum
 
 #### Dependências
-- ⏳ Fase 1 — bloqueada pela etapa 1b (Laravel ainda não instalado)
+- ✅ Fase 1 (concluída)
 
 #### Próximo Passo
 → **Fase 3** (Autenticação, Roles e Permissions)
@@ -230,7 +246,7 @@ em [`docs/DOCKER_DEVELOPMENT.md`](./docs/DOCKER_DEVELOPMENT.md):
 - ❌ Nenhum
 
 #### Dependências
-- ⏳ Fase 1 (etapa 1b pendente)
+- ✅ Fase 1 (concluída)
 - ⏳ Fase 2 (deve estar concluída)
 
 #### Próximo Passo
@@ -888,7 +904,7 @@ em [`docs/DOCKER_DEVELOPMENT.md`](./docs/DOCKER_DEVELOPMENT.md):
 
 ```
 Setembro 2026
-├── 04-10: Fase 1 — Docker ✅ / Laravel ⏳ [PARCIAL]
+├── 04-10: Fase 1 — Docker + Laravel ✅ [CONCLUÍDA]
 ├── 10-17: Fase 2 — CMS & Admin ⏳
 ├── 17-24: Fase 3 — Auth & Roles ⏳
 └── 24-30: Fase 4 — Produtos ⏳
@@ -929,9 +945,7 @@ Atualizado toda segunda-feira com progresso real.
 
 ## ⚠️ Bloqueadores Conhecidos
 
-- **Fase 2 em diante depende da etapa 1b.** Sem o Laravel instalado não há
-  `artisan`, migrations nem models — nenhuma tarefa das fases seguintes pode
-  começar.
+- Nenhum. A Fase 2 pode começar.
 
 ---
 
@@ -942,6 +956,9 @@ Atualizado toda segunda-feira com progresso real.
 - **2026-09-04:** Varredura de fidelidade na documentação: itens que estavam
   marcados como prontos sem existir no repositório (Laravel, migrations,
   seeders, Vite, Livewire) foram revertidos para pendente
+- **2026-09-04:** Fase 1b — Laravel 12.69.1, Livewire 4.4.3, Vite 7 e
+  TailwindCSS 4 instalados; migrations iniciais aplicadas; `composer test`
+  passando. Fase 1 concluída ✅
 - *Próxima revisão: 2026-09-11*
 
 ---
@@ -952,8 +969,9 @@ Atualizado toda segunda-feira com progresso real.
 R: Aproximadamente 30 dias (4 semanas) até Fase 8 concluída.
 
 **P: Posso usar em produção agora?**  
-R: Não. Nem em desenvolvimento ainda: a infraestrutura Docker sobe, mas o
-Laravel não foi instalado (Fase 1b). Produção só a partir da Fase 9.
+R: Não. O ambiente de desenvolvimento já roda a aplicação, mas nenhuma
+funcionalidade de e-commerce existe (Fases 2 a 8). Produção só a partir da
+Fase 9.
 
 **P: Preciso implementar tudo?**  
 R: Não. Priorize as fases 1-6 para MVP. Fases 7-9 são para release.
