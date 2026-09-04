@@ -747,30 +747,392 @@ processamento de imagem fora da F2.7.
 
 #### F2.4 — Páginas Estáticas 📋 Planejado
 
-**Objetivo:** permitir a criação e publicação de páginas de conteúdo estático.
+> **Contrato arquitetural definido antes da implementação.** As decisões abaixo
+> estão fechadas e revisadas; nenhuma linha de código foi escrita. Todos os
+> itens permanecem `[ ]` — arquitetura definida não é implementação iniciada.
 
-**Entregáveis**
+**Objetivo:** permitir a criação e publicação de páginas de conteúdo estático
+institucional ou editorial, com identidade estável, URL pública por slug, ciclo
+simples rascunho/publicado, conteúdo Markdown renderizado com segurança, SEO
+mínimo e preview administrativo.
+
+Não é um CMS genérico: o escopo é a página estática, não um construtor de
+páginas.
+
+---
+
+##### Model `Page` — contrato
+
+```text
+pages
+
+id                BIGINT autoincremental — identidade interna estável
+title             VARCHAR(255)
+slug              VARCHAR(255), UNIQUE
+content           LONGTEXT — Markdown
+status            VARCHAR, indexado
+meta_title        VARCHAR(255), nullable
+meta_description  VARCHAR(320), nullable
+created_at        timestamp
+updated_at        timestamp
+deleted_at        timestamp, nullable — SoftDeletes
+```
+
+O `id` segue a convenção já usada nas migrations do projeto (`$table->id()`).
+**Não** serão introduzidos UUID, ULID ou identificador distribuído: nenhum
+requisito atual justifica divergir da convenção existente.
+
+**Fora do contrato desta subfase:** `author_id`, `user_id`, `updated_by`,
+`published_by`, `published_at`, `image_id`, `featured_image_id` e `menu_id`.
+Autoria depende da Fase 3, imagem depende da F2.7 e vínculo com menu é da F2.6.
+
+---
+
+##### Identidade — decisão fundamental
+
+> **`Page.id` é a identidade interna estável da página; o `slug` é seu endereço
+> público e pode mudar.**
+
+Essa separação existe principalmente para preservar a integração futura com a
+F2.6. Quando os menus forem implementados, um item interno deverá relacionar-se
+à **identidade** da página — conceitualmente `page_id → pages.id` — e **nunca**
+usar o slug como chave estrangeira.
+
+Assim, uma página com `id = 17` e `slug = quem-somos` pode passar a
+`slug = sobre-a-empresa` sem que o menu perca o vínculo.
+
+A F2.4 **não** implementa `MenuItem`, não define a migration da F2.6 e não
+escolhe a modelagem de destinos de menu. Ela apenas fornece a identidade
+estável que a F2.6 poderá consumir.
+
+---
+
+##### Slug — contrato
+
+O slug é **único, normalizado, editável e público** — e não é a identidade da
+entidade.
+
+**Formato**, conceitualmente equivalente a:
+
+```text
+^[a-z0-9]+(?:-[a-z0-9]+)*$
+```
+
+Não são aceitos espaços, `/`, `..`, query string, fragmento `#`, HTML ou
+caracteres arbitrários de URL.
+
+**Na criação**, se o administrador não informar slug, ele é derivado do título:
+
+```text
+Política de Privacidade  →  politica-de-privacidade
+```
+
+**Colisão de slug gerado automaticamente** resolve-se por sufixo
+determinístico, até encontrar disponibilidade:
+
+```text
+quem-somos
+quem-somos-2
+quem-somos-3
+```
+
+**Slug informado explicitamente e já ocupado é rejeitado pela validação.** Não
+é alterado em silêncio para `-2`: o administrador pediu um endereço específico,
+e trocá-lo sem avisar produziria uma URL que ele não escolheu.
+
+**Na atualização**, alterar apenas o título **não** regenera o slug existente —
+isso preserva URLs já divulgadas. O slug continua editável explicitamente.
+
+---
+
+##### Rota pública
+
+```text
+GET /paginas/{slug}     →  pages.show
+```
+
+**Não** será usado um catch-all `/{slug}`. O projeto ainda receberá rotas
+próprias de e-commerce — catálogo, produtos, carrinho, checkout, conta do
+cliente — e um catch-all colocaria slugs de CMS competindo com elas.
+
+Como a rota é namespaced, **não** será criada lista antecipada de slugs
+reservados (`admin`, `login`, `checkout`, `produto`…). O namespace já resolve a
+colisão; a validação protege o **formato** do slug, sem tentar adivinhar as
+rotas futuras da plataforma.
+
+---
+
+##### Status e regra de publicação
+
+Dois estados, em um enum PHP `PageStatus` com armazenamento em coluna string:
+
+```text
+draft
+published
+```
+
+**Não** será usado `ENUM` nativo do MySQL. Não entram `scheduled`, `archived`
+nem `pending_review`, e não há agendamento de publicação nesta subfase.
+
+**Invariante:**
+
+> Somente páginas com status `published` são resolvidas pela rota pública.
+
+Uma página `draft` resulta em **404**, não 403 — a rota pública não deve
+revelar que o rascunho existe. **Estar autenticado não libera drafts pela rota
+pública**: o preview acontece exclusivamente pela rota administrativa.
+
+---
+
+##### Preview
+
+```text
+GET /admin/paginas/{page}/preview   →  admin.pages.preview   (auth)
+```
+
+Exibe tanto `draft` quanto `published`, usando **o mesmo conteúdo, o mesmo
+renderer e preferencialmente o mesmo layout público** da página publicada. O
+objetivo é impedir que preview e resultado público divirjam.
+
+Contrato de uso: **salvar → abrir preview**. Não haverá preview público por
+token, URL compartilhável, iframe obrigatório, live preview, autosave nem
+JavaScript de preview.
+
+---
+
+##### Conteúdo — Markdown
+
+> `Page.content` armazena **Markdown**, não HTML arbitrário.
+
+O editor administrativo será inicialmente `textarea` + Markdown. **Não** haverá
+WYSIWYG nesta subfase, nem dependência de editor visual — TinyMCE, CKEditor,
+TipTap, Quill ou equivalente.
+
+**Dependência direta do CommonMark**
+
+> Embora `league/commonmark` já esteja presente transitivamente no
+> `composer.lock`, a F2.4 utilizará essa biblioteca **diretamente no código da
+> aplicação**. Portanto, durante a implementação técnica, `league/commonmark`
+> deverá ser declarado como **dependência direta** do projeto no
+> `composer.json`.
+
+Depender implicitamente de uma dependência transitiva de outro pacote é frágil:
+o pacote que hoje a traz pode removê-la ou trocar de versão numa atualização
+qualquer, e o build quebraria por um motivo que não aparece no `composer.json`.
+
+**Segurança do conteúdo:**
+
+> HTML arbitrário embutido no Markdown não deve ser renderizado como HTML
+> executável.
+
+O renderer deverá usar configuração segura equivalente a:
+
+```text
+html_input = strip
+allow_unsafe_links = false
+max_nesting_level = 100
+```
+
+- `html_input = strip` impede que HTML arbitrário escrito no editor chegue à
+  página como marcação executável;
+- `allow_unsafe_links = false` bloqueia protocolos inseguros em links;
+- `max_nesting_level = 100` limita profundidade patológica de Markdown,
+  reduzindo o risco de consumo excessivo de recursos ao renderizar.
+
+Sem isso, o conteúdo administrativo viraria um vetor de script na página
+pública.
+
+**`PageContentRenderer`** — componente pequeno, de responsabilidade única:
+
+```text
+Markdown persistido  →  HTML seguro para renderização
+```
+
+Preview e página pública **compartilham** esse renderer. Ele não faz
+persistência.
+
+---
+
+##### SEO mínimo
+
+```text
+meta_title        nullable, até 255 caracteres
+meta_description  nullable, até 320 caracteres
+```
+
+Na página pública, `<title>` usa `meta_title ?? title`. Havendo
+`meta_description`, é renderizada como `<meta name="description">`.
+
+Ficam fora: meta keywords, OpenGraph, Twitter Cards, JSON-LD, canonical
+configurável e robots configurável.
+
+---
+
+##### SoftDeletes
+
+`Page` usa `SoftDeletes`; o `DELETE` administrativo é exclusão lógica. **Não**
+haverá lixeira, tela de excluídos, restore ou force delete nesta subfase.
+
+> A unicidade do slug considera também páginas soft-deleted.
+
+Um slug de página excluída logicamente **não** é reutilizado automaticamente:
+caso contrário, uma URL antiga passaria a servir conteúdo semanticamente
+diferente para quem a tivesse guardado.
+
+---
+
+##### Camadas
+
+`PageService` é o Service Layer da subfase, responsável por criação,
+atualização, exclusão lógica, geração e resolução de slug, consulta pública de
+página publicada e demais regras da entidade.
+
+```text
+Admin:    Controller → Form Request → PageService → Page (Eloquent)
+Público:  PageController → PageService → Page publicada
+                        → PageContentRenderer → Blade
+```
+
+> **Repository não é necessário para a F2.4.**
+
+Não serão criados `PageRepository`, `PageRepositoryInterface` nem
+`EloquentPageRepository`. As consultas previstas são simples e o Eloquent
+atende ao contrato; um repositório aqui seria abstração prematura. A diretriz
+geral do projeto mantém o Repository como opcional.
+
+---
+
+##### Rotas administrativas
+
+```text
+GET    /admin/paginas                    admin.pages.index
+GET    /admin/paginas/criar              admin.pages.create
+POST   /admin/paginas                    admin.pages.store
+GET    /admin/paginas/{page}/editar      admin.pages.edit
+PUT    /admin/paginas/{page}             admin.pages.update
+DELETE /admin/paginas/{page}             admin.pages.destroy
+GET    /admin/paginas/{page}/preview     admin.pages.preview
+```
+
+Todas protegidas **somente por `auth`** durante a Fase 2. Papéis, policies e
+permissões permanecem na Fase 3 — mesmo que `editor` venha a ser o papel
+natural para páginas, ele não é antecipado aqui.
+
+**Formulário administrativo:** `title`, `slug`, `status`, `content`,
+`meta_title`, `meta_description`. O slug pode ficar vazio na criação, para
+geração automática. Não entram imagem destacada, autor, mídia, template, menu,
+posição, categoria ou tags.
+
+---
+
+##### A home permanece fora do CMS
+
+> A rota `/` e a home atual **não** são convertidas em `Page` pela F2.4.
+
+A home comercial é uma preocupação distinta e poderá futuramente combinar
+banners, produtos, categorias e outros componentes do e-commerce. A F2.4 trata
+apenas de páginas estáticas institucionais e editoriais.
+
+---
+
+##### Entregáveis
 
 - [ ] Model `Page`
 - [ ] Migration
-- [ ] CRUD (criar, editar, deletar)
-- [ ] Slug
+- [ ] Enum `PageStatus` (`draft`, `published`)
+- [ ] CRUD administrativo (criar, editar, deletar)
+- [ ] Slug único, normalizado e editável
+- [ ] Geração automática de slug a partir do título, com sufixo determinístico
 - [ ] Publicação (rascunho/publicado)
+- [ ] Rota pública `GET /paginas/{slug}`
 - [ ] SEO: `meta_title` e `meta_description`
-- [ ] Editor de conteúdo
-- [ ] Preview antes de publicar
+- [ ] Editor de conteúdo em Markdown (`textarea`)
+- [ ] `PageContentRenderer` com renderização segura
+- [ ] Preview administrativo antes de publicar
+- [ ] `PageService`
+- [ ] SoftDeletes
 
-**Testes / critério de aceite**
+##### Testes / critério de aceite planejados
 
-- [ ] CRUD completo exercitado por testes
-- [ ] Slug gerado e único
-- [ ] Página não publicada não é acessível publicamente
-- [ ] Campos de SEO persistem e são renderizados
+- [ ] CRUD administrativo completo exercitado por testes
+- [ ] Rotas administrativas exigem autenticação
+- [ ] Criação sem slug gera slug a partir do título
+- [ ] Slug gerado é normalizado
+- [ ] Slug é único
+- [ ] Colisão de slug automático recebe sufixo determinístico
+- [ ] Slug explícito duplicado é rejeitado
+- [ ] Alterar apenas o título não altera automaticamente o slug
+- [ ] Alteração explícita do slug é persistida
+- [ ] Alterar o slug não altera `Page.id`
+- [ ] `draft` não é acessível pela rota pública
+- [ ] `published` é acessível pela rota pública
+- [ ] Usuário autenticado não obtém draft pela rota pública apenas por estar autenticado
+- [ ] Preview administrativo exige autenticação
+- [ ] Preview consegue exibir draft
+- [ ] Preview e público compartilham o mesmo renderer
+- [ ] Markdown é renderizado corretamente
+- [ ] HTML inseguro não é renderizado como HTML executável
+- [ ] Links inseguros são bloqueados conforme a configuração do renderer
+- [ ] `league/commonmark` é dependência direta do projeto antes de ser utilizado pelo `PageContentRenderer`
+- [ ] O renderer limita profundidade de Markdown conforme o contrato de segurança
+- [ ] `meta_title` persiste e substitui o título HTML quando preenchido
+- [ ] Ausência de `meta_title` usa `Page.title`
+- [ ] `meta_description` persiste e é renderizada
+- [ ] Exclusão administrativa usa soft delete
+- [ ] Página soft-deleted não é acessível publicamente
+- [ ] Slug de página soft-deleted não é reutilizado automaticamente
+- [ ] Somente campos suportados podem ser persistidos
+- [ ] A home `/` permanece independente do CMS
+- [ ] Nenhuma funcionalidade da F2.6 é antecipada
+- [ ] Nenhuma funcionalidade da F2.7 é antecipada
+- [ ] Suíte completa permanece verde
+- [ ] Pint passa
+- [ ] `git diff --check` passa
 
-**Dependências:** F2.2 (layout e rotas admin).
+##### Fora do escopo
 
-**Bloqueadores / decisões pendentes:** nenhum. A dependência da F2.2 está
-satisfeita.
+**Outras subfases:** menus e `MenuItem` (F2.6), biblioteca de mídia, upload e
+imagem destacada (F2.7), banners (F2.5).
+
+**Editor e frontend:** WYSIWYG e qualquer dependência de editor visual
+(TinyMCE, CKEditor, TipTap, Quill), Livewire para o CRUD, JavaScript complexo,
+autosave.
+
+**Ciclo de conteúdo:** histórico e versionamento, agendamento de publicação,
+workflow de aprovação, restore, lixeira, force delete, redirect manager.
+
+**Fase 3:** papéis, permissões, policies, autor/editor por usuário e auditoria
+persistente.
+
+**SEO avançado:** OpenGraph, Twitter Cards, JSON-LD.
+
+**Arquitetura:** `PageRepository` e suas variações.
+
+---
+
+##### Contrato futuro com a F2.6
+
+> A F2.4 fornece `Page.id` como identidade estável. Quando a F2.6 for
+> implementada, itens de menu internos deverão relacionar-se à página por sua
+> **identidade**, e a URL deverá ser resolvida a partir da `Page` atual.
+
+Não fica decidido agora se a F2.6 usará enum de destino, relacionamento
+polimórfico, `page_id` nullable, URL externa combinada com `page_id` ou outra
+modelagem — isso pertence à auditoria arquitetural da F2.6. O único contrato
+que a F2.4 fecha é:
+
+```text
+slug != identidade
+Page.id = identidade estável
+```
+
+---
+
+**Dependências:** F2.2 (layout e rotas admin) — satisfeita. A F2.4 **não**
+depende de F2.5, F2.6, F2.7, F2.3-C nem da Fase 3.
+
+**Bloqueadores / decisões pendentes:** nenhum. O contrato arquitetural está
+fechado e a implementação pode começar quando autorizada.
 
 ---
 
@@ -835,6 +1197,12 @@ satisfeita.
 
 **Dependências:** F2.2 (layout e rotas admin), F2.4 (para itens que apontam
 para páginas).
+
+> **Contrato herdado da F2.4:** itens internos devem se relacionar à página por
+> `Page.id`, não pelo slug — o slug é endereço público e pode mudar. A URL é
+> resolvida a partir da `Page` atual. A modelagem dos destinos de menu (enum,
+> polimórfico, `page_id` nullable ou outra) fica para a auditoria arquitetural
+> desta subfase.
 
 **Bloqueadores / decisões pendentes:** nenhum. A dependência da F2.2 está
 satisfeita.
@@ -1747,6 +2115,13 @@ Atualizado toda segunda-feira com progresso real.
   `SiteSettingService::setMany()`, expostas como CSS variables de runtime, com
   preview server-side e integração mínima ao frontend público. Validação: 96
   testes / 307 assertions. Próxima subfase planejada: F2.4 — Páginas Estáticas.
+- **2026-09-04:** F2.4 — contrato arquitetural definido antes da
+  implementação: `Page` com identidade `BIGINT` estável; slug único, editável e
+  mutável; rota pública `/paginas/{slug}`; estados `draft`/`published`;
+  conteúdo Markdown com renderização segura; `SoftDeletes`; SEO mínimo; preview
+  administrativo compartilhando o renderer; `PageService` sem Repository; e
+  integração futura com a F2.6 pela identidade da página. **A F2.4 permanece
+  planejada e não iniciada** — nenhum código foi escrito.
 - *Próxima revisão: 2026-09-11*
 
 ---
