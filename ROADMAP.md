@@ -280,14 +280,42 @@ autorização granular, `is_admin`, cadastro de clientes, recuperação/reset de
 senha, email verification, 2FA, Sanctum tokens, layout administrativo,
 sidebar, topbar, breadcrumbs e dashboard real.
 
-##### F2.2-B — Layout administrativo e navegação 📋 Planejada
+##### F2.2-B — Layout administrativo e navegação ✅ Concluída
 
 **Objetivo:** construir sobre a F2.2-A a infraestrutura visual reutilizável do
 painel administrativo.
 
-**Escopo planejado:** layout de `/admin`, sidebar, topbar, breadcrumbs,
-organização da navegação administrativa, componentes Blade/Livewire quando
-realmente necessários e responsividade básica.
+**Concluída e validada em 2026-09-04.**
+Commit: `a178dd8d6fa865433f6fe407b223ca98d276a96d`
+(`feat(fase-2): adiciona layout administrativo e navegacao`)
+
+Validação: 7 testes / 34 assertions na suíte de autenticação; 31 testes /
+87 assertions na suíte completa; Pint sem violações; `git diff --check` limpo.
+
+**Escopo entregue**
+
+- [x] Layout administrativo único (`resources/views/layouts/admin.blade.php`)
+- [x] Sidebar (`admin/partials/sidebar.blade.php`)
+- [x] Topbar (`admin/partials/topbar.blade.php`)
+- [x] Breadcrumbs (`admin/partials/breadcrumbs.blade.php`)
+- [x] Migração de `/admin` para o layout — a view deixou de declarar documento
+      HTML próprio e passou a usar `@extends('layouts.admin')`
+- [x] Responsividade básica sem JavaScript — abaixo de `lg` a sidebar vira
+      faixa no topo
+
+**Decisões registradas**
+
+- A sidebar traz apenas o link de Dashboard. Nenhuma seção futura ganhou link:
+  apontar para página inexistente é caminho quebrado, não prévia.
+- Os breadcrumbs são estáticos de propósito. Uma trilha dinâmica exige mais de
+  um nível de navegação, que ainda não existe; aqui apenas se fixa a posição
+  visual onde ela aparecerá.
+- Nenhum componente Blade, Livewire ou Alpine foi criado — os partials simples
+  bastaram para o escopo.
+
+**Fora do escopo:** dashboard funcional, indicadores, métricas, estado ativo
+genérico de menu (F2.2-C), roles, permissions, policies e autorização granular
+(Fase 3).
 
 **Dependência:** F2.2-A concluída.
 
@@ -304,7 +332,8 @@ navegação, testes de integração, hardening e regressões de autenticação.
 
 **Dependências posteriores:** F2.3, F2.4 e F2.7 dependem da F2.2 completa;
 F2.5 depende da F2.2 completa e da F2.7; F2.6 depende da F2.2 completa e da
-F2.4. A conclusão isolada da F2.2-A não libera essas subfases.
+F2.4. Concluir subfases da F2.2 isoladamente — A, B ou ambas — não libera
+essas subfases: é preciso a F2.2 inteira, incluindo a F2.2-C.
 
 ---
 
@@ -489,17 +518,17 @@ Preservadas da versão anterior deste Roadmap:
 
 #### Bloqueadores da Fase 2
 
-- Nenhum bloqueador arquitetural pendente. A F2.2-A entregou a autenticação
-  mínima para `/admin` e está concluída; a F2.2 segue em desenvolvimento até
-  F2.2-B e F2.2-C. A autorização granular permanece na Fase 3.
+- Nenhum bloqueador arquitetural pendente. F2.2-A e F2.2-B estão concluídas —
+  autenticação mínima e fundação visual do painel; a F2.2 segue em
+  desenvolvimento até a F2.2-C. A autorização granular permanece na Fase 3.
 
 #### Dependências
 
 - ✅ Fase 1 (concluída)
 
 #### Próximo Passo
-→ **F2.2-B — Layout administrativo e navegação.** A F2.2-A está concluída, mas
-a F2.2 só será encerrada após F2.2-B e F2.2-C. A Fase 3 permanece após a
+→ **F2.2-C — Dashboard, navegação ativa e hardening.** F2.2-A e F2.2-B estão
+concluídas; a F2.2 só será encerrada após a F2.2-C. A Fase 3 permanece após a
 conclusão da Fase 2.
 
 ---
@@ -1281,9 +1310,8 @@ Atualizado toda segunda-feira com progresso real.
 ## ⚠️ Bloqueadores Conhecidos
 
 - ✅ **F2.1 — Fundação do CMS:** concluída.
-- Nenhum bloqueador arquitetural conhecido. A F2.2-A está concluída com
-  autenticação mínima em `/admin`; a F2.2 prossegue em F2.2-B. A autorização
-  granular permanece na Fase 3.
+- Nenhum bloqueador arquitetural conhecido. F2.2-A e F2.2-B estão concluídas;
+  a F2.2 prossegue na F2.2-C. A autorização granular permanece na Fase 3.
 
 ---
 
@@ -1316,6 +1344,11 @@ Atualizado toda segunda-feira com progresso real.
   proteção de `/admin` por middleware `auth`. Commit:
   `bf175ec9a1e3068bf3d67ee1f051c8a07ad3434a`. A F2.2 segue em desenvolvimento
   até a conclusão de F2.2-B e F2.2-C.
+- **2026-09-04:** F2.2-B concluída e validada — layout administrativo único,
+  sidebar, topbar, breadcrumbs e migração de `/admin` para o layout, com
+  responsividade básica sem JavaScript. Commit:
+  `a178dd8d6fa865433f6fe407b223ca98d276a96d`. A F2.2 segue em desenvolvimento
+  até a conclusão da F2.2-C.
 - *Próxima revisão: 2026-09-11*
 
 ---
@@ -1326,10 +1359,10 @@ Atualizado toda segunda-feira com progresso real.
 R: Aproximadamente 30 dias (4 semanas) até Fase 8 concluída.
 
 **P: Posso usar em produção agora?**  
-R: Não. O ambiente de desenvolvimento já roda a aplicação; a F2.1 e a F2.2-A
-estão concluídas, e a F2.2 segue em desenvolvimento. As demais funcionalidades
-de e-commerce e a preparação para produção continuam previstas para as
-próximas fases.
+R: Não. O ambiente de desenvolvimento já roda a aplicação; a F2.1, a F2.2-A e
+a F2.2-B estão concluídas, e a F2.2 segue em desenvolvimento até a F2.2-C. As
+demais funcionalidades de e-commerce e a preparação para produção continuam
+previstas para as próximas fases.
 
 **P: Preciso implementar tudo?**  
 R: Não. Priorize as fases 1-6 para MVP. Fases 7-9 são para release.
