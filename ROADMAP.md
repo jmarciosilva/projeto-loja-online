@@ -172,7 +172,7 @@ no repositório e foi executado/validado com sucesso.**
 
 | Subfase | Status | Entregável | Depende de |
 | --- | --- | --- | --- |
-| F2.1 — Fundação do CMS | 📋 Planejado | Domínio e infraestrutura de configuração | Fase 1 |
+| F2.1 — Fundação do CMS | ⏳ Em desenvolvimento | Domínio e infraestrutura de configuração | Fase 1 |
 | F2.2 — Fundação do Admin | 🚧 Aguardando decisão | Rotas, layout e navegação de `/admin` | Fase 1 |
 | F2.3 — Configurações Globais | 📋 Planejado | Interface administrativa de `SiteSetting` | F2.1, F2.2 |
 | F2.4 — Páginas Estáticas | 📋 Planejado | CRUD de páginas com SEO e publicação | F2.2 |
@@ -185,11 +185,19 @@ no repositório e foi executado/validado com sucesso.**
 
 ---
 
-#### F2.1 — Fundação do CMS 📋 Planejado
+#### F2.1 — Fundação do CMS ⏳ Em desenvolvimento
 
 **Objetivo:** estabelecer o domínio e a infraestrutura de configuração do CMS
 antes de qualquer interface, para que as subfases seguintes consumam uma base
 já testada.
+
+**Progresso interno**
+
+- [x] **F2.1-A — Persistência e contrato do domínio**
+  - Commit: `5c9194a9e50a6cbaa13df950de0beee3a4d936d3`
+- [x] **F2.1-B — Service Layer, Redis, TTL e invalidação**
+  - Commit: `db113a0255791b35f2a8fb88081b6afe95c2f663`
+- [ ] **F2.1-C — Hardening e fechamento da fundação do CMS**
 
 **Escopo:** apenas domínio, persistência e cache. **Sem** interface
 administrativa, componentes Livewire administrativos ou páginas de
@@ -197,23 +205,23 @@ configuração — isso é escopo da F2.3.
 
 **Entregáveis**
 
-- [ ] Migration `site_settings`
-- [ ] Model `SiteSetting`
-- [ ] Definição do formato `key`/`value`, incluindo a estratégia para valores
+- [x] Migration `site_settings`
+- [x] Model `SiteSetting`
+- [x] Definição do formato `key`/`value`, incluindo a estratégia para valores
       JSON (como serializar, quando desserializar, e como tipar a leitura)
-- [ ] Service Layer responsável pelas operações de configuração
-- [ ] Integração com Redis para cache
-- [ ] Estratégia explícita de invalidação do cache após alterações
+- [x] Service Layer responsável pelas operações de configuração
+- [x] Integração com Redis para cache
+- [x] Estratégia explícita de invalidação do cache após alterações
 - [ ] Helpers/getters/setters — **somente se realmente necessários**; não criar
       açúcar sintático sem uso comprovado
 
 **Testes / critério de aceite**
 
-- [ ] Persistência: gravar uma configuração e recuperá-la do banco
-- [ ] Leitura: ler valores escalares e valores JSON, com o tipo correto
-- [ ] Atualização: sobrescrever um valor existente
-- [ ] Cache: leitura subsequente vem do Redis, não do banco
-- [ ] Invalidação: após alteração, a leitura reflete o novo valor — este é o
+- [x] Persistência: gravar uma configuração e recuperá-la do banco
+- [x] Leitura: ler valores escalares e valores JSON, com o tipo correto
+- [x] Atualização: sobrescrever um valor existente
+- [x] Cache: leitura subsequente vem do Redis, não do banco
+- [x] Invalidação: após alteração, a leitura reflete o novo valor — este é o
       teste que pega o defeito mais provável desta subfase
 
 **Dependências:** Fase 1 (concluída).
@@ -457,14 +465,16 @@ Preservadas da versão anterior deste Roadmap:
   fronteira entre Fase 2 e Fase 3. Bloqueia a implementação da proteção
   definitiva das rotas administrativas e, por consequência, o critério de
   acesso das subfases F2.3 a F2.7.
-- A **F2.1 não é afetada** por essa decisão e pode ser iniciada de imediato.
+- A **F2.1 não é afetada** por essa decisão; F2.1-A e F2.1-B já foram concluídas
+  e a F2.1-C permanece pendente.
 
 #### Dependências
 
 - ✅ Fase 1 (concluída)
 
 #### Próximo Passo
-→ **F2.1** (Fundação do CMS). A Fase 3 permanece após a conclusão da Fase 2.
+→ **F2.1-C — Hardening e fechamento da fundação do CMS.** A Fase 3 permanece
+após a conclusão da Fase 2.
 
 ---
 
@@ -1248,12 +1258,12 @@ Atualizado toda segunda-feira com progresso real.
 
 ## ⚠️ Bloqueadores Conhecidos
 
-- **F2.1 — Fundação do CMS:** sem bloqueadores. Pode ser iniciada.
+- **F2.1 — Fundação do CMS:** sem bloqueadores. Em desenvolvimento.
 - 🚧 **F2.2 — Fundação do Admin:** decisão arquitetural pendente sobre
   autenticação/autorização das rotas `/admin`, na fronteira entre a Fase 2 e a
   Fase 3. Bloqueia a implementação da proteção definitiva do painel.
-- Essa decisão **não impede a execução da F2.1**, que não toca em rotas
-  administrativas.
+- Essa decisão **não afeta a continuidade da F2.1**, que não toca em rotas
+  administrativas; F2.1-A e F2.1-B estão concluídas e a F2.1-C permanece pendente.
 
 ---
 
@@ -1267,6 +1277,10 @@ Atualizado toda segunda-feira com progresso real.
 - **2026-09-04:** Fase 1b — Laravel 12.69.1, Livewire 4.4.3, Vite 7 e
   TailwindCSS 4 instalados; migrations iniciais aplicadas; `composer test`
   passando. Fase 1 concluída ✅
+- **2026-09-04:** F2.1-A concluída — persistência e contrato de SiteSetting.
+  Commit: `5c9194a9e50a6cbaa13df950de0beee3a4d936d3`
+- **2026-09-04:** F2.1-B concluída — SiteSettingService, cache Redis com TTL
+  de 5 minutos e invalidação explícita. Commit: `db113a0255791b35f2a8fb88081b6afe95c2f663`
 - *Próxima revisão: 2026-09-11*
 
 ---
