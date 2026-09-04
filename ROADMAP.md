@@ -5,7 +5,7 @@
 - **Fase Atual:** Fase 2 — CMS e Configurações Admin ⏳ (iniciada em 2026-09-04)
   - F2.1 — Fundação do CMS: ✅ concluída
   - F2.2 — Fundação do Admin: ✅ concluída
-  - Próxima subfase: **F2.3 — Configurações Globais**
+  - Próxima subfase: **F2.3-A — Configurações gerais**
 - **Fase 1:** ✅ Concluída em 2026-09-04
 - **Data de Início:** 2026-09-04
 - **Data Estimada de MVP Completo:** 2026-09-30
@@ -152,12 +152,25 @@ A Fase 2 está dividida em sete subfases incrementais. Cada uma é fechada,
 testável e entregável por conta própria — o objetivo é evitar um bloco único de
 trabalho que só possa ser validado no fim.
 
-**Sequência pretendida:** F2.1 → F2.2 → F2.3 → F2.4 → F2.7 → F2.5 → F2.6.
-Uma subfase posterior não começa automaticamente ao término da anterior.
+**Sequência pretendida**, com F2.1 e F2.2 já concluídas:
 
-A F2.7 é executada antes da F2.5 por decisão arquitetural: os banners consomem
-a biblioteca de mídia em vez de manter armazenamento próprio (ver F2.5). A
-numeração das subfases é mantida — apenas a ordem de execução muda.
+```text
+F2.3-A → F2.3-B → F2.4 → F2.7 → F2.3-C → F2.5 → F2.6
+```
+
+Uma subfase posterior não começa automaticamente ao término da anterior. A F2.3
+aparece dividida porque suas três partes têm dependências distintas.
+
+Duas decisões arquiteturais explicam essa ordem, e ambas evitam duplicar o
+mesmo mecanismo:
+
+- **A F2.7 precede a F2.3-C**, porque logo e favicon usam a biblioteca de mídia
+  em vez de upload próprio. Consequência intencional: a F2.3 fica
+  **parcialmente executada** após A e B, e só é encerrada quando a F2.7 existir.
+- **A F2.7 precede a F2.5**, porque os banners também consomem a biblioteca.
+
+A numeração das subfases é preservada — apenas a ordem de execução muda. A F2.7
+não é movida para dentro da F2.3 nem renumerada.
 
 **Modelo de negócio:** e-commerce próprio de operação única (single-store),
 sem marketplace, lojistas ou vendedores terceiros. Produtos, estoque, pedidos
@@ -181,7 +194,7 @@ no repositório e foi executado/validado com sucesso.**
 | --- | --- | --- | --- |
 | F2.1 — Fundação do CMS | ✅ Concluída | Domínio e infraestrutura de configuração | Fase 1 |
 | F2.2 — Fundação do Admin | ✅ Concluída | Autenticação, rotas, layout e navegação de `/admin` | Fase 1 |
-| F2.3 — Configurações Globais | 📋 Planejado | Interface administrativa de `SiteSetting` | F2.1, F2.2 |
+| F2.3 — Configurações Globais | 📋 Planejado | Configurações gerais, tema e identidade visual integrada à F2.7 | F2.1, F2.2 (C também da F2.7) |
 | F2.4 — Páginas Estáticas | 📋 Planejado | CRUD de páginas com SEO e publicação | F2.2 |
 | F2.7 — Biblioteca de Mídia | 📋 Planejado | Upload, processamento e consulta de mídia | F2.2 |
 | F2.5 — Banners | 📋 Planejado | CRUD de banners com ordenação, sobre a mídia da F2.7 | F2.2, **F2.7** |
@@ -381,49 +394,271 @@ bloqueava F2.3, F2.4 e F2.7 está satisfeita — as três ficam **liberadas para
 início**, mantendo o status de planejadas até que o trabalho comece.
 
 As dependências adicionais continuam valendo: a **F2.5 depende da F2.7** (os
-banners consomem a biblioteca de mídia) e a **F2.6 depende da F2.4** (itens de
-menu que apontam para páginas). A ordem de execução segue
-F2.3 → F2.4 → F2.7 → F2.5 → F2.6.
+banners consomem a biblioteca de mídia), a **F2.6 depende da F2.4** (itens de
+menu que apontam para páginas) e a **F2.3-C depende da F2.3-A + F2.7** (logo e
+favicon usam a biblioteca de mídia). A ordem de execução detalhada segue
+F2.3-A → F2.3-B → F2.4 → F2.7 → F2.3-C → F2.5 → F2.6.
 
 ---
 
 #### F2.3 — Configurações Globais 📋 Planejado
 
-**Objetivo:** expor as configurações do site em interface administrativa,
-consumindo a fundação criada na F2.1.
+**Objetivo:** fornecer a interface administrativa de configurações globais
+consumindo o `SiteSettingService`, sem reimplementar persistência ou cache e
+sem criar fluxo paralelo de mídia.
 
-**Escopo:** interface e validação. A persistência e o cache já vêm da F2.1 —
-esta subfase não deve reimplementá-los.
+A F2.1 já entregou o model `SiteSetting`, o contrato tipado, a persistência, o
+`SiteSettingService`, o cache e a invalidação. **A F2.3 consome essa fundação —
+não a duplica.**
 
-**Entregáveis**
+**Fronteira arquitetural**
 
-- [ ] Interface administrativa para `SiteSetting` (CRUD de `site_settings`)
+A interface desta subfase trabalha sobre um **conjunto explícito de chaves
+suportadas pela aplicação**, persistidas por `SiteSettingService`. Ela não:
+
+- reimplementa persistência ou cache;
+- acessa `site_settings` diretamente para contornar o Service Layer;
+- oferece um CRUD genérico da tabela;
+- permite ao administrador criar chaves ou tipos arbitrários;
+- cria infraestrutura própria de mídia.
+
+> `site_settings` permanece um mecanismo genérico de armazenamento interno; a
+> interface administrativa da F2.3 não é um editor genérico dessa tabela.
+
+Persistência genérica no banco não implica interface administrativa genérica.
+A aplicação trabalha com um conjunto conhecido e versionado de configurações.
+
+**Auditoria — fora do escopo**
+
+> Auditoria persistente de alterações administrativas não faz parte da F2.3.
+> Caso seja necessária, deverá receber contrato próprio em etapa futura,
+> especialmente após a consolidação de usuários, papéis e permissões na Fase 3.
+
+Não serão criados nesta fase: tabela de auditoria, model de audit, activity
+log, pacote externo, histórico before/after ou eventos de auditoria.
+
+**Subfases**
+
+| Subfase | Status | Depende de |
+| --- | --- | --- |
+| F2.3-A — Configurações gerais | 📋 Planejada | F2.1, F2.2 |
+| F2.3-B — Tema e cores | 📋 Planejada | F2.3-A |
+| F2.3-C — Logo e favicon | 📋 Planejada | F2.3-A **+ F2.7** |
+
+**Dependências internas**
+
+```text
+F2.3-A → F2.3-B
+F2.3-A + F2.7 → F2.3-C
+```
+
+A F2.3-B **não** é pré-requisito técnico da F2.3-C. Não há motivo comprovado
+para acoplá-las: cores e arquivos de identidade são independentes entre si.
+
+**Encerramento da F2.3**
+
+A F2.3 só pode ser encerrada depois da F2.3-C, que por sua vez aguarda a F2.7.
+Na prática, a F2.3 fica **parcialmente executada** após a conclusão de A e B,
+retomando quando a biblioteca de mídia existir. Isso é intencional: dividir a
+subfase é preferível a duplicar upload de arquivos só para fechá-la antes.
+
+**Dependências:** F2.1 (fundação e cache), F2.2 (layout e rotas admin) — ambas
+concluídas.
+
+---
+
+##### F2.3-A — Configurações gerais 📋 Planejada
+
+**Objetivo:** entregar a primeira interface administrativa funcional para
+edição das configurações textuais globais da loja.
+
+**Escopo**
+
 - [ ] Nome da loja/site
-- [ ] Logo
-- [ ] Favicon
 - [ ] Email de suporte
 - [ ] Telefone
 - [ ] Endereço
-- [ ] Editor de cores: primária, secundária e destaque
-- [ ] CSS variables dinâmicas, geradas a partir das cores configuradas
-- [ ] Preview das configurações, quando aplicável
+- [ ] Formulário administrativo
+- [ ] Carregamento dos valores já persistidos
+- [ ] Persistência via `SiteSettingService`
 - [ ] Validações
-- [ ] Registro/log das alterações
+- [ ] Feedback de sucesso e de erro
+- [ ] Integração com o layout administrativo da F2.2
+- [ ] Integração com a sidebar — **somente quando a rota realmente existir**
+- [ ] Estado ativo da navegação, no padrão iniciado na F2.2-C
+- [ ] Testes de integração
 
-**Testes / critério de aceite**
+**Chaves previstas** (contrato inicial, sujeito à implementação)
 
-- [ ] Alterar uma configuração pela interface reflete na leitura da aplicação
-- [ ] Validações rejeitam entradas inválidas (cor malformada, email inválido)
-- [ ] As CSS variables refletem as cores configuradas
-- [ ] As alterações ficam registradas no log
+```text
+site.name
+site.support_email
+site.phone
+site.address
+```
 
-**Dependências:** F2.1 (fundação e cache), F2.2 (layout e rotas admin).
+Os valores podem inicialmente usar o tipo `string`, respeitando o contrato já
+fornecido pela F2.1. Estas chaves **não** viram tabela ou configuração dinâmica
+de formulário — são um conjunto conhecido, definido em código.
 
-**Bloqueadores / decisões pendentes:** nenhum. A F2.2 está concluída e o
-critério provisório de autenticação vale para toda a Fase 2: qualquer usuário
-autenticado acessa `/admin`.
+**Critérios de aceite planejados**
 
-**Nota técnica preservada:** componente Blade para o color picker.
+- [ ] Guest não acessa a página administrativa
+- [ ] Usuário autenticado acessa a página
+- [ ] O formulário carrega os valores já persistidos
+- [ ] Ausência de configuração usa comportamento/default explicitamente definido
+- [ ] Submissão válida persiste via `SiteSettingService`
+- [ ] A alteração reflete na leitura posterior
+- [ ] Email inválido é rejeitado
+- [ ] Valores inválidos não sobrescrevem configuração válida
+- [ ] Sucesso gera feedback ao usuário
+- [ ] A interface não permite editar chaves arbitrárias
+- [ ] A sidebar só ganha o link quando a rota existir
+- [ ] Suíte completa permanece verde
+- [ ] Pint passa
+- [ ] `git diff --check` passa
+
+**Fora do escopo:** logo, favicon, editor de cores, CSS variables, preview de
+tema, upload, mídia, auditoria persistente e CRUD genérico de `site_settings`.
+
+**Dependências:** F2.1, F2.2 (ambas concluídas).
+
+**Bloqueadores / decisões pendentes:** nenhum bloqueador arquitetural conhecido.
+
+---
+
+##### F2.3-B — Tema e cores 📋 Planejada
+
+**Objetivo:** adicionar as configurações visuais básicas do tema sobre a mesma
+fundação do `SiteSettingService`.
+
+**Dependência:** F2.3-A concluída.
+
+**Escopo**
+
+- [ ] Cor primária
+- [ ] Cor secundária
+- [ ] Cor de destaque
+- [ ] Campos administrativos para as três
+- [ ] Validação de formato de cor
+- [ ] Persistência via `SiteSettingService`
+- [ ] Leitura das cores configuradas
+- [ ] CSS variables
+- [ ] Aplicação das CSS variables na interface
+- [ ] Preview mínimo
+- [ ] Testes
+
+**Chaves previstas** (contrato inicial)
+
+```text
+theme.primary_color
+theme.secondary_color
+theme.accent_color
+```
+
+**Validação**
+
+Formato de cor validado explicitamente. Preferir um contrato simples e
+inequívoco — hexadecimal, por exemplo. Não construir editor visual complexo.
+
+**CSS variables**
+
+O resultado esperado é que as configurações fiquem disponíveis por variáveis
+equivalentes a:
+
+```text
+--color-primary
+--color-secondary
+--color-accent
+```
+
+O mecanismo de exposição fica a cargo da execução. Este Roadmap registra o
+resultado esperado, não impõe a arquitetura.
+
+**Preview mínimo**
+
+"Preview" aqui significa **visualização simples das cores configuradas**. Esta
+subfase não é um theme builder.
+
+**Critérios de aceite planejados**
+
+- [ ] As três cores podem ser configuradas
+- [ ] Valores válidos são persistidos
+- [ ] Valores inválidos são rejeitados
+- [ ] As CSS variables refletem os valores configurados
+- [ ] O preview mínimo reflete as cores
+- [ ] Defaults definidos para configurações ausentes
+- [ ] Suíte completa permanece verde
+- [ ] Pint passa
+- [ ] `git diff --check` passa
+
+**Fora do escopo:** seleção de fontes, construtor visual completo, presets de
+tema, dark mode configurável, drag-and-drop, dezenas de propriedades CSS, logo,
+favicon, upload e biblioteca de mídia.
+
+**Bloqueadores / decisões pendentes:** depende da F2.3-A.
+
+---
+
+##### F2.3-C — Logo e favicon 📋 Planejada
+
+**Objetivo:** permitir a configuração da identidade visual baseada em arquivos,
+usando a Biblioteca de Mídia criada pela F2.7.
+
+**Dependências:** **F2.3-A + F2.7.** A F2.3-C não começa antes da F2.7.
+
+**Decisão arquitetural**
+
+> A F2.3-C não cria upload próprio de logo ou favicon. Os arquivos usam a
+> infraestrutura centralizada de mídia da F2.7.
+
+A razão: evitar dois mecanismos de upload, dois padrões de armazenamento e
+processamento duplicado de imagens; permitir reuso dos arquivos; e permitir a
+proteção contra exclusão de mídia em uso, que já é contrato da F2.7.
+
+**Escopo**
+
+- [ ] Integração com a F2.7
+- [ ] Seleção da logo a partir da biblioteca de mídia
+- [ ] Seleção do favicon a partir da biblioteca de mídia
+- [ ] Associação da mídia às configurações globais
+- [ ] Leitura das referências
+- [ ] Renderização da logo
+- [ ] Renderização do favicon
+- [ ] Proteção das referências
+- [ ] Testes
+
+**Referência de mídia**
+
+> `SiteSetting` deverá armazenar uma referência estável à mídia gerenciada pela
+> F2.7, conforme o contrato que estiver definido nessa subfase.
+
+Se a referência será ID, UUID, caminho ou outra forma é decisão **interna da
+F2.7** — não antecipada aqui.
+
+**Proteção de referências**
+
+Logo e favicon configurados contam como mídia **em uso**. A F2.3-C integra-se
+ao contrato de proteção já previsto na F2.7, em vez de criar proteção paralela.
+
+**Critérios de aceite planejados**
+
+- [ ] O administrador seleciona uma logo existente na biblioteca
+- [ ] O administrador seleciona um favicon existente na biblioteca
+- [ ] A configuração guarda a referência à mídia
+- [ ] A leitura resolve corretamente a referência
+- [ ] A logo configurada é renderizada no ponto definido
+- [ ] O favicon configurado é renderizado
+- [ ] Mídia configurada não pode ser removida ignorando a proteção de "em uso"
+- [ ] Nenhum fluxo paralelo de upload é criado
+- [ ] Suíte completa permanece verde
+- [ ] Pint passa
+- [ ] `git diff --check` passa
+
+**Fora do escopo:** upload próprio, armazenamento próprio e qualquer
+processamento de imagem fora da F2.7.
+
+**Bloqueadores / decisões pendentes:** depende da F2.3-A e da F2.7.
 
 ---
 
@@ -548,8 +783,12 @@ satisfeita.
 **Dependências:** F2.2 (layout e rotas admin). O `intervention/image 4.3.2` já
 foi instalado na Fase 1.
 
-**Consumidores:** a **F2.5 (Banners)** depende desta subfase — por isso a F2.7
-é executada antes dela.
+**Consumidores:** a **F2.5 (Banners)** e a **F2.3-C (Logo e favicon)** dependem
+desta subfase — por isso a F2.7 é executada antes de ambas.
+
+> **A F2.7 não depende da F2.3-C.** A direção é `F2.7 → F2.3-C`, nunca o
+> inverso: a biblioteca de mídia pode ser implementada e validada de forma
+> independente, sem que logo ou favicon existam.
 
 **Bloqueadores / decisões pendentes:** nenhum. A dependência da F2.2 está
 satisfeita.
@@ -562,10 +801,13 @@ Preservadas da versão anterior deste Roadmap:
 
 - `SiteSetting` com cache Redis (TTL de 5 minutos) — F2.1
 - Intervention/Image para processamento de imagens — F2.7
-- Componente Blade para o color picker — F2.3
+- Componente Blade para o color picker — F2.3-B
 - Middleware `auth` para proteger as rotas administrativas — F2.2; autorização
   granular permanece na Fase 3
-- Log de alterações em `site_settings` — F2.3
+- Auditoria persistente de alterações administrativas **saiu do escopo
+  obrigatório da F2.3**. Se vier a ser necessária, receberá contrato próprio em
+  etapa futura, preferencialmente após a consolidação de usuários, papéis e
+  permissões na Fase 3.
 
 #### Bloqueadores da Fase 2
 
@@ -580,9 +822,9 @@ Preservadas da versão anterior deste Roadmap:
 - ✅ Fase 1 (concluída)
 
 #### Próximo Passo
-→ **F2.3 — Configurações Globais.** Com a F2.2 concluída, a fundação do painel
-está pronta e a F2.3 é a próxima na ordem de execução da Fase 2. A Fase 3
-permanece após a conclusão da Fase 2.
+→ **F2.3-A — Configurações gerais.** Com a F2.2 concluída, a fundação do painel
+está pronta e a F2.3-A é a próxima na ordem de execução — ainda como próximo
+passo planejado, não iniciado. A Fase 3 permanece após a conclusão da Fase 2.
 
 ---
 
