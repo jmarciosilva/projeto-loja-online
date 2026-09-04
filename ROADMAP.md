@@ -177,7 +177,7 @@ no repositório e foi executado/validado com sucesso.**
 | Subfase | Status | Entregável | Depende de |
 | --- | --- | --- | --- |
 | F2.1 — Fundação do CMS | ✅ Concluída | Domínio e infraestrutura de configuração | Fase 1 |
-| F2.2 — Fundação do Admin | 📋 Planejada — pronta para implementação | Rotas, layout e navegação de `/admin` | Fase 1 |
+| F2.2 — Fundação do Admin | ⏳ Em desenvolvimento | Autenticação, rotas, layout e navegação de `/admin` | Fase 1 |
 | F2.3 — Configurações Globais | 📋 Planejado | Interface administrativa de `SiteSetting` | F2.1, F2.2 |
 | F2.4 — Páginas Estáticas | 📋 Planejado | CRUD de páginas com SEO e publicação | F2.2 |
 | F2.7 — Biblioteca de Mídia | 📋 Planejado | Upload, processamento e consulta de mídia | F2.2 |
@@ -235,52 +235,68 @@ configuração — isso é escopo da F2.3.
 
 ---
 
-#### F2.2 — Fundação do Admin 📋 Planejada — pronta para implementação
+#### F2.2 — Fundação do Admin ⏳ Em desenvolvimento
 
-**Objetivo:** entregar a infraestrutura visual e de navegação do painel
-administrativo, separada da lógica de configuração.
+**Objetivo:** entregar incrementalmente a fundação administrativa, sem
+antecipar a autorização definitiva da Fase 3.
 
-**Escopo:** rotas, layout e navegação, com a autenticação mínima necessária
-para proteger `/admin`. Nenhum CRUD de conteúdo.
-
-**Entregáveis**
-
-- [ ] Estrutura de rotas `/admin`
-- [ ] Layout administrativo
-- [ ] Sidebar
-- [ ] Topbar
-- [ ] Breadcrumbs
-- [ ] Dashboard inicial
-- [ ] Organização da navegação administrativa (menu de navegação do painel)
-- [ ] Login, sessão autenticada e logout mínimos para a infraestrutura admin
-- [ ] Proteção das rotas `/admin` com autenticação e redirecionamento de
-      visitantes não autenticados para o fluxo de login
-
-**Testes / critério de aceite**
-
-- [ ] As rotas `/admin` respondem e renderizam o layout
-- [ ] A navegação (sidebar/topbar/breadcrumbs) reflete a rota atual
-- [ ] Visitante não autenticado não acessa `/admin`; usuário autenticado acessa
-      a infraestrutura administrativa da F2.2
-
-**Dependências:** Fase 1 (concluída).
+**Sequência interna:** F2.2-A → F2.2-B → F2.2-C. A F2.2 só será concluída
+quando as três subfases estiverem concluídas e validadas.
 
 **Decisão arquitetural registrada — Opção 1: autenticação mínima na F2.2**
 
-A F2.2 implementará somente o necessário para login, sessão autenticada,
-logout e proteção de `/admin`. Visitantes não autenticados serão direcionados
-ao fluxo de login; usuários autenticados poderão acessar a infraestrutura
-administrativa desta subfase.
+Visitantes não autenticados não acessam `/admin`; qualquer usuário autenticado
+acessa provisoriamente a infraestrutura administrativa. Essa barreira de
+autenticação não representa a política definitiva de autorização administrativa.
 
-Essa proteção é uma **barreira de autenticação provisória**. O middleware
-`auth` da F2.2 não representa a política definitiva de segurança/autorização
-administrativa e não equivale, de forma permanente, à autorização para acessar
-o painel.
+Continuam exclusivamente na **Fase 3**: roles, permissions, Spatie Permission,
+autorização granular, policies, middleware baseado em role ou permission, CRUD
+de usuários e roles, a definição definitiva dos perfis que acessam `/admin` e
+as regras de `admin`, `gerente`, `editor`, `operador` e `customer`.
 
-Continuam exclusivamente na **Fase 3**: roles, permissions, autorização
-granular, policies, middleware baseado em role ou permission, CRUD de usuários
-e roles, a definição definitiva dos perfis que acessam `/admin` e as regras de
-`admin`, `gerente`, `editor`, `operador` e `customer`.
+##### F2.2-A — Fortify mínimo + autenticação ⏳ Em desenvolvimento
+
+**Objetivo:** estabelecer a autenticação web mínima para proteger `/admin`,
+usando Laravel Fortify como infraestrutura a ser expandida na Fase 3.
+
+**Escopo**
+
+- [ ] Instalação e configuração mínima do Laravel Fortify
+- [ ] Login por email/password, sessão autenticada e logout
+- [ ] View de login e redirect após login para `/admin`
+- [ ] Middleware `auth` e proteção de `/admin`
+- [ ] View administrativa provisória mínima e testes da autenticação
+
+**Fora do escopo:** roles, permissions, Spatie Permission, policies,
+autorização granular, `is_admin`, cadastro de clientes, recuperação/reset de
+senha, email verification, 2FA, Sanctum tokens, layout administrativo,
+sidebar, topbar, breadcrumbs e dashboard real.
+
+##### F2.2-B — Layout administrativo e navegação 📋 Planejada
+
+**Objetivo:** construir sobre a F2.2-A a infraestrutura visual reutilizável do
+painel administrativo.
+
+**Escopo planejado:** layout de `/admin`, sidebar, topbar, breadcrumbs,
+organização da navegação administrativa, componentes Blade/Livewire quando
+realmente necessários e responsividade básica.
+
+**Dependência:** F2.2-A concluída.
+
+##### F2.2-C — Dashboard, navegação ativa e hardening 📋 Planejada
+
+**Objetivo:** completar e endurecer a Fundação do Admin antes das subfases
+administrativas seguintes.
+
+**Escopo planejado:** dashboard administrativo inicial, estado ativo da
+navegação, integração final de sidebar/topbar/breadcrumbs, comportamento de
+navegação, testes de integração, hardening e regressões de autenticação.
+
+**Dependência:** F2.2-B concluída.
+
+**Dependências posteriores:** F2.3, F2.4 e F2.7 dependem da F2.2 completa;
+F2.5 depende da F2.2 completa e da F2.7; F2.6 depende da F2.2 completa e da
+F2.4. A conclusão isolada da F2.2-A não libera essas subfases.
 
 ---
 
@@ -465,17 +481,17 @@ Preservadas da versão anterior deste Roadmap:
 
 #### Bloqueadores da Fase 2
 
-- Nenhum bloqueador arquitetural pendente para a F2.2. A subfase começa com
-  autenticação mínima para `/admin`; autorização granular permanece na Fase 3.
+- Nenhum bloqueador arquitetural pendente. A F2.2-A está em desenvolvimento
+  com autenticação mínima para `/admin`; autorização granular permanece na
+  Fase 3.
 
 #### Dependências
 
 - ✅ Fase 1 (concluída)
 
 #### Próximo Passo
-→ **F2.2 — Fundação do Admin:** iniciar sua implementação incremental,
-começando pela autenticação mínima necessária à proteção de `/admin`. A Fase 3
-permanece após a conclusão da Fase 2.
+→ **F2.2-A — Fortify mínimo + autenticação:** concluir e validar a proteção de
+`/admin`. A Fase 3 permanece após a conclusão da Fase 2.
 
 ---
 
@@ -486,8 +502,7 @@ permanece após a conclusão da Fase 2.
 **Responsável:** TBD  
 
 #### Entregáveis
-- [ ] **Laravel Fortify Setup** (autenticação nativa)
-  - [ ] Login com email/password
+- [ ] **Expansão e consolidação do Laravel Fortify iniciado na F2.2-A**
   - [ ] Registro de clientes
   - [ ] Recuperação de senha
   - [ ] Confirmação de email
@@ -1257,8 +1272,9 @@ Atualizado toda segunda-feira com progresso real.
 ## ⚠️ Bloqueadores Conhecidos
 
 - ✅ **F2.1 — Fundação do CMS:** concluída.
-- Nenhum bloqueador arquitetural conhecido para a F2.2. A subfase está
-  planejada para iniciar com autenticação mínima em `/admin`.
+- Nenhum bloqueador arquitetural conhecido. A F2.2-A está em desenvolvimento
+  com autenticação mínima em `/admin`; a autorização granular permanece na
+  Fase 3.
 
 ---
 
@@ -1284,6 +1300,9 @@ Atualizado toda segunda-feira com progresso real.
 - **2026-09-04:** Modelo de negócio explicitado como e-commerce próprio
   single-store; marketplace e lojistas terceiros estão fora do escopo. A role
   `lojista` foi substituída por `operador` no planejamento da Fase 3.
+- **2026-09-04:** F2.2 decomposta em F2.2-A (Fortify mínimo + autenticação),
+  F2.2-B (layout administrativo e navegação) e F2.2-C (dashboard, navegação
+  ativa e hardening), permitindo evolução incremental sem antecipar a Fase 3.
 - *Próxima revisão: 2026-09-11*
 
 ---
@@ -1294,9 +1313,10 @@ Atualizado toda segunda-feira com progresso real.
 R: Aproximadamente 30 dias (4 semanas) até Fase 8 concluída.
 
 **P: Posso usar em produção agora?**  
-R: Não. O ambiente de desenvolvimento já roda a aplicação, mas nenhuma
-funcionalidade de e-commerce existe (Fases 2 a 8). Produção só a partir da
-Fase 9.
+R: Não. O ambiente de desenvolvimento já roda a aplicação; a F2.1 está
+concluída e a F2.2-A está em desenvolvimento. As demais funcionalidades de
+e-commerce e a preparação para produção continuam previstas para as próximas
+fases.
 
 **P: Preciso implementar tudo?**  
 R: Não. Priorize as fases 1-6 para MVP. Fases 7-9 são para release.

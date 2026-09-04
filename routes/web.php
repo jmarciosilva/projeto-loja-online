@@ -6,6 +6,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => view('home'))->name('home');
 
+Route::get('/admin', fn () => view('admin.index'))
+    ->middleware('auth')
+    ->name('admin');
+
 /*
  * Health check da aplicação: confirma que o Laravel alcança MySQL e Redis.
  *
