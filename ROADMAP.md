@@ -8,8 +8,11 @@
   - F2.3-A — Configurações gerais: ✅ concluída
   - F2.3-B — Tema e cores: ✅ concluída
   - F2.3 permanece parcialmente aberta: a F2.3-C aguarda a F2.7
-  - Próxima subfase planejada: **F2.4 — Páginas Estáticas** (não iniciada),
-    dividida internamente em F2.4-A, F2.4-B e F2.4-C — todas planejadas
+  - **F2.4 — Páginas Estáticas: ⏳ em desenvolvimento**
+    - F2.4-A — Fundação de domínio e persistência: ✅ concluída
+    - F2.4-B — Administração e CRUD: 📋 planejada
+    - F2.4-C — Publicação, Markdown, preview e SEO: 📋 planejada
+  - Próxima etapa planejada: **F2.4-B — Administração e CRUD** (não iniciada)
 - **Fase 1:** ✅ Concluída em 2026-09-04
 - **Data de Início:** 2026-09-04
 - **Data Estimada de MVP Completo:** 2026-09-30
@@ -206,7 +209,7 @@ no repositório e foi executado/validado com sucesso.**
 | F2.1 — Fundação do CMS | ✅ Concluída | Domínio e infraestrutura de configuração | Fase 1 |
 | F2.2 — Fundação do Admin | ✅ Concluída | Autenticação, rotas, layout e navegação de `/admin` | Fase 1 |
 | F2.3 — Configurações Globais | ⏳ Em desenvolvimento | Configurações gerais, tema e identidade visual integrada à F2.7 | F2.1, F2.2 (C também da F2.7) |
-| F2.4 — Páginas Estáticas | 📋 Planejado | CRUD de páginas com SEO e publicação | F2.2 |
+| F2.4 — Páginas Estáticas | ⏳ Em desenvolvimento | CRUD de páginas com SEO e publicação | F2.2 |
 | F2.7 — Biblioteca de Mídia | 📋 Planejado | Upload, processamento e consulta de mídia | F2.2 |
 | F2.5 — Banners | 📋 Planejado | CRUD de banners com ordenação, sobre a mídia da F2.7 | F2.2, **F2.7** |
 | F2.6 — Menus | 📋 Planejado | Menus hierárquicos e itens | F2.2, F2.4 |
@@ -757,11 +760,13 @@ processamento de imagem fora da F2.7.
 
 ---
 
-#### F2.4 — Páginas Estáticas 📋 Planejado
+#### F2.4 — Páginas Estáticas ⏳ Em desenvolvimento
 
 > **Contrato arquitetural definido antes da implementação.** As decisões abaixo
-> estão fechadas e revisadas; nenhuma linha de código foi escrita. Todos os
-> itens permanecem `[ ]` — arquitetura definida não é implementação iniciada.
+> foram fechadas e revisadas antes de qualquer código, e permanecem válidas.
+>
+> A **F2.4-A está concluída**; F2.4-B e F2.4-C continuam planejadas, com todos
+> os seus itens em `[ ]`. A F2.4 só é encerrada após a F2.4-C.
 
 **Objetivo:** permitir a criação e publicação de páginas de conteúdo estático
 institucional ou editorial, com identidade estável, URL pública por slug, ciclo
@@ -787,7 +792,7 @@ F2.4-A → F2.4-B → F2.4-C
 
 | Subfase | Status | Entrega principal | Depende de |
 | --- | --- | --- | --- |
-| F2.4-A — Fundação de domínio e persistência | 📋 Planejada | Entidade `Page`, persistência, `PageStatus`, `SoftDeletes`, **núcleo do `PageService`** e invariantes de slug | F2.2 |
+| F2.4-A — Fundação de domínio e persistência | ✅ Concluída | Entidade `Page`, persistência, `PageStatus`, `SoftDeletes`, **núcleo do `PageService`** e invariantes de slug | F2.2 |
 | F2.4-B — Administração e CRUD | 📋 Planejada | Controller, Form Requests, Blades, rotas e integração administrativa sobre o serviço já fundado | F2.4-A |
 | F2.4-C — Publicação, Markdown, preview e SEO | 📋 Planejada | Renderização segura, publicação pública, preview e SEO mínimo | F2.4-B |
 
@@ -879,7 +884,15 @@ apenas de páginas estáticas institucionais e editoriais.
 
 ---
 
-##### F2.4-A — Fundação de domínio e persistência 📋 Planejada
+##### F2.4-A — Fundação de domínio e persistência ✅ Concluída
+
+**Concluída e validada em 2026-09-05.**
+Commit: `253315872d6eda3d6b45e2ce3db9d319e2adcce0`
+(`feat(fase-2): adiciona fundacao de paginas estaticas`)
+
+Validação: 47 testes focados / 93 assertions; 143 testes / 400 assertions na
+suíte completa; Pint sem violações (52 arquivos); `composer validate` válido;
+`git diff --check` limpo.
 
 **Objetivo:** estabelecer a entidade `Page` e suas invariantes **antes** de
 construir interface administrativa ou publicação pública. Slug, unicidade,
@@ -1013,44 +1026,104 @@ rotas — a interface administrativa é da F2.4-B.
 
 **Entregáveis planejados**
 
-- [ ] Model `Page`
-- [ ] Migration `pages` conforme o schema acima
-- [ ] Enum PHP `PageStatus` (`draft`, `published`), persistido em coluna string
-- [ ] Casts e configuração do model necessários ao contrato
-- [ ] `SoftDeletes` no model e `deleted_at` na migration
-- [ ] Geração automática de slug a partir do título
-- [ ] Normalização do slug conforme o formato definido
-- [ ] Sufixo determinístico para colisão de slug gerado automaticamente
-- [ ] Unicidade de slug considerando registros soft-deleted
-- [ ] Núcleo do `PageService` responsável pelas invariantes da entidade e do slug
+- [x] Model `Page`
+- [x] Migration `pages` conforme o schema acima
+- [x] Enum PHP `PageStatus` (`draft`, `published`), persistido em coluna string
+- [x] Casts e configuração do model necessários ao contrato
+- [x] `SoftDeletes` no model e `deleted_at` na migration
+- [x] Geração automática de slug a partir do título
+- [x] Normalização do slug conforme o formato definido
+- [x] Sufixo determinístico para colisão de slug gerado automaticamente
+- [x] Unicidade de slug considerando registros soft-deleted
+- [x] Núcleo do `PageService` responsável pelas invariantes da entidade e do slug
 
 **Testes / critério de aceite planejados**
 
-- [ ] Criação sem slug gera slug a partir do título
-- [ ] Slug gerado é normalizado
-- [ ] Slug é único
-- [ ] Colisão de slug automático recebe sufixo determinístico
-- [ ] Slug explícito duplicado é rejeitado
-- [ ] Alterar apenas o título não altera automaticamente o slug existente
-- [ ] Alteração explícita do slug é persistida
-- [ ] Alterar o slug não altera `Page.id`
-- [ ] Status `draft` e `published` persistem e são lidos pelo enum
-- [ ] Exclusão usa soft delete
-- [ ] Slug de página soft-deleted não é reutilizado automaticamente
-- [ ] Campos não suportados não são persistidos
-- [ ] As invariantes de slug são exercitadas pelo `PageService`, sem interface
-- [ ] Nenhuma regra de slug reside no Model, no Controller ou em Observer
-- [ ] Testes da fundação de domínio e persistência
-- [ ] Suíte completa permanece verde
-- [ ] Pint passa
-- [ ] `git diff --check` passa
+- [x] Criação sem slug gera slug a partir do título
+- [x] Slug gerado é normalizado
+- [x] Slug é único
+- [x] Colisão de slug automático recebe sufixo determinístico
+- [x] Slug explícito duplicado é rejeitado
+- [x] Alterar apenas o título não altera automaticamente o slug existente
+- [x] Alteração explícita do slug é persistida
+- [x] Alterar o slug não altera `Page.id`
+- [x] Status `draft` e `published` persistem e são lidos pelo enum
+- [x] Exclusão usa soft delete
+- [x] Slug de página soft-deleted não é reutilizado automaticamente
+- [x] Campos não suportados não são persistidos
+- [x] As invariantes de slug são exercitadas pelo `PageService`, sem interface
+- [x] Nenhuma regra de slug reside no Model, no Controller ou em Observer
+- [x] Testes da fundação de domínio e persistência
+- [x] Suíte completa permanece verde
+- [x] Pint passa
+- [x] `git diff --check` passa
+
+**Resultado entregue**
+
+Arquivos adicionados pelo commit técnico:
+
+```text
+app/Enums/PageStatus.php
+app/Models/Page.php
+app/Services/PageService.php
+database/migrations/2026_09_05_120000_create_pages_table.php
+tests/Feature/PageTest.php
+tests/Feature/PageServiceTest.php
+```
+
+Schema confirmado no MySQL do ambiente Docker, com `up()`, rollback e
+reaplicação executados:
+
+```text
+id                BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY
+title             VARCHAR(255) NOT NULL
+slug              VARCHAR(255) NOT NULL UNIQUE
+content           LONGTEXT NOT NULL
+status            VARCHAR(20) NOT NULL INDEX
+meta_title        VARCHAR(255) NULL
+meta_description  VARCHAR(320) NULL
+created_at
+updated_at
+deleted_at
+```
+
+Comportamento validado:
+
+- `Page.id` permanece identidade estável; alterar o slug não o altera;
+- slug ausente, `null`, vazio ou só com whitespace pede geração automática;
+- slug explícito é validado pelo `PageService` — formato canônico e limite;
+- slug explícito com tipo inválido é rejeitado, e não tratado como ausente;
+- slug explícito duplicado é rejeitado, sem virar `-2` em silêncio;
+- slug automático resolve colisão por sufixo determinístico `-2`, `-3`, …;
+- o slug final nunca passa de 255 caracteres, e a geração longa reserva o
+  espaço exato do sufixo antes de encurtar a base;
+- páginas soft-deleted continuam reservando seus slugs;
+- alterar apenas o título preserva o slug já publicado;
+- o `PageService` continua autoritativo fora do HTTP, sem Form Request;
+- a constraint `UNIQUE(slug)` permanece como proteção final contra corrida.
+
+**Decisões da implementação**
+
+- `status` ausente na criação assume `PageStatus::Draft`; `content` ausente
+  assume `''`, já que a coluna é `NOT NULL`;
+- título vazio ou ausente é rejeitado, assim como um título que não produza
+  slug canônico — o slug é derivado dele;
+- `InvalidArgumentException` é a exceção usada para entrada que viola o
+  contrato, seguindo o que `SiteSetting` já fazia; não há hierarquia própria;
+- `slugIsAvailable()` é público e consulta `withTrashed()`, para que a F2.4-B
+  consiga dar feedback consultando a regra em vez de reimplementá-la.
+
+> A validação de **tamanho** dos campos de entrada (`title`, `meta_title`,
+> `meta_description`) é da camada administrativa da F2.4-B. O `PageService`
+> garante o limite apenas do `slug`, que é o campo cuja unicidade e formato ele
+> resolve sozinho.
 
 **Fora do escopo da F2.4-A:** Controller, Blade, Form Request, rotas, CRUD
 administrativo, rota pública, renderização de Markdown, preview e emissão de
 SEO no HTML. O `PageService` entra aqui apenas com seu núcleo de domínio — as
 necessidades administrativas e a consulta pública chegam em B e C.
 
-**Bloqueadores / decisões pendentes:** nenhum.
+**Bloqueadores / decisões pendentes:** nenhum. A F2.4 segue para a F2.4-B.
 
 ---
 
@@ -1163,6 +1236,8 @@ existir**.
 - [ ] Atualização persiste as alterações
 - [ ] Exclusão administrativa é exclusão lógica
 - [ ] Validações rejeitam entradas inválidas
+- [ ] Os limites de tamanho da coluna são validados na entrada: `title` até 255,
+      `slug` até 255, `meta_title` até 255 e `meta_description` até 320
 - [ ] Somente campos suportados podem ser persistidos
 - [ ] O CRUD administrativo opera através do `PageService`, sem acesso direto ao Eloquent
 - [ ] O `PageService` continua autoritativo sobre a disponibilidade do slug,
@@ -1183,7 +1258,8 @@ existir**.
 `draft`/`published`, `PageContentRenderer`, dependência direta de
 `league/commonmark`, preview administrativo e emissão de SEO no HTML.
 
-**Bloqueadores / decisões pendentes:** depende da F2.4-A.
+**Bloqueadores / decisões pendentes:** nenhum. **Dependência F2.4-A
+satisfeita** — o que libera o início, sem que trabalho algum tenha começado.
 
 ---
 
@@ -1380,9 +1456,8 @@ depende de F2.5, F2.6, F2.7, F2.3-C nem da Fase 3.
 
 Internamente: `F2.4-A → F2.4-B → F2.4-C`.
 
-**Bloqueadores / decisões pendentes:** nenhum. O contrato arquitetural está
-fechado e a implementação pode começar quando autorizada, iniciando pela
-F2.4-A.
+**Bloqueadores / decisões pendentes:** nenhum. Com a F2.4-A concluída, a
+próxima etapa é a **F2.4-B — Administração e CRUD**, ainda não iniciada.
 
 ---
 
@@ -1524,12 +1599,11 @@ Preservadas da versão anterior deste Roadmap:
 - ✅ Fase 1 (concluída)
 
 #### Próximo Passo
-→ **F2.4 — Páginas Estáticas** — 📋 planejada, não iniciada. Com F2.3-A e
-F2.3-B concluídas, a F2.4 é a próxima na ordem de execução; a F2.3-C só é
-retomada depois da F2.7. A Fase 3 permanece após a conclusão da Fase 2.
+→ **F2.4-B — Administração e CRUD** — 📋 planejada, não iniciada. A F2.4-A
+está concluída e a F2.4 segue **em desenvolvimento**; a F2.3-C só é retomada
+depois da F2.7. A Fase 3 permanece após a conclusão da Fase 2.
 
-Quando autorizada, a execução da F2.4 começa pela **F2.4-A — Fundação de
-domínio e persistência**. A F2.4 só é encerrada após a F2.4-C.
+A F2.4 só é encerrada após a F2.4-C — e é só então que a F2.6 fica liberada.
 
 ---
 
@@ -2389,6 +2463,15 @@ Atualizado toda segunda-feira com progresso real.
   foi iniciada**: a F2.4 e as três subfases permanecem 📋 planejadas, com todos
   os itens em `[ ]`. A sequência global da Fase 2 permanece inalterada e a F2.6
   continua dependendo da F2.4 completa.
+- **2026-09-05:** F2.4-A — Fundação de domínio e persistência concluída.
+  Commit técnico: `253315872d6eda3d6b45e2ce3db9d319e2adcce0`. Entrega o model
+  `Page`, a migration `pages`, o enum `PageStatus`, `SoftDeletes` e o núcleo do
+  `PageService` com as invariantes de slug — geração, normalização, colisão
+  determinística, limite de 255 e reserva do slug de páginas soft-deleted —,
+  tudo exercitado sem HTTP. Validação: 47 testes focados / 93 assertions e 143
+  testes / 400 assertions na suíte completa. **A F2.4 passa a ⏳ em
+  desenvolvimento**: F2.4-B e F2.4-C continuam planejadas, e a F2.6 segue
+  bloqueada até a F2.4 completa. Próxima etapa: F2.4-B — Administração e CRUD.
 - *Próxima revisão: 2026-09-11*
 
 ---
