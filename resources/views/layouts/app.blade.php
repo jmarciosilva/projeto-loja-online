@@ -7,6 +7,10 @@
 
     <title>@yield('title', config('app.name'))</title>
 
+    {{-- Slot de metadados da página. Quem preenche é responsável pelo escape:
+         @yield imprime sem escapar. --}}
+    @yield('meta')
+
     {{-- O Alpine vem embutido no Livewire 4 — não importe alpinejs separadamente,
          senão duas instâncias competem e o console acusa
          "Alpine has already been initialized". --}}

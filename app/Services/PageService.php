@@ -115,6 +115,22 @@ class PageService
     }
 
     /**
+     * Resolve uma página para exibição pública.
+     *
+     * Só devolve páginas `published`: um rascunho não existe para o público, e
+     * a consulta padrão do Eloquent já exclui as apagadas logicamente — por
+     * isso, ao contrário da checagem de slug, esta **não** usa `withTrashed()`.
+     * Devolver `null` em vez de abortar mantém a decisão de HTTP no Controller.
+     */
+    public function findPublishedBySlug(string $slug): ?Page
+    {
+        return Page::query()
+            ->where('slug', $slug)
+            ->where('status', PageStatus::Published)
+            ->first();
+    }
+
+    /**
      * Listagem administrativa, da mais recentemente alterada para a mais antiga.
      *
      * A consulta fica aqui, e não no Controller, para que a camada administrativa

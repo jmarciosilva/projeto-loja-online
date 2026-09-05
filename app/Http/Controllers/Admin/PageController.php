@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StorePageRequest;
 use App\Http\Requests\Admin\UpdatePageRequest;
 use App\Models\Page;
+use App\Services\PageContentRenderer;
 use App\Services\PageService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -63,6 +64,23 @@ class PageController extends Controller
         return redirect()
             ->route('admin.pages.index')
             ->with('status', 'Página atualizada com sucesso.');
+    }
+
+    /**
+     * Visualização administrativa antes de publicar.
+     *
+     * Exibe rascunho e publicada, com o mesmo renderer e o mesmo parcial de
+     * conteúdo da página pública — se divergissem, o preview deixaria de
+     * responder à pergunta que justifica existir. Só lê: nada é persistido, e
+     * status e slug seguem intactos.
+     */
+    public function preview(Page $page, PageContentRenderer $renderer): View
+    {
+        return view('admin.pages.preview', [
+            'page' => $page,
+            'content' => $renderer->render($page->content),
+            'statuses' => $this->statusLabels(),
+        ]);
     }
 
     public function destroy(Page $page, PageService $pages): RedirectResponse

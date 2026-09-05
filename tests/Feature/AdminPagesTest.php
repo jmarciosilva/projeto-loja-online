@@ -423,12 +423,24 @@ class AdminPagesTest extends TestCase
         }
     }
 
-    public function test_no_public_or_preview_route_exists_yet(): void
+    /**
+     * Até a F2.4-B, este teste guardava que `pages.show` e `admin.pages.preview`
+     * ainda não existiam. A F2.4-C as criou legitimamente, então a guarda passou
+     * a afirmar o contrato que de fato importa: cada uma existe com a proteção
+     * certa. O preview sem `auth`, ou a rota pública com ele, seriam os erros
+     * reais — e continuam cobertos.
+     */
+    public function test_the_public_and_preview_routes_have_the_right_protection(): void
     {
-        $rotas = collect(app('router')->getRoutes())->map(fn ($rota) => $rota->getName())->filter()->all();
+        $rotas = collect(app('router')->getRoutes())
+            ->filter(fn ($rota) => $rota->getName() !== null)
+            ->keyBy(fn ($rota) => $rota->getName());
 
-        $this->assertNotContains('admin.pages.preview', $rotas);
-        $this->assertNotContains('pages.show', $rotas);
+        $this->assertTrue($rotas->has('pages.show'));
+        $this->assertTrue($rotas->has('admin.pages.preview'));
+
+        $this->assertNotContains('auth', $rotas->get('pages.show')->gatherMiddleware());
+        $this->assertContains('auth', $rotas->get('admin.pages.preview')->gatherMiddleware());
     }
 
     // --- Navegação --------------------------------------------------------

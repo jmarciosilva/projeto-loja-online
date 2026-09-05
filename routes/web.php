@@ -3,11 +3,21 @@
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\SiteSettingController;
 use App\Http\Controllers\Admin\ThemeSettingController;
+use App\Http\Controllers\PageController as PublicPageController;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => view('home'))->name('home');
+
+/*
+ * Páginas estáticas públicas, sob o namespace `/paginas/` em vez de um
+ * catch-all `/{slug}`: o storefront ainda receberá catálogo, produtos, carrinho
+ * e conta do cliente, e um catch-all colocaria slugs do CMS competindo com
+ * essas rotas. Sem `auth` — é conteúdo público, e apenas o que está publicado
+ * é resolvido.
+ */
+Route::get('/paginas/{slug}', [PublicPageController::class, 'show'])->name('pages.show');
 
 Route::get('/admin', fn () => view('admin.index'))
     ->middleware('auth')
@@ -42,6 +52,8 @@ Route::middleware('auth')
             ->name('pages.store');
         Route::get('paginas/{page}/editar', [PageController::class, 'edit'])
             ->name('pages.edit');
+        Route::get('paginas/{page}/preview', [PageController::class, 'preview'])
+            ->name('pages.preview');
         Route::put('paginas/{page}', [PageController::class, 'update'])
             ->name('pages.update');
         Route::delete('paginas/{page}', [PageController::class, 'destroy'])

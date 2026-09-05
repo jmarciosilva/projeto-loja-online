@@ -31,3 +31,77 @@
 .theme-border-accent {
     border-color: var(--color-accent);
 }
+
+/*
+ * Tipografia do conteúdo renderizado a partir do Markdown das páginas. O
+ * preflight do Tailwind zera headings, listas e ênfase, e o HTML vem do
+ * CommonMark — sem classes utilitárias para receber estilo. Estas regras são
+ * mínimas de propósito: dão legibilidade sem virar um segundo design system.
+ */
+.page-content > * + * {
+    margin-top: 1rem;
+}
+
+.page-content h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    margin-top: 2rem;
+}
+
+.page-content h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-top: 1.5rem;
+}
+
+.page-content a {
+    color: var(--color-accent);
+    text-decoration: underline;
+}
+
+.page-content ul,
+.page-content ol {
+    padding-left: 1.5rem;
+}
+
+.page-content ul {
+    list-style: disc;
+}
+
+.page-content ol {
+    list-style: decimal;
+}
+
+.page-content strong {
+    font-weight: 600;
+}
+
+.page-content em {
+    font-style: italic;
+}
+
+.page-content blockquote {
+    border-left: 3px solid var(--color-secondary);
+    padding-left: 1rem;
+    color: #4b5563;
+}
+
+.page-content code {
+    background-color: #f3f4f6;
+    border-radius: 0.25rem;
+    padding: 0.125rem 0.375rem;
+    font-size: 0.875em;
+}
+
+.page-content pre {
+    background-color: #f3f4f6;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    overflow-x: auto;
+}
+
+.page-content pre code {
+    background-color: transparent;
+    padding: 0;
+}
