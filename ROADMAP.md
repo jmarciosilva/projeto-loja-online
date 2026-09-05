@@ -10,9 +10,10 @@
   - F2.3 permanece parcialmente aberta: a F2.3-C aguarda a F2.7
   - **F2.4 — Páginas Estáticas: ⏳ em desenvolvimento**
     - F2.4-A — Fundação de domínio e persistência: ✅ concluída
-    - F2.4-B — Administração e CRUD: 📋 planejada
+    - F2.4-B — Administração e CRUD: ✅ concluída
     - F2.4-C — Publicação, Markdown, preview e SEO: 📋 planejada
-  - Próxima etapa planejada: **F2.4-B — Administração e CRUD** (não iniciada)
+  - Próxima etapa planejada: **F2.4-C — Publicação, Markdown, preview e SEO**
+    (não iniciada)
 - **Fase 1:** ✅ Concluída em 2026-09-04
 - **Data de Início:** 2026-09-04
 - **Data Estimada de MVP Completo:** 2026-09-30
@@ -765,8 +766,8 @@ processamento de imagem fora da F2.7.
 > **Contrato arquitetural definido antes da implementação.** As decisões abaixo
 > foram fechadas e revisadas antes de qualquer código, e permanecem válidas.
 >
-> A **F2.4-A está concluída**; F2.4-B e F2.4-C continuam planejadas, com todos
-> os seus itens em `[ ]`. A F2.4 só é encerrada após a F2.4-C.
+> A **F2.4-A e a F2.4-B estão concluídas**; a F2.4-C continua planejada, com
+> todos os seus itens em `[ ]`. A F2.4 só é encerrada após a F2.4-C.
 
 **Objetivo:** permitir a criação e publicação de páginas de conteúdo estático
 institucional ou editorial, com identidade estável, URL pública por slug, ciclo
@@ -793,7 +794,7 @@ F2.4-A → F2.4-B → F2.4-C
 | Subfase | Status | Entrega principal | Depende de |
 | --- | --- | --- | --- |
 | F2.4-A — Fundação de domínio e persistência | ✅ Concluída | Entidade `Page`, persistência, `PageStatus`, `SoftDeletes`, **núcleo do `PageService`** e invariantes de slug | F2.2 |
-| F2.4-B — Administração e CRUD | 📋 Planejada | Controller, Form Requests, Blades, rotas e integração administrativa sobre o serviço já fundado | F2.4-A |
+| F2.4-B — Administração e CRUD | ✅ Concluída | Controller, Form Requests, Blades, rotas e integração administrativa sobre o serviço já fundado | F2.4-A |
 | F2.4-C — Publicação, Markdown, preview e SEO | 📋 Planejada | Renderização segura, publicação pública, preview e SEO mínimo | F2.4-B |
 
 **Por que dividir:** a F2.4 concentra três preocupações com riscos distintos —
@@ -1127,7 +1128,15 @@ necessidades administrativas e a consulta pública chegam em B e C.
 
 ---
 
-##### F2.4-B — Administração e CRUD 📋 Planejada
+##### F2.4-B — Administração e CRUD ✅ Concluída
+
+**Concluída e validada em 2026-09-05.**
+Commit: `232af8c8485a102552fc156fb490146790525811`
+(`feat(fase-2): adiciona CRUD administrativo de paginas`)
+
+Validação: 32 testes focados / 152 assertions; 47 testes / 93 assertions da
+F2.4-A sem regressão; 175 testes / 551 assertions na suíte completa; Pint sem
+violações (56 arquivos); `composer validate` válido; `git diff --check` limpo.
 
 **Objetivo:** construir a operação administrativa das páginas sobre o domínio e
 o `PageService` já estabilizados pela F2.4-A, sem ainda expor nada
@@ -1213,53 +1222,128 @@ existir**.
 
 **Entregáveis planejados**
 
-- [ ] Integração administrativa com o `PageService` fundado na F2.4-A
-- [ ] Extensões compatíveis de consulta do `PageService`, somente se a listagem exigir
-- [ ] Form Requests de criação e de atualização
-- [ ] Controller administrativo de páginas
-- [ ] Blade de listagem
-- [ ] Blade de criação
-- [ ] Blade de edição
-- [ ] Rotas administrativas com os nomes definidos acima
-- [ ] Feedback de sucesso e de erro
-- [ ] Integração com o layout administrativo da F2.2
-- [ ] Sidebar/navegação — somente quando as rotas existirem
-- [ ] Breadcrumbs
+- [x] Integração administrativa com o `PageService` fundado na F2.4-A
+- [x] Extensões compatíveis de consulta do `PageService`, somente se a listagem exigir
+- [x] Form Requests de criação e de atualização
+- [x] Controller administrativo de páginas
+- [x] Blade de listagem
+- [x] Blade de criação
+- [x] Blade de edição
+- [x] Rotas administrativas com os nomes definidos acima
+- [x] Feedback de sucesso e de erro
+- [x] Integração com o layout administrativo da F2.2
+- [x] Sidebar/navegação — somente quando as rotas existirem
+- [x] Breadcrumbs
 
 **Testes / critério de aceite planejados**
 
-- [ ] Guest não acessa o CRUD administrativo
-- [ ] Usuário autenticado acessa o CRUD administrativo
-- [ ] Criação de página persiste corretamente
-- [ ] Listagem exibe as páginas existentes
-- [ ] Edição carrega os valores persistidos
-- [ ] Atualização persiste as alterações
-- [ ] Exclusão administrativa é exclusão lógica
-- [ ] Validações rejeitam entradas inválidas
-- [ ] Os limites de tamanho da coluna são validados na entrada: `title` até 255,
+- [x] Guest não acessa o CRUD administrativo
+- [x] Usuário autenticado acessa o CRUD administrativo
+- [x] Criação de página persiste corretamente
+- [x] Listagem exibe as páginas existentes
+- [x] Edição carrega os valores persistidos
+- [x] Atualização persiste as alterações
+- [x] Exclusão administrativa é exclusão lógica
+- [x] Validações rejeitam entradas inválidas
+- [x] Os limites de tamanho da coluna são validados na entrada: `title` até 255,
       `slug` até 255, `meta_title` até 255 e `meta_description` até 320
-- [ ] Somente campos suportados podem ser persistidos
-- [ ] O CRUD administrativo opera através do `PageService`, sem acesso direto ao Eloquent
-- [ ] O `PageService` continua autoritativo sobre a disponibilidade do slug,
+- [x] Somente campos suportados podem ser persistidos
+- [x] O CRUD administrativo opera através do `PageService`, sem acesso direto ao Eloquent
+- [x] O `PageService` continua autoritativo sobre a disponibilidade do slug,
       inclusive fora do HTTP — validar no Form Request para dar feedback ao
       formulário não equivale a duplicar a invariante, desde que o algoritmo
       de geração e resolução não seja reimplementado ali
-- [ ] O comportamento entregue pela F2.4-A permanece inalterado
-- [ ] Integração com o layout administrativo verificada
-- [ ] Navegação e breadcrumbs verificados
-- [ ] Nenhuma autorização da Fase 3 é antecipada
-- [ ] Nenhuma funcionalidade da F2.6 é antecipada
-- [ ] Nenhuma funcionalidade da F2.7 é antecipada
-- [ ] Suíte completa permanece verde
-- [ ] Pint passa
-- [ ] `git diff --check` passa
+- [x] O comportamento entregue pela F2.4-A permanece inalterado
+- [x] Integração com o layout administrativo verificada
+- [x] Navegação e breadcrumbs verificados
+- [x] Nenhuma autorização da Fase 3 é antecipada
+- [x] Nenhuma funcionalidade da F2.6 é antecipada
+- [x] Nenhuma funcionalidade da F2.7 é antecipada
+- [x] Suíte completa permanece verde
+- [x] Pint passa
+- [x] `git diff --check` passa
+
+**Resultado entregue**
+
+Treze arquivos no commit técnico — oito novos:
+
+```text
+app/Http/Controllers/Admin/PageController.php
+app/Http/Requests/Admin/StorePageRequest.php
+app/Http/Requests/Admin/UpdatePageRequest.php
+resources/views/admin/pages/index.blade.php
+resources/views/admin/pages/create.blade.php
+resources/views/admin/pages/edit.blade.php
+resources/views/admin/pages/partials/form.blade.php
+tests/Feature/AdminPagesTest.php
+```
+
+e cinco modificados:
+
+```text
+app/Services/PageService.php
+routes/web.php
+resources/views/admin/partials/sidebar.blade.php
+resources/views/admin/partials/breadcrumbs.blade.php
+tests/Feature/AdminLayoutTest.php
+```
+
+O painel passou a oferecer CRUD administrativo de páginas: listagem paginada
+com estado vazio, criação, edição, exclusão lógica e feedback de sucesso, sobre
+o layout administrativo da F2.2, com item próprio na sidebar e breadcrumbs. As
+seis rotas planejadas existem, todas protegidas somente por `auth`, e nenhuma
+rota pública ou de preview foi criada.
+
+**`PageService` — reutilizado, não redesenhado**
+
+O serviço fundado pela F2.4-A permaneceu a camada autoritativa das invariantes
+de `Page`. A única alteração foi uma extensão compatível:
+
+```text
+paginate(int $perPage = 15): LengthAwarePaginator
+```
+
+Ela existe para a listagem administrativa não precisar consultar o Eloquent a
+partir do Controller, e ordena por `updated_at` com desempate por `id` para ser
+determinística. `create()`, `update()`, `delete()` e `slugIsAvailable()` não
+foram tocados, e nenhuma invariante da F2.4-A mudou — os 47 testes daquela
+subfase seguem passando sem alteração.
+
+**Form Requests**
+
+`StorePageRequest` e `UpdatePageRequest` são a barreira de entrada e de
+experiência do usuário. Validam `title` até 255, `slug` até 255, `meta_title`
+até 255, `meta_description` até 320, `status` restrito aos casos de
+`PageStatus` e o formato canônico do slug explícito. A disponibilidade do slug
+é consultada em `PageService::slugIsAvailable()` — não há `Rule::unique` nem
+consulta paralela, que ignorariam as páginas excluídas logicamente e
+contradiriam o domínio. O segundo request estende o primeiro e sobrescreve
+apenas qual página ignorar na checagem.
+
+**Slug — comportamento validado pela interface**
+
+- alterar somente o título preserva o slug já publicado;
+- deixar o campo de endereço em branco na edição preserva o slug atual, sem
+  regenerar nem apagar;
+- reenviar o próprio slug da página é aceito, sem conflito consigo mesma;
+- alterar o slug explicitamente persiste o novo endereço;
+- `Page.id` permanece estável em qualquer desses caminhos;
+- o slug de uma página excluída logicamente continua reservado;
+- um slug explícito já ocupado recebe erro amigável no formulário;
+- geração, normalização e colisão continuam inteiramente no `PageService`.
+
+**Exclusão e identidade**
+
+O `DELETE` administrativo chama `PageService::delete()` e resulta em
+`SoftDeletes`. Restore, lixeira e force delete continuam fora do escopo, e não
+existem. As rotas administrativas resolvem `{page}` por `Page.id`: não há
+`getRouteKeyName()` customizado, e trocar o slug não muda a URL administrativa.
 
 **Fora do escopo da F2.4-B:** rota pública, regra de exposição
 `draft`/`published`, `PageContentRenderer`, dependência direta de
 `league/commonmark`, preview administrativo e emissão de SEO no HTML.
 
-**Bloqueadores / decisões pendentes:** nenhum. **Dependência F2.4-A
-satisfeita** — o que libera o início, sem que trabalho algum tenha começado.
+**Bloqueadores / decisões pendentes:** nenhum. A F2.4 segue para a F2.4-C.
 
 ---
 
@@ -1403,7 +1487,9 @@ configurável e robots configurável.
 - [ ] Pint passa
 - [ ] `git diff --check` passa
 
-**Bloqueadores / decisões pendentes:** depende da F2.4-B.
+**Bloqueadores / decisões pendentes:** nenhum. **Dependência F2.4-B
+satisfeita** — o que libera o início. A **F2.4-C ainda não foi iniciada**, e
+todos os seus itens permanecem `[ ]`.
 
 ---
 
@@ -1456,8 +1542,9 @@ depende de F2.5, F2.6, F2.7, F2.3-C nem da Fase 3.
 
 Internamente: `F2.4-A → F2.4-B → F2.4-C`.
 
-**Bloqueadores / decisões pendentes:** nenhum. Com a F2.4-A concluída, a
-próxima etapa é a **F2.4-B — Administração e CRUD**, ainda não iniciada.
+**Bloqueadores / decisões pendentes:** nenhum. Com A e B concluídas, falta
+somente a **F2.4-C — Publicação, Markdown, preview e SEO**, ainda não iniciada,
+para o encerramento da F2.4.
 
 ---
 
@@ -1599,9 +1686,10 @@ Preservadas da versão anterior deste Roadmap:
 - ✅ Fase 1 (concluída)
 
 #### Próximo Passo
-→ **F2.4-B — Administração e CRUD** — 📋 planejada, não iniciada. A F2.4-A
-está concluída e a F2.4 segue **em desenvolvimento**; a F2.3-C só é retomada
-depois da F2.7. A Fase 3 permanece após a conclusão da Fase 2.
+→ **F2.4-C — Publicação, Markdown, preview e SEO** — 📋 planejada, não
+iniciada. A F2.4-A e a F2.4-B estão concluídas e a F2.4 segue **em
+desenvolvimento**; a F2.3-C só é retomada depois da F2.7. A Fase 3 permanece
+após a conclusão da Fase 2.
 
 A F2.4 só é encerrada após a F2.4-C — e é só então que a F2.6 fica liberada.
 
@@ -2472,6 +2560,17 @@ Atualizado toda segunda-feira com progresso real.
   testes / 400 assertions na suíte completa. **A F2.4 passa a ⏳ em
   desenvolvimento**: F2.4-B e F2.4-C continuam planejadas, e a F2.6 segue
   bloqueada até a F2.4 completa. Próxima etapa: F2.4-B — Administração e CRUD.
+- **2026-09-05:** F2.4-B — Administração e CRUD concluída. Commit técnico:
+  `232af8c8485a102552fc156fb490146790525811`. CRUD administrativo de páginas
+  estáticas com Controller fino, `StorePageRequest`/`UpdatePageRequest`,
+  integração integral ao `PageService`, listagem paginada com estado vazio,
+  criação, edição, exclusão lógica por `SoftDeletes`, sidebar, breadcrumbs e
+  testes de integração. A única extensão do serviço foi `paginate()`, para que
+  a listagem não consultasse o Eloquent a partir do Controller; nenhuma
+  invariante da F2.4-A mudou. Validação: 32 testes / 152 assertions da F2.4-B,
+  47 testes / 93 assertions da F2.4-A sem regressão e 175 testes / 551
+  assertions na suíte completa. **A F2.4-C permanece planejada**, a F2.4
+  continua em desenvolvimento e a F2.6 segue bloqueada até a F2.4 completa.
 - *Próxima revisão: 2026-09-11*
 
 ---
