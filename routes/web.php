@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\SiteSettingController;
 use App\Http\Controllers\Admin\ThemeSettingController;
 use Illuminate\Support\Facades\Cache;
@@ -30,6 +31,21 @@ Route::middleware('auth')
             ->name('settings.theme.edit');
         Route::put('configuracoes/tema', [ThemeSettingController::class, 'update'])
             ->name('settings.theme.update');
+
+        // `{page}` resolve por `Page.id`: o slug é endereço público e mutável,
+        // e amarrar a rota administrativa a ele faria a identidade mudar junto.
+        Route::get('paginas', [PageController::class, 'index'])
+            ->name('pages.index');
+        Route::get('paginas/criar', [PageController::class, 'create'])
+            ->name('pages.create');
+        Route::post('paginas', [PageController::class, 'store'])
+            ->name('pages.store');
+        Route::get('paginas/{page}/editar', [PageController::class, 'edit'])
+            ->name('pages.edit');
+        Route::put('paginas/{page}', [PageController::class, 'update'])
+            ->name('pages.update');
+        Route::delete('paginas/{page}', [PageController::class, 'destroy'])
+            ->name('pages.destroy');
     });
 
 /*

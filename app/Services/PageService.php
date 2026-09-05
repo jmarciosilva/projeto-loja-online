@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\PageStatus;
 use App\Models\Page;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
 
@@ -111,6 +112,24 @@ class PageService
     public function delete(Page $page): void
     {
         $page->delete();
+    }
+
+    /**
+     * Listagem administrativa, da mais recentemente alterada para a mais antiga.
+     *
+     * A consulta fica aqui, e não no Controller, para que a camada administrativa
+     * não converse com o Eloquent por fora do serviço. O desempate por `id` torna
+     * a ordem determinística quando duas páginas compartilham o mesmo
+     * `updated_at` — o que é rotina em testes e em edições no mesmo segundo.
+     *
+     * @return LengthAwarePaginator<int, Page>
+     */
+    public function paginate(int $perPage = 15): LengthAwarePaginator
+    {
+        return Page::query()
+            ->orderByDesc('updated_at')
+            ->orderByDesc('id')
+            ->paginate($perPage);
     }
 
     /**

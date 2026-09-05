@@ -77,9 +77,10 @@ class AdminLayoutTest extends TestCase
         $html = $this->acessarPainel()->getContent();
 
         // As áreas futuras podem ser citadas em texto, mas não viram href.
-        // `configuracoes` saiu da lista na F2.3-A: a página passou a existir, e
-        // manter a guarda sobre ela impediria justamente o link legítimo.
-        foreach (['paginas', 'midia', 'banners', 'menus', 'produtos', 'pedidos', 'clientes', 'usuarios'] as $secao) {
+        // `configuracoes` saiu da lista na F2.3-A e `paginas` na F2.4-B: as
+        // páginas passaram a existir, e manter a guarda sobre elas impediria
+        // justamente o link legítimo.
+        foreach (['midia', 'banners', 'menus', 'produtos', 'pedidos', 'clientes', 'usuarios'] as $secao) {
             $this->assertStringNotContainsString(
                 'href="'.url('/admin/'.$secao).'"',
                 $html,
