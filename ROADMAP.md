@@ -8,12 +8,14 @@
   - F2.3-A — Configurações gerais: ✅ concluída
   - F2.3-B — Tema e cores: ✅ concluída
   - F2.3 permanece parcialmente aberta: a F2.3-C aguarda a F2.7
-  - **F2.4 — Páginas Estáticas: ⏳ em desenvolvimento**
+  - **F2.4 — Páginas Estáticas: ✅ concluída em 2026-09-05**
     - F2.4-A — Fundação de domínio e persistência: ✅ concluída
     - F2.4-B — Administração e CRUD: ✅ concluída
-    - F2.4-C — Publicação, Markdown, preview e SEO: 📋 planejada
-  - Próxima etapa planejada: **F2.4-C — Publicação, Markdown, preview e SEO**
-    (não iniciada)
+    - F2.4-C — Publicação, Markdown, preview e SEO: ✅ concluída
+  - Próxima etapa planejada: **F2.7 — Biblioteca de Mídia** (📋 planejada, não
+    iniciada). Pela ordem de execução ainda vêm, depois dela, F2.3-C, F2.5 e só
+    então F2.6 — cuja dependência da F2.4 está satisfeita, sem que isso a
+    promova na fila
 - **Fase 1:** ✅ Concluída em 2026-09-04
 - **Data de Início:** 2026-09-04
 - **Data Estimada de MVP Completo:** 2026-09-30
@@ -210,7 +212,7 @@ no repositório e foi executado/validado com sucesso.**
 | F2.1 — Fundação do CMS | ✅ Concluída | Domínio e infraestrutura de configuração | Fase 1 |
 | F2.2 — Fundação do Admin | ✅ Concluída | Autenticação, rotas, layout e navegação de `/admin` | Fase 1 |
 | F2.3 — Configurações Globais | ⏳ Em desenvolvimento | Configurações gerais, tema e identidade visual integrada à F2.7 | F2.1, F2.2 (C também da F2.7) |
-| F2.4 — Páginas Estáticas | ⏳ Em desenvolvimento | CRUD de páginas com SEO e publicação | F2.2 |
+| F2.4 — Páginas Estáticas | ✅ Concluída | CRUD de páginas com SEO e publicação | F2.2 |
 | F2.7 — Biblioteca de Mídia | 📋 Planejado | Upload, processamento e consulta de mídia | F2.2 |
 | F2.5 — Banners | 📋 Planejado | CRUD de banners com ordenação, sobre a mídia da F2.7 | F2.2, **F2.7** |
 | F2.6 — Menus | 📋 Planejado | Menus hierárquicos e itens | F2.2, F2.4 |
@@ -219,8 +221,9 @@ no repositório e foi executado/validado com sucesso.**
 > F2.5 porque os banners dependem da biblioteca de mídia.
 
 > A F2.3 e a F2.4 têm subfases internas — `F2.3-A/B/C` e `F2.4-A/B/C`. Elas
-> continuam sendo **uma** subfase da Fase 2 cada, e a F2.6 depende da **F2.4
-> completa**, não apenas da F2.4-A.
+> continuam sendo **uma** subfase da Fase 2 cada. A F2.6 dependia da **F2.4
+> completa**: com a F2.4 concluída, essa dependência está satisfeita — mas a
+> F2.6 continua na sua posição da fila, depois de F2.7, F2.3-C e F2.5.
 
 ---
 
@@ -408,15 +411,20 @@ o teste falhar.
 
 **Dependência:** F2.2-B concluída.
 
-**Dependências posteriores:** com a F2.2 concluída, a dependência que
-bloqueava F2.3, F2.4 e F2.7 está satisfeita — as três ficam **liberadas para
-início**, mantendo o status de planejadas até que o trabalho comece.
+**Dependências posteriores:** a conclusão da F2.2 satisfez a dependência que
+originalmente bloqueava F2.3, F2.4 e F2.7. Desde então, a F2.3-A e a F2.3-B
+foram executadas, a **F2.4 foi concluída** e a próxima etapa da ordem atual é a
+**F2.7**, ainda não iniciada.
 
 As dependências adicionais continuam valendo: a **F2.5 depende da F2.7** (os
 banners consomem a biblioteca de mídia), a **F2.6 depende da F2.4** (itens de
-menu que apontam para páginas) e a **F2.3-C depende da F2.3-A + F2.7** (logo e
-favicon usam a biblioteca de mídia). A ordem de execução detalhada segue
-F2.3-A → F2.3-B → F2.4 → F2.7 → F2.3-C → F2.5 → F2.6.
+menu que apontam para páginas — dependência hoje satisfeita, o que não a
+antecipa na fila) e a **F2.3-C depende da F2.3-A + F2.7** (logo e favicon usam
+a biblioteca de mídia). A ordem de execução detalhada segue:
+
+```text
+F2.3-A → F2.3-B → F2.4 → F2.7 → F2.3-C → F2.5 → F2.6
+```
 
 ---
 
@@ -482,8 +490,9 @@ retomando quando a biblioteca de mídia existir. Isso é intencional: dividir a
 subfase é preferível a duplicar upload de arquivos só para fechá-la antes.
 
 Com a F2.3-A e a F2.3-B concluídas, a F2.3 está **parcialmente aberta**: falta
-apenas a F2.3-C, que aguarda a F2.7. A ordem de execução da Fase 2 segue para a
-F2.4 antes de retomar aqui.
+apenas a F2.3-C, que aguarda a F2.7. Com a **F2.4 já concluída**, a ordem de
+execução segue agora para a **F2.7** e, depois de sua conclusão, retorna aqui
+para a F2.3-C.
 
 **Dependências:** F2.1 (fundação e cache), F2.2 (layout e rotas admin) — ambas
 concluídas.
@@ -761,13 +770,28 @@ processamento de imagem fora da F2.7.
 
 ---
 
-#### F2.4 — Páginas Estáticas ⏳ Em desenvolvimento
+#### F2.4 — Páginas Estáticas ✅ Concluída
+
+**Concluída em 2026-09-05**, entregue incrementalmente em três subfases, todas
+✅ concluídas:
+
+| Subfase | Commit técnico |
+| --- | --- |
+| F2.4-A — Fundação de domínio e persistência | `2533158` |
+| F2.4-B — Administração e CRUD | `232af8c` |
+| F2.4-C — Publicação, Markdown, preview e SEO | `f650c18` |
+
+A F2.4 passou a fornecer: entidade `Page` com identidade estável, slug único e
+mutável, `SoftDeletes` e `PageStatus` (`draft`/`published`); o `PageService`
+como camada autoritativa das invariantes; CRUD administrativo com Form
+Requests, listagem, sidebar e breadcrumbs; publicação pública em
+`/paginas/{slug}` restrita a páginas publicadas; Markdown renderizado com
+segurança; preview administrativo; SEO mínimo; e testes de domínio, CRUD,
+publicação, segurança e preview.
 
 > **Contrato arquitetural definido antes da implementação.** As decisões abaixo
-> foram fechadas e revisadas antes de qualquer código, e permanecem válidas.
->
-> A **F2.4-A e a F2.4-B estão concluídas**; a F2.4-C continua planejada, com
-> todos os seus itens em `[ ]`. A F2.4 só é encerrada após a F2.4-C.
+> foram fechadas e revisadas antes de qualquer código, e foram cumpridas na
+> entrega.
 
 **Objetivo:** permitir a criação e publicação de páginas de conteúdo estático
 institucional ou editorial, com identidade estável, URL pública por slug, ciclo
@@ -795,18 +819,19 @@ F2.4-A → F2.4-B → F2.4-C
 | --- | --- | --- | --- |
 | F2.4-A — Fundação de domínio e persistência | ✅ Concluída | Entidade `Page`, persistência, `PageStatus`, `SoftDeletes`, **núcleo do `PageService`** e invariantes de slug | F2.2 |
 | F2.4-B — Administração e CRUD | ✅ Concluída | Controller, Form Requests, Blades, rotas e integração administrativa sobre o serviço já fundado | F2.4-A |
-| F2.4-C — Publicação, Markdown, preview e SEO | 📋 Planejada | Renderização segura, publicação pública, preview e SEO mínimo | F2.4-B |
+| F2.4-C — Publicação, Markdown, preview e SEO | ✅ Concluída | Renderização segura, publicação pública, preview e SEO mínimo | F2.4-B |
 
 **Por que dividir:** a F2.4 concentra três preocupações com riscos distintos —
 invariantes de domínio, operação administrativa e exposição pública segura.
 Validar as três de uma vez só no fim adiaria a descoberta de defeitos para o
 ponto mais caro. Cada subfase fecha com suíte verde, Pint e `git diff --check`.
 
-**A F2.4 só é encerrada após a F2.4-C.** Concluir apenas A, ou apenas A e B,
-mantém a F2.4 em desenvolvimento — e mantém a F2.6 bloqueada, porque ela
-depende da F2.4 **completa**, não somente da identidade entregue pela F2.4-A.
+**A F2.4 só é encerrada após a F2.4-C** — e foi: com A, B e C concluídas, a
+F2.4 está encerrada. Isso satisfaz a dependência da F2.6, que exigia a F2.4
+**completa** e não apenas a identidade entregue pela F2.4-A.
 
-Uma subfase posterior não começa automaticamente ao término da anterior.
+Uma subfase posterior não começa automaticamente ao término da anterior: a
+próxima na ordem de execução é a **F2.7**, não a F2.6.
 
 ---
 
@@ -1124,7 +1149,8 @@ administrativo, rota pública, renderização de Markdown, preview e emissão de
 SEO no HTML. O `PageService` entra aqui apenas com seu núcleo de domínio — as
 necessidades administrativas e a consulta pública chegam em B e C.
 
-**Bloqueadores / decisões pendentes:** nenhum. A F2.4 segue para a F2.4-B.
+**Bloqueadores / decisões pendentes:** nenhum. As subfases B e C, que a
+sucederam, também estão concluídas.
 
 ---
 
@@ -1343,11 +1369,23 @@ existem. As rotas administrativas resolvem `{page}` por `Page.id`: não há
 `draft`/`published`, `PageContentRenderer`, dependência direta de
 `league/commonmark`, preview administrativo e emissão de SEO no HTML.
 
-**Bloqueadores / decisões pendentes:** nenhum. A F2.4 segue para a F2.4-C.
+**Bloqueadores / decisões pendentes:** nenhum. A F2.4-C, que a sucedeu, também
+está concluída.
 
 ---
 
-##### F2.4-C — Publicação, Markdown, preview e SEO 📋 Planejada
+##### F2.4-C — Publicação, Markdown, preview e SEO ✅ Concluída
+
+**Concluída e validada em 2026-09-05.**
+Commit: `f650c18ece6a52491ad2b2105a8dc4bca26acb6c`
+(`feat(fase-2): publica paginas estaticas com Markdown seguro preview
+administrativo e SEO`)
+
+Validação: 48 testes focados / 107 assertions; 47 testes / 93 assertions da
+F2.4-A e 42 testes / 183 assertions da F2.4-B sem regressão; 223 testes / 660
+assertions na suíte completa; Pint sem violações (61 arquivos); `composer
+validate` válido; `composer audit` sem vulnerabilidades conhecidas;
+`npm run build` com sucesso; `git diff --check` limpo.
 
 **Objetivo:** expor páginas publicadas com segurança e completar a experiência
 editorial da F2.4.
@@ -1451,45 +1489,180 @@ configurável e robots configurável.
 
 **Entregáveis planejados**
 
-- [ ] `league/commonmark` declarado como dependência direta no `composer.json`
-- [ ] `PageContentRenderer` com a configuração segura definida acima
-- [ ] Consulta pública de página publicada no `PageService`
-- [ ] Rota pública `GET /paginas/{slug}` → `pages.show`
-- [ ] Controller e Blade públicos da página
-- [ ] Integração com o layout público
-- [ ] Rota de preview `admin.pages.preview`, protegida por `auth`
-- [ ] Emissão de `<title>` e `<meta name="description">` conforme o contrato
+- [x] `league/commonmark` declarado como dependência direta no `composer.json`
+- [x] `PageContentRenderer` com a configuração segura definida acima
+- [x] Consulta pública de página publicada no `PageService`
+- [x] Rota pública `GET /paginas/{slug}` → `pages.show`
+- [x] Controller e Blade públicos da página
+- [x] Integração com o layout público
+- [x] Rota de preview `admin.pages.preview`, protegida por `auth`
+- [x] Emissão de `<title>` e `<meta name="description">` conforme o contrato
 
 **Testes / critério de aceite planejados**
 
-- [ ] `league/commonmark` é dependência direta do projeto antes de ser utilizado pelo `PageContentRenderer`
-- [ ] Markdown é renderizado corretamente
-- [ ] HTML inseguro não é renderizado como HTML executável
-- [ ] Links inseguros são bloqueados conforme a configuração do renderer
-- [ ] O renderer limita profundidade de Markdown conforme o contrato de segurança
-- [ ] HTML renderizado não é persistido
-- [ ] `published` é acessível pela rota pública
-- [ ] `draft` não é acessível pela rota pública (404)
-- [ ] Usuário autenticado não obtém draft pela rota pública apenas por estar autenticado
-- [ ] Página soft-deleted não é acessível publicamente
-- [ ] Preview administrativo exige autenticação
-- [ ] Preview consegue exibir draft
-- [ ] Preview consegue exibir published
-- [ ] Preview e público compartilham o mesmo renderer
-- [ ] `meta_title` substitui o título HTML quando preenchido
-- [ ] Ausência de `meta_title` usa `Page.title`
-- [ ] `meta_description` é renderizada quando existir
-- [ ] Ausência de `meta_description` não emite a tag
-- [ ] A home `/` permanece independente do CMS
-- [ ] Nenhuma funcionalidade da F2.6 é antecipada
-- [ ] Nenhuma funcionalidade da F2.7 é antecipada
-- [ ] Suíte completa permanece verde
-- [ ] Pint passa
-- [ ] `git diff --check` passa
+- [x] `league/commonmark` é dependência direta do projeto antes de ser utilizado pelo `PageContentRenderer`
+- [x] Markdown é renderizado corretamente
+- [x] HTML inseguro não é renderizado como HTML executável
+- [x] Links inseguros são bloqueados conforme a configuração do renderer
+- [x] O renderer limita profundidade de Markdown conforme o contrato de segurança
+- [x] HTML renderizado não é persistido
+- [x] `published` é acessível pela rota pública
+- [x] `draft` não é acessível pela rota pública (404)
+- [x] Usuário autenticado não obtém draft pela rota pública apenas por estar autenticado
+- [x] Página soft-deleted não é acessível publicamente
+- [x] Preview administrativo exige autenticação
+- [x] Preview consegue exibir draft
+- [x] Preview consegue exibir published
+- [x] Preview e público compartilham o mesmo renderer
+- [x] `meta_title` substitui o título HTML quando preenchido
+- [x] Ausência de `meta_title` usa `Page.title`
+- [x] `meta_description` é renderizada quando existir
+- [x] Ausência de `meta_description` não emite a tag
+- [x] A home `/` permanece independente do CMS
+- [x] Nenhuma funcionalidade da F2.6 é antecipada
+- [x] Nenhuma funcionalidade da F2.7 é antecipada
+- [x] Suíte completa permanece verde
+- [x] Pint passa
+- [x] `git diff --check` passa
 
-**Bloqueadores / decisões pendentes:** nenhum. **Dependência F2.4-B
-satisfeita** — o que libera o início. A **F2.4-C ainda não foi iniciada**, e
-todos os seus itens permanecem `[ ]`.
+**Resultado entregue**
+
+Dezessete arquivos no commit técnico — oito novos:
+
+```text
+app/Http/Controllers/PageController.php
+app/Services/PageContentRenderer.php
+resources/views/pages/show.blade.php
+resources/views/pages/partials/content.blade.php
+resources/views/admin/pages/preview.blade.php
+tests/Feature/PageContentRendererTest.php
+tests/Feature/PagePublicTest.php
+tests/Feature/PagePreviewTest.php
+```
+
+e nove modificados:
+
+```text
+composer.json
+composer.lock
+app/Services/PageService.php
+app/Http/Controllers/Admin/PageController.php
+routes/web.php
+resources/views/layouts/app.blade.php
+resources/views/admin/pages/edit.blade.php
+resources/css/app.css
+tests/Feature/AdminPagesTest.php
+```
+
+**Dependência direta de Markdown**
+
+`league/commonmark ^2.10` passou a ser dependência **direta** do projeto. Ela
+já existia transitivamente via `laravel/framework`, mas a aplicação agora usa
+sua API diretamente, e depender do que outro pacote arrasta é frágil. A versão
+instalada permaneceu **2.10.0** e o `composer.lock` mudou apenas o
+`content-hash` — nenhuma atualização não relacionada.
+
+**`PageContentRenderer`**
+
+```text
+App\Services\PageContentRenderer
+Markdown persistido → HTML seguro
+render(string $markdown): string
+```
+
+Configuração entregue:
+
+```text
+html_input = strip
+allow_unsafe_links = false
+max_nesting_level = 100
+```
+
+O serviço não conhece `Page`, status, slug, SEO, HTTP nem banco.
+
+**Segurança do Markdown — comportamento comprovado**
+
+Renderizam normalmente: headings, ênfase, listas, links HTTPS, blockquote e
+código. São neutralizados: HTML cru (bloco e inline), `<script>`, `<iframe>` e
+atributos como `onerror` — nenhum sobrevive como HTML executável; um link
+`javascript:` perde o `href` e sobra apenas o texto. O limite de aninhamento é
+efetivo: 150 níveis de citação produzem 100 `<blockquote>`.
+
+O HTML renderizado **não é persistido** — `pages.content` continua guardando o
+Markdown depois de renderizado.
+
+**`PageService` — extensão pública**
+
+```php
+findPublishedBySlug(string $slug): ?Page
+```
+
+Devolve a página quando o slug confere, o status é `published` e o registro não
+está excluído logicamente; em qualquer outro caso, `null`. `create()`,
+`update()`, `delete()`, `slugIsAvailable()` e `paginate()` permaneceram
+intactos.
+
+**Publicação**
+
+```text
+GET /paginas/{slug}   →  pages.show   (sem auth)
+```
+
+Não existe catch-all `/{slug}`.
+
+```text
+published        → público
+draft            → 404
+soft-deleted     → 404
+slug inexistente → 404
+```
+
+Estar autenticado no painel **não** muda a política pública: um rascunho segue
+404 para o visitante autenticado.
+
+**Preview administrativo**
+
+```text
+GET /admin/paginas/{page}/preview   →  admin.pages.preview   (auth)
+```
+
+Resolve por `Page.id`. Exibe rascunho e publicada, não publica, não altera
+status, não persiste nada; página soft-deleted retorna 404 pelo binding padrão,
+e trocar o slug não altera a URL administrativa.
+
+**Renderização compartilhada**
+
+Público e preview usam o mesmo `PageContentRenderer` e o mesmo parcial
+`resources/views/pages/partials/content.blade.php` — é isso que faz o preview
+representar o conteúdo público real.
+
+**Segurança na camada Blade**
+
+`$page->content` nunca é impresso sem processamento. O único HTML de conteúdo
+impresso sem escape é `$content`, vindo do `PageContentRenderer`. O Blade não
+sanitiza Markdown por conta própria: quem sanitiza é o renderer.
+
+**SEO mínimo**
+
+```text
+meta_title preenchido  → <title>meta_title</title>
+meta_title ausente     → fallback para Page.title
+meta_description       → emitida quando existir
+meta_description vazia → tag não emitida
+```
+
+Os valores editáveis são escapados. OpenGraph, Twitter Cards, JSON-LD, sitemap,
+robots por página e canonical configurável continuam fora do escopo.
+
+**Tipografia do conteúdo**
+
+`resources/css/app.css` recebeu regras mínimas sob `.page-content` para
+devolver legibilidade ao HTML gerado pelo Markdown, que o preflight do Tailwind
+zera e que não tem como receber classes utilitárias. São regras deliberadamente
+curtas: não constituem um segundo design system.
+
+**Bloqueadores / decisões pendentes:** nenhum. Com a F2.4-C concluída, a **F2.4
+está encerrada**.
 
 ---
 
@@ -1533,7 +1706,9 @@ Page.id = identidade estável
 ```
 
 A F2.6 depende da **F2.4 concluída** — isto é, após a F2.4-C — e não apenas da
-identidade entregue pela F2.4-A.
+identidade entregue pela F2.4-A. Com a F2.4 encerrada, essa dependência está
+**satisfeita**; a F2.6 permanece 📋 planejada e continua na sua posição da
+ordem de execução, após F2.7, F2.3-C e F2.5.
 
 ---
 
@@ -1542,9 +1717,9 @@ depende de F2.5, F2.6, F2.7, F2.3-C nem da Fase 3.
 
 Internamente: `F2.4-A → F2.4-B → F2.4-C`.
 
-**Bloqueadores / decisões pendentes:** nenhum. Com A e B concluídas, falta
-somente a **F2.4-C — Publicação, Markdown, preview e SEO**, ainda não iniciada,
-para o encerramento da F2.4.
+**Bloqueadores / decisões pendentes:** nenhum. Com A, B e C concluídas, a
+**F2.4 está encerrada**. A próxima etapa da Fase 2 é a **F2.7 — Biblioteca de
+Mídia**, ainda não iniciada.
 
 ---
 
@@ -1609,7 +1784,11 @@ satisfeita.
 
 **Dependências:** F2.2 (layout e rotas admin), F2.4 (para itens que apontam
 para páginas) — a **F2.4 completa**, isto é, após a F2.4-C, e não apenas a
-identidade entregue pela F2.4-A.
+identidade entregue pela F2.4-A. **Ambas satisfeitas.**
+
+> Dependência satisfeita não é vez na fila. A F2.6 permanece 📋 planejada e não
+> deve ser iniciada agora: pela ordem de execução da Fase 2 ainda vêm F2.7,
+> F2.3-C e F2.5 antes dela.
 
 > **Contrato herdado da F2.4:** itens internos devem se relacionar à página por
 > `Page.id`, não pelo slug — o slug é endereço público e pode mudar. A URL é
@@ -1675,9 +1854,12 @@ Preservadas da versão anterior deste Roadmap:
 
 #### Bloqueadores da Fase 2
 
-- Nenhum bloqueador arquitetural pendente. A **F2.2 — Fundação do Admin está
-  concluída** (A, B e C), com autenticação mínima, layout e navegação do painel
-  entregues e validados. F2.3, F2.4 e F2.7 ficam liberadas para início.
+- Nenhum bloqueador arquitetural pendente. A **F2.2 — Fundação do Admin** foi
+  concluída (A, B e C) e liberou as subfases que dependiam dela. Estado atual:
+  a **F2.4 está concluída**; a **F2.7 é a próxima etapa planejada**; a F2.3-C
+  aguarda a F2.7; a F2.5 permanece planejada, também depois da F2.7; e a F2.6
+  permanece planejada para depois da F2.5 — sua dependência da F2.4 está
+  satisfeita, mas isso não a antecipa na ordem de execução.
 - A autorização granular permanece na Fase 3. Durante toda a Fase 2, qualquer
   usuário autenticado acessa `/admin`.
 
@@ -1686,12 +1868,13 @@ Preservadas da versão anterior deste Roadmap:
 - ✅ Fase 1 (concluída)
 
 #### Próximo Passo
-→ **F2.4-C — Publicação, Markdown, preview e SEO** — 📋 planejada, não
-iniciada. A F2.4-A e a F2.4-B estão concluídas e a F2.4 segue **em
-desenvolvimento**; a F2.3-C só é retomada depois da F2.7. A Fase 3 permanece
-após a conclusão da Fase 2.
+→ **F2.7 — Biblioteca de Mídia** — 📋 planejada, **não iniciada**. Com a F2.4
+concluída, a F2.7 é a próxima na ordem de execução, porque a F2.3-C e a F2.5
+consomem a biblioteca de mídia e não podem precedê-la. A Fase 3 permanece após
+a conclusão da Fase 2.
 
-A F2.4 só é encerrada após a F2.4-C — e é só então que a F2.6 fica liberada.
+Depois da F2.7 seguem F2.3-C, F2.5 e, por último, F2.6. A dependência da F2.6
+em relação à F2.4 está satisfeita, mas ela continua sendo a última da fila.
 
 ---
 
@@ -2473,9 +2656,12 @@ Atualizado toda segunda-feira com progresso real.
 
 - ✅ **F2.1 — Fundação do CMS:** concluída.
 - ✅ **F2.2 — Fundação do Admin:** concluída (A, B e C).
-- Nenhum bloqueador arquitetural conhecido. F2.3, F2.4 e F2.7 estão liberadas
-  para início; F2.5 ainda depende da F2.7 e F2.6 da F2.4. A autorização
-  granular permanece na Fase 3.
+- Nenhum bloqueador arquitetural conhecido para a próxima etapa. A **F2.4 está
+  concluída** e a **F2.7 — Biblioteca de Mídia** é a próxima etapa planejada,
+  ainda não iniciada. A F2.3-C aguarda a F2.7; a F2.5 também depende da F2.7; e
+  a dependência da F2.6 em relação à F2.4 já está satisfeita, mas sua execução
+  permanece somente depois de F2.7 → F2.3-C → F2.5. A autorização granular
+  permanece na Fase 3.
 
 ---
 
@@ -2571,6 +2757,22 @@ Atualizado toda segunda-feira com progresso real.
   47 testes / 93 assertions da F2.4-A sem regressão e 175 testes / 551
   assertions na suíte completa. **A F2.4-C permanece planejada**, a F2.4
   continua em desenvolvimento e a F2.6 segue bloqueada até a F2.4 completa.
+- **2026-09-05:** F2.4-C — Publicação, Markdown, preview e SEO concluída.
+  Commit técnico: `f650c18ece6a52491ad2b2105a8dc4bca26acb6c`. Declara
+  `league/commonmark` como dependência direta e entrega o `PageContentRenderer`
+  com HTML cru removido, links inseguros bloqueados e profundidade limitada;
+  `PageService::findPublishedBySlug()` expondo apenas páginas publicadas; a
+  rota pública `/paginas/{slug}` com 404 para rascunho, excluída logicamente e
+  slug inexistente — inclusive para visitante autenticado; preview
+  administrativo por `Page.id` protegido por `auth`, compartilhando renderer e
+  parcial com a página pública; e SEO mínimo com `meta_title`, fallback para
+  `title` e meta description opcional, ambos escapados. Validação: 48 testes /
+  107 assertions da F2.4-C e 223 testes / 660 assertions na suíte completa.
+- **2026-09-05:** **F2.4 — Páginas Estáticas encerrada**, com as três subfases
+  concluídas e validadas — F2.4-A (`2533158`), F2.4-B (`232af8c`) e F2.4-C
+  (`f650c18`). A dependência da F2.6 em relação à F2.4 fica **satisfeita**, o
+  que não a antecipa na ordem de execução: a próxima etapa planejada é a **F2.7
+  — Biblioteca de Mídia**, seguida de F2.3-C, F2.5 e só então F2.6.
 - *Próxima revisão: 2026-09-11*
 
 ---
