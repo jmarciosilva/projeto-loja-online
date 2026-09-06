@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\SiteSettingController;
 use App\Http\Controllers\Admin\ThemeSettingController;
@@ -32,6 +33,10 @@ Route::middleware('auth')
     ->prefix('admin')
     ->name('admin.')
     ->group(function (): void {
+        Route::get('midias', [MediaController::class, 'index'])->name('media.index');
+        Route::post('midias', [MediaController::class, 'store'])->name('media.store');
+        Route::delete('midias/{media}', [MediaController::class, 'destroy'])->name('media.destroy');
+
         Route::get('configuracoes', [SiteSettingController::class, 'edit'])
             ->name('settings.edit');
         Route::put('configuracoes', [SiteSettingController::class, 'update'])

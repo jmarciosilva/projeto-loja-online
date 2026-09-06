@@ -33,6 +33,17 @@
                 </a>
             </li>
             <li>
+                <a href="{{ route('admin.media.index') }}"
+                   @if (request()->routeIs('admin.media.*')) aria-current="page" @endif
+                   @class([
+                       'block rounded-lg px-3 py-2 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2 focus-visible:outline-none',
+                       'bg-gray-900 text-white' => request()->routeIs('admin.media.*'),
+                       'text-gray-700 hover:bg-gray-100' => ! request()->routeIs('admin.media.*'),
+                   ])>
+                    Mídia
+                </a>
+            </li>
+            <li>
                 <a href="{{ route('admin.pages.index') }}"
                    @if (request()->routeIs('admin.pages.*')) aria-current="page" @endif
                    @class([

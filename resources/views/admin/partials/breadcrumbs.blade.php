@@ -6,7 +6,11 @@
 --}}
 <nav aria-label="Trilha de navegação" class="text-sm text-gray-500">
     <ol class="flex items-center gap-2">
-        @if (request()->routeIs('admin.pages.create'))
+        @if (request()->routeIs('admin.media.*'))
+            <li><a href="{{ route('admin') }}" class="hover:text-gray-700">Dashboard</a></li>
+            <li aria-hidden="true" class="text-gray-300">/</li>
+            <li class="font-medium text-gray-700" aria-current="page">Mídia</li>
+        @elseif (request()->routeIs('admin.pages.create'))
             <li>
                 <a href="{{ route('admin') }}" class="hover:text-gray-700">Dashboard</a>
             </li>

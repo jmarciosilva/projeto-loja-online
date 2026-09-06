@@ -2,9 +2,12 @@
 
 namespace App\Services;
 
+use App\Exceptions\MediaInUseException;
 use App\Models\Media;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Intervention\Image\Drivers\Gd\Driver;
@@ -107,7 +110,10 @@ class MediaService
         self::WEBP_MIME_TYPE => 'webp',
     ];
 
-    public function __construct(private readonly ImageCapabilities $capabilities) {}
+    public function __construct(
+        private readonly ImageCapabilities $capabilities,
+        private readonly MediaUsageRegistry $usageRegistry,
+    ) {}
 
     /**
      * MIME aceitos pela biblioteca neste runtime.
@@ -238,6 +244,42 @@ class MediaService
         return Media::query()
             ->orderByDesc('id')
             ->paginate($perPage);
+    }
+
+    /**
+     * Remove primeiro o registro em transação e só depois tenta o arquivo.
+     * Um arquivo órfão após o commit é preferível a uma Media ativa sem arquivo.
+     */
+    public function delete(Media $media): void
+    {
+        $usages = $this->usageRegistry->usages($media);
+
+        if ($usages !== []) {
+            throw new MediaInUseException($usages);
+        }
+
+        $disk = $media->disk;
+        $path = $media->path;
+        $id = $media->id;
+
+        DB::transaction(fn () => $media->delete());
+
+        try {
+            if (Storage::disk($disk)->delete($path) === false) {
+                Log::warning('Não foi possível remover o arquivo físico da mídia.', [
+                    'media_id' => $id,
+                    'disk' => $disk,
+                    'path' => $path,
+                ]);
+            }
+        } catch (Throwable $exception) {
+            Log::warning('Não foi possível remover o arquivo físico da mídia.', [
+                'media_id' => $id,
+                'disk' => $disk,
+                'path' => $path,
+                'exception' => $exception,
+            ]);
+        }
     }
 
     /**
