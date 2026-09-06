@@ -27,7 +27,10 @@ class MediaServiceTest extends TestCase
     {
         parent::setUp();
 
-        $this->media = new MediaService;
+        // Resolvido pelo container: a partir da F2.7-B o serviço depende de
+        // `ImageCapabilities`, e é essa injeção que permite aos testes trocar a
+        // capacidade de WebP do runtime.
+        $this->media = app(MediaService::class);
     }
 
     public function test_the_media_disk_is_explicit_and_not_the_application_default(): void
