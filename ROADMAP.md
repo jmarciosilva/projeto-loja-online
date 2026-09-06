@@ -1896,28 +1896,39 @@ iniciada.
 
 #### F2.5 — Banners 📋 Planejado
 
-**Objetivo:** gerenciar banners posicionáveis no site.
+**Status:** 📋 **Planejada — não iniciada.** Nenhum código foi escrito, nenhuma
+migration criada e nenhum pacote instalado.
 
-**Entregáveis**
+> **Contrato arquitetural definido antes da implementação**, no mesmo formato
+> adotado por F2.4 e F2.7. As decisões desta seção foram fechadas em
+> **2026-09-06**, sobre o HEAD `150cdd0`, confrontando o contrato resumido
+> anterior com o repositório real — `Media`, `MediaUsageRegistry`,
+> `MediaService`, `routes/web.php`, os enums e migrations existentes e o layout
+> público.
 
-- [ ] Model e migration `Banner`
-- [ ] CRUD
-- [ ] Seleção de imagem a partir da Biblioteca de Mídia (F2.7) — sem upload
-      próprio
-- [ ] Ordenação
-- [ ] Posições (ex.: hero, sidebar, footer)
-- [ ] Status ativo/inativo
+**Objetivo:** gerenciar banners posicionáveis no site, reutilizando a Biblioteca
+de Mídia da F2.7 como única origem das imagens.
 
-**Testes / critério de aceite**
+Não é um gerenciador de campanhas: o escopo é a imagem posicionada com ordem e
+estado, não segmentação, agendamento ou métricas.
 
-- [ ] CRUD completo exercitado por testes
-- [ ] A imagem do banner é referenciada a partir da Biblioteca de Mídia
-- [ ] Excluir uma mídia em uso por um banner é impedido (integra com a F2.7)
-- [ ] A ordenação é respeitada na consulta
-- [ ] Banner inativo não aparece na listagem pública
+---
 
-**Dependências:** F2.2 (layout e rotas admin) e **F2.7 (obrigatória)** — a
-biblioteca de mídia precisa existir antes desta subfase.
+##### Direção de dependência
+
+```text
+F2.7  →  F2.5
+```
+
+**Dependências:** **F2.2** (layout e rotas admin) e **F2.7** (biblioteca de
+mídia) — ambas concluídas.
+
+A F2.7 fornece, prontos: a entidade `Media`, a identidade `Media.id`, o
+storage, o processamento de imagem, a URL derivada, a biblioteca
+administrativa, o `MediaUsageRegistry` e a exclusão protegida.
+
+> A F2.5 é **consumidora**. A F2.7 **não** passa a conhecer `Banner` — a
+> direção nunca se inverte, exatamente como já vale para a F2.3-C.
 
 **Decisão arquitetural (resolvida):** os banners **utilizam a Biblioteca de
 Mídia centralizada da F2.7**. Não criar subsistema independente de
@@ -1925,17 +1936,683 @@ armazenamento/upload para banners. Isso evita duas rotas de upload, dois
 formatos de armazenamento e a duplicação do processamento de imagens — e é o
 motivo de a F2.7 ser executada antes da F2.5.
 
-> **Contrato de consumidor herdado da F2.7** (auditoria de 2026-09-06). O
-> banner referenciará a imagem por `media_id → media.id`, nunca por caminho ou
-> URL. Tendo coluna própria, a migration de `banners` deverá declarar
-> `foreign('media_id')->references('id')->on('media')->restrictOnDelete()` — a
-> barreira final contra excluir mídia em uso —, e a F2.5 registrará seu próprio
-> verificador no registro de uso da biblioteca. A F2.7 não conhece `Banner`; a
-> direção `F2.7 → F2.5` permanece. Como a modelagem do banner será feita é
-> decisão da auditoria arquitetural da F2.5.
+---
 
-**Bloqueadores / decisões pendentes:** nenhum. A dependência da F2.2 está
-satisfeita.
+##### Divisão interna — F2.5-A → F2.5-B → F2.5-C
+
+A F2.5 é executada em três subfases internas, incrementais e testáveis
+isoladamente. A divisão é **documental e organizacional**: não altera o contrato
+abaixo, não antecipa implementação e não promove A/B/C a subfases independentes
+da Fase 2. A F2.5 continua sendo **uma** subfase da Fase 2, e a ordem global
+`F2.5 → F2.6` permanece.
+
+```text
+F2.5-A → F2.5-B → F2.5-C
+```
+
+| Subfase | Status | Entrega principal | Depende de |
+| --- | --- | --- | --- |
+| F2.5-A — Domínio, persistência e Service Layer | 📋 Planejada | Migration `banners`, model `Banner`, enum `BannerPosition`, FK para `media`, `BannerService` e registro do consumidor no `MediaUsageRegistry` | F2.2, F2.7 |
+| F2.5-B — Administração e ordenação | 📋 Planejada | Controller, Form Requests, CRUD, seleção de mídia existente, ativo/inativo e ordenação por posição | F2.5-A |
+| F2.5-C — Consulta pública, integração com mídia e hardening | 📋 Planejada | Consulta pública por posição, integração mínima do `hero` na home e regressão de A e B | F2.5-B |
+
+**Por que dividir:** as três concentram riscos distintos — invariantes de
+domínio e integridade referencial; operação administrativa com reordenação; e
+exposição pública com link externo. É o mesmo critério que já justificou dividir
+F2.4 e F2.7. Uma subfase posterior **não** começa automaticamente ao término da
+anterior.
+
+---
+
+##### Modelagem — `banners`
+
+```text
+banners
+
+id          BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY
+name        VARCHAR(120)   NOT NULL
+media_id    BIGINT UNSIGNED NOT NULL
+position    VARCHAR(32)    NOT NULL
+link_url    VARCHAR(2048)  NULL
+alt_text    VARCHAR(255)   NOT NULL
+sort_order  INT UNSIGNED   NOT NULL
+is_active   BOOLEAN        NOT NULL DEFAULT FALSE
+created_at
+updated_at
+
+FOREIGN KEY (media_id) REFERENCES media(id) ON DELETE RESTRICT
+
+INDEX (position, is_active, sort_order)
+```
+
+**Índice — decisão:** um índice composto `(position, is_active, sort_order)`.
+
+*Motivo:* a consulta pública conhecida e dominante é:
+
+```text
+WHERE position = ?
+AND is_active = true
+ORDER BY sort_order ASC, id ASC
+```
+
+O índice começa pelas colunas filtradas por igualdade — `position` e
+`is_active` — e depois por `sort_order`, a primeira coluna da ordenação. Ele é
+alinhado ao padrão de acesso contratado e existe para reduzir o custo esperado
+dessa consulta.
+
+O contrato funcional **não depende de um plano de execução específico**. O MySQL
+pode escolher o plano que considerar adequado conforme estatísticas,
+cardinalidade e distribuição dos dados; a aplicação deve permanecer correta
+independentemente dessa escolha.
+
+*Fronteira:* nenhum índice em `name`, `link_url`, `alt_text`, `created_at` ou
+`updated_at` — não há consulta contratada que os filtre ou ordene. Nenhum índice
+de busca textual. E **nenhum `UNIQUE`**, pelo motivo registrado em *Ordenação*.
+
+*Nota:* o índice contratado não inclui `id` explicitamente. `id ASC` permanece
+no `ORDER BY` como desempate funcional determinístico.
+
+No MySQL/InnoDB a chave primária participa internamente das entradas dos índices
+secundários; por isso não existe requisito arquitetural comprovado nesta fase
+para acrescentar `id` explicitamente ao índice composto.
+
+Se medição futura demonstrar necessidade de outro desenho de índice, a mudança
+deverá ser baseada em evidência de performance — e não altera a regra funcional
+de ordenação.
+
+**Explicitamente fora do schema**, por ausência de requisito concreto:
+
+```text
+slug           content        html           description
+starts_at      ends_at        published_at   target
+target_blank   device         mobile_media_id  desktop_media_id
+campaign_id    metadata       settings       user_id
+tenant_id      deleted_at
+```
+
+Nenhuma coluna JSON. Nenhuma variante responsiva. Nenhum campo de marketplace
+ou multi-tenancy — o projeto é *single-store*.
+
+**Identidade — decisão:** `Banner.id`, `BIGINT` autoincremental via
+`$table->id()`, seguindo a convenção de `users`, `site_settings`, `pages` e
+`media`.
+*Motivo:* nenhum requisito atual justifica divergir. UUID e ULID resolvem
+geração distribuída e ocultação de cardinalidade em URL pública — e o banner não
+tem nenhuma das duas: é criado por um único banco e nunca exposto por
+identificador.
+*Consequência:* **o banner não tem slug nem URL pública própria.** Ele é
+renderizado dentro de outra página, não endereçado.
+
+**`name` — identificação administrativa.**
+*Decisão:* obrigatório, `VARCHAR(120)`.
+*Motivo:* é como o administrador reconhece o banner na listagem do CRUD, e não
+um título público. O storefront **não precisa renderizar `name`** — quem carrega
+significado visual é a imagem, e quem carrega semântica acessível é o
+`alt_text`.
+
+---
+
+##### Mídia — referência, nunca cópia
+
+A imagem é **obrigatória** e vem sempre da biblioteca:
+
+```text
+banners.media_id  →  media.id
+```
+
+Nunca são persistidos `path`, URL, ou uma duplicata de `disk`/`path`. A URL
+continua sendo derivada pela infraestrutura da F2.7, a partir do disco gravado
+no próprio registro de mídia.
+
+*Consequência:* trocar o disco, o domínio ou `APP_URL` não invalida nenhum
+banner, porque nenhum banner guarda caminho.
+
+**A F2.5 não cria upload próprio, não processa imagem e não copia o arquivo.**
+Enviar imagem é operação da biblioteca; o banner apenas aponta para o que já
+existe lá.
+
+**Chave estrangeira — decisão:**
+
+```text
+media_id REFERENCES media(id) ON DELETE RESTRICT
+```
+
+Na forma idiomática do Laravel, algo equivalente a
+`foreignId('media_id')->constrained()->restrictOnDelete()`, com a forma exata
+confirmada contra o schema real durante a F2.5-A.
+
+*Motivo:* é a **barreira final relacional** contra excluir uma mídia
+referenciada. Diferente da F2.3-C — cuja referência mora em `site_settings`,
+uma tabela genérica de chave/valor onde não cabe FK —, o banner tem coluna
+própria e pode usar a integridade do banco.
+
+---
+
+##### `MediaUsageRegistry` — consumidor concreto
+
+A F2.5 registra seu próprio verificador no registro compartilhado da F2.7, com
+o rótulo canônico:
+
+```text
+Banner
+```
+
+Conceitualmente, a mídia está em uso quando existir **pelo menos um** banner
+com `banners.media_id = media.id`.
+
+*Decisão:* **um único checker cobre todos os banners.** Não se registra um
+checker por posição — o rótulo apresentado ao administrador identifica o tipo de
+consumidor, não onde ele aparece; e um checker por posição multiplicaria
+consultas sem acrescentar informação acionável.
+
+O `MediaUsageRegistry` **não** é modificado para conhecer `Banner`: ele
+permanece genérico, e é a F2.5 que se apresenta a ele no bootstrap.
+
+**Defesa em profundidade:**
+
+```text
+MediaUsageRegistry   →  mensagem administrativa clara, antes de tentar excluir
+FK restrictOnDelete  →  barreira final, fecha a corrida entre verificar e apagar
+```
+
+---
+
+##### Exclusão do banner
+
+**Decisão:** `Banner` **não** usa `SoftDeletes`.
+
+*Motivo:* o banner não tem slug público nem identidade externa a preservar; não
+há requisito de histórico nem de *restore*. O motivo que justifica `SoftDeletes`
+em `Page` — manter o endereço público reservado — não existe aqui, e o mesmo
+raciocínio já levou `Media` a dispensá-los.
+
+O `DELETE` administrativo é **exclusão física** da linha em `banners`.
+
+```text
+excluir Banner  →  remove somente o Banner
+                →  NÃO remove a Media
+```
+
+Depois que o último consumidor de uma mídia desaparece, ela volta a poder ser
+removida pela biblioteca — o mesmo comportamento já verificado na F2.3-C ao
+trocar ou limpar logo e favicon.
+
+---
+
+##### Posições
+
+**Decisão:** enum PHP `BannerPosition`, string-backed, persistido em coluna
+`VARCHAR(32)`.
+
+```text
+hero
+sidebar
+footer
+```
+
+*Motivo:* **não** se usa `ENUM` nativo do MySQL — ele amarraria cada nova
+posição a uma migration de alteração de schema, enquanto o enum PHP mantém o
+conjunto definido e versionado em código. É a mesma decisão já tomada em
+`PageStatus`.
+
+Estes três valores são exatamente as posições que este documento já previa.
+**Nenhuma posição nova é acrescentada por esta auditoria.** A validação da
+F2.5-B deve aceitar somente os casos do enum.
+
+---
+
+##### Ordenação
+
+`sort_order` é `INT UNSIGNED`, e a ordenação é **contextual à posição**:
+
+```text
+hero:     1, 2, 3 …
+sidebar:  1, 2, 3 …
+footer:   1, 2, 3 …
+```
+
+Não existe uma ordem global única entre posições diferentes — comparar o
+`sort_order` de um `hero` com o de um `footer` não significa nada.
+
+**Consulta ordenada:**
+
+```text
+ORDER BY sort_order ASC, id ASC
+```
+
+`id ASC` é o desempate determinístico, para que dois banners com a mesma ordem
+não alternem entre requisições.
+
+**Decisão: não criar `UNIQUE (position, sort_order)`.**
+*Motivo:* reordenar uma lista passa por estados intermediários em que duas
+linhas compartilham a mesma ordem. Uma constraint de unicidade obrigaria a
+aplicação a inventar valores temporários ou a reordenar em duas passagens, para
+resolver um conflito que não representa erro de domínio.
+*Consequência:* a ordem pode ter empates, e é por isso que o desempate por `id`
+é obrigatório na consulta. A operação de ordenação pertence ao `BannerService`.
+
+**Atribuição do `sort_order` — decisão fechada**
+
+```text
+criação            →  MAX(sort_order da posição escolhida) + 1
+posição vazia      →  sort_order = 1
+```
+
+O banner novo é **anexado ao fim** da sua posição: é o comportamento que o
+administrador espera ao cadastrar, e não exige que ele escolha um número.
+
+*Decisão:* a regra vive no `BannerService`. **O Controller e o Form Request não
+calculam a próxima ordem** — eles não conhecem o estado das outras linhas da
+posição, e espalhar esse cálculo pela camada HTTP faria a invariante divergir na
+primeira chamada que não passasse por lá.
+
+**Sem `DEFAULT 0` no banco.** `sort_order` permanece `INT UNSIGNED NOT NULL`,
+sem default.
+*Motivo:* um default `0` deixaria qualquer `INSERT` feito fora do serviço —
+seeder, comando, correção manual — cair silenciosamente no **início** da lista,
+acumulando banners na posição zero e enfraquecendo a invariante. Sem default, um
+insert que ignore o serviço falha em vez de mentir sobre a ordem.
+
+**Mudança de `position` — decisão fechada**
+
+```text
+position permanece igual  →  sort_order é preservado
+position muda             →  MAX(sort_order da nova posição) + 1
+nova posição vazia        →  sort_order = 1
+```
+
+Atualizar nome, imagem, link ou estado **não** reordena nada: só uma operação
+explícita de reordenação muda a ordem dentro da mesma posição.
+
+Exemplo:
+
+```text
+hero:            footer:          mover B de hero → footer:
+1 A              1 D              footer:
+2 B              2 E                1 D
+3 C                                 2 E
+                                    3 B
+```
+
+*Motivo de não preservar `sort_order = 2`:* a ordem é **contextual à posição**.
+O número 2 descrevia o lugar de B entre os `hero`; no `footer` ele não descreve
+nada, e reaproveitá-lo empurraria B para o meio de uma lista onde ninguém pediu
+que ele estivesse — além de criar um empate com o `E` já existente.
+
+*Consequência:* mudar a posição e atribuir a nova ordem são **uma única operação
+lógica**. A implementação de F2.5-A/B deverá garantir atomicidade adequada:
+entre ler o `MAX(sort_order)` e gravar a linha existe uma janela, e duas edições
+concorrentes poderiam calcular o mesmo valor. Como não há `UNIQUE`, o resultado
+seria um empate — resolvido de forma determinística pelo desempate por `id`, mas
+ainda assim indesejado. A forma exata (transação, bloqueio ou recálculo) é
+decisão da implementação; o contrato é que a operação não fique pela metade.
+
+**Separação entre CRUD e reordenação**
+
+```text
+CRUD comum       →  não recebe sort_order livre do usuário como regra de negócio
+criação          →  o BannerService anexa ao fim da posição
+mudança de position  →  o BannerService anexa ao fim da nova posição
+reordenação      →  operação explícita e própria, definida na F2.5-B
+```
+
+> `sort_order` **não é um campo numérico livre do formulário** de criação ou
+> edição. Deixá-lo assim devolveria ao administrador a tarefa de administrar
+> inteiros — e permitiria estados que a reordenação existe justamente para
+> evitar. O verbo e a URI da reordenação continuam deliberadamente adiados para
+> a F2.5-B.
+
+---
+
+##### Estado
+
+**Decisão:** `is_active`, booleano.
+
+```text
+true   →  visível publicamente na sua posição
+false  →  administrável, mas ausente da consulta pública
+```
+
+*Motivo:* dois estados bastam. **Não** se cria enum de status nem os estados
+`draft`, `published`, `scheduled` ou `archived`: o banner não tem ciclo
+editorial como uma página — ou está no ar, ou não está.
+
+**Default do schema — decisão fechada:**
+
+```text
+is_active BOOLEAN NOT NULL DEFAULT FALSE
+```
+
+na forma idiomática, `$table->boolean('is_active')->default(false)`.
+
+*Contrato de negócio:* **um banner novo nasce inativo.**
+
+*Motivo:* criar um registro não deve publicá-lo. Um banner recém-cadastrado
+pode estar com a imagem errada, o link incompleto ou a ordem ainda por ajustar
+— e um default `true` colocaria tudo isso no ar no instante do `INSERT`,
+inclusive para inserts que não passem pela interface.
+
+*Fronteira:* a interface administrativa **pode** criar um banner já ativo,
+quando a submissão válida informar `true` explicitamente. O default do schema é
+a rede de proteção para quando ninguém disse nada — não uma proibição de
+publicar na criação.
+
+**Agendamento está fora da F2.5.** Não existem `starts_at`, `ends_at` nem
+`scheduled_at`; a ativação é manual, por `is_active`. Agendamento implicaria
+decidir fuso horário, granularidade, o que fazer com janelas sobrepostas e como
+uma consulta pública barata avalia tempo — contrato próprio, se algum dia for
+necessário.
+
+---
+
+##### Texto alternativo
+
+**Decisão:** `alt_text` obrigatório, `VARCHAR(255)`.
+
+*Motivo:* o texto alternativo é propriedade **do uso**, não do arquivo. A
+biblioteca representa o arquivo; o banner representa o contexto em que aquela
+imagem é apresentada, e a mesma imagem pode significar coisas diferentes em
+posições diferentes.
+
+**Não** se reutiliza `Media.original_name` como `alt` automaticamente: ele é
+metadado administrativo — texto controlado por quem fez o upload, muitas vezes
+um nome de arquivo — e não descreve a imagem para quem usa leitor de tela.
+
+---
+
+##### Link
+
+**Decisão:** `link_url` opcional, `VARCHAR(2048)`.
+
+Um banner pode existir sem link — nem toda imagem promocional leva a algum
+lugar.
+
+**Normalização — decisão fechada:**
+
+```text
+null               →  null
+string vazia       →  null
+string só espaços  →  null
+valor preenchido   →  trim antes de validar e persistir
+```
+
+"Sem link" tem **uma** representação no banco: `null`. Guardar `''` obrigaria
+todo leitor a tratar dois valores como a mesma ausência.
+
+> **A normalização não inventa protocolo.** `www.exemplo.com` **não** é
+> convertido para `https://www.exemplo.com`: adivinhar o esquema significa
+> escolher por quem digitou, e a escolha errada leva o visitante a outro lugar.
+> Um valor sem esquema e sem `/` inicial é simplesmente **inválido**, e o
+> administrador corrige.
+
+**URL relativa interna — contrato:**
+
+```text
+deve começar por  /
+não pode começar por  //
+```
+
+```text
+válidos:    /produtos    /categorias/promocoes    /paginas/quem-somos
+inválidos:  //evil.example    produtos
+```
+
+`//evil.example` é recusado porque, num navegador, é uma URL **protocol-relative**
+— aparenta ser um caminho interno e leva a um host externo. A barra invertida
+não substitui `/`: `\evil.example` também é recusado, porque alguns navegadores
+a normalizam para `/`.
+
+**URL absoluta — contrato:**
+
+```text
+esquema  →  somente http ou https
+host     →  obrigatório e válido
+```
+
+```text
+válidos:  https://example.com/campanha    http://example.com/promocao
+```
+
+**Recusados:** `javascript:`, `data:`, `vbscript:`, `file:`, `ftp:` e **qualquer
+outro esquema** — a lista é uma allowlist de dois, não uma blocklist a manter.
+
+A validação é **server-side**: o `BannerService` mantém a normalização e a
+invariante, inclusive para chamadas fora do HTTP, e o Form Request oferece a
+rejeição amigável ao formulário. A interface não pode ser a única barreira.
+
+**Não** são criados nesta fase `link_type`, `page_id`, `product_id`,
+`category_id`, `target` nem `target_blank`. O banner não vira um sistema
+genérico de destinos: quando um destino tipado for realmente necessário, ele
+receberá contrato próprio, como já ficou combinado para os itens de menu da
+F2.6.
+
+---
+
+##### Camadas
+
+```text
+Admin:    Controller → Form Request → BannerService → Banner (Eloquent)
+Público:  BannerService → banners ativos da posição → Blade
+```
+
+`BannerService` é a camada autoritativa da subfase, responsável por:
+
+- criação, atualização e exclusão;
+- consulta administrativa e consulta pública por posição;
+- **atribuir o `sort_order` inicial**, anexando ao fim da posição;
+- **preservar a ordem** quando a atualização não muda a posição;
+- **mover o banner para o fim da nova posição** quando `position` muda;
+- a operação de reordenação;
+- as invariantes de `BannerPosition`;
+- **normalizar `link_url`** — vazio vira `null`, `trim` antes de validar, sem
+  inventar esquema;
+- executar com **atomicidade adequada** toda alteração que afete posição ou
+  ordem.
+
+Controller e Blade **não** hospedam regra de domínio, no mesmo padrão já
+estabelecido por `PageService`, `MediaService` e `VisualIdentityService`.
+
+> **Repository não é necessário para a F2.5.**
+
+Não serão criados `BannerRepository`, `BannerRepositoryInterface` nem
+`EloquentBannerRepository`. As consultas previstas são uma listagem
+administrativa e um filtro por posição e estado; um repositório aqui seria
+abstração prematura, pela mesma diretriz já aplicada a F2.4 e F2.7.
+
+---
+
+##### Consulta pública
+
+Contrato conceitual do serviço:
+
+```text
+activeForPosition(BannerPosition $position)
+```
+
+ou assinatura semanticamente equivalente, decidida na implementação.
+
+Devolve apenas banners com `is_active = true` **e** `position` igual à
+solicitada, ordenados por `sort_order ASC, id ASC`. Um banner inativo nunca
+aparece nesse resultado.
+
+**A Blade pública não consulta `Banner` diretamente** — recebe o que o serviço
+resolveu, como já vale para o tema e a identidade visual no layout público.
+
+---
+
+##### Integração inicial no storefront
+
+A F2.5-C faz uma integração pública **mínima e real**, com um consumidor só:
+
+```text
+hero  →  home
+```
+
+*Motivo de não fazer mais:* `sidebar` e `footer` podem existir no domínio e no
+serviço sem uso visual imediato. Inventar uma barra lateral ou uma faixa
+promocional no rodapé só para provar que os valores do enum existem produziria
+interface que ninguém pediu — e que a Fase 5 provavelmente redesenharia.
+
+A home **continua sendo a home comercial existente**. Ela não é convertida em
+`Page`, e a decisão da F2.4 sobre isso permanece intacta.
+
+---
+
+##### Administração
+
+CRUD *server-side* na F2.5-B, no padrão Controller + Form Requests + Blade +
+`BannerService`, sobre o layout administrativo da F2.2.
+
+**Rotas planejadas**, seguindo as convenções reais do projeto — `banners` é a
+mesma palavra em português e inglês, então o segmento serve às duas:
+
+```text
+GET    /admin/banners                  admin.banners.index
+GET    /admin/banners/criar            admin.banners.create
+POST   /admin/banners                  admin.banners.store
+GET    /admin/banners/{banner}/editar  admin.banners.edit
+PUT    /admin/banners/{banner}         admin.banners.update
+DELETE /admin/banners/{banner}         admin.banners.destroy
+```
+
+**Middleware:** somente `auth`, durante toda a Fase 2. Sem roles, permissions,
+policies ou `Gate` — isso permanece na Fase 3.
+
+> **A rota de reordenação não é fechada agora.** Verbo e URI serão decididos na
+> F2.5-B, depois de inspecionar o padrão real da aplicação. Fixá-los aqui, sem
+> evidência de como a tela vai operar, seria decidir no escuro.
+
+**Seleção da mídia:** apresentação *server-side* da biblioteca existente —
+inicialmente um `select` de `Media.id`, ou equivalente coerente com a UI
+administrativa já entregue. **Não** são criados upload no formulário do banner,
+modal genérico da biblioteca, seletor global reutilizável, Livewire, Alpine,
+AJAX ou *drag-and-drop* de mídia. Um seletor visual reutilizável, se algum dia
+for necessário, terá contrato próprio.
+
+**Formatos de imagem:** o banner aceita **qualquer formato que a F2.7 já aceite
+e processe** — JPEG, PNG e WebP. **Não** se introduz a restrição PNG do
+favicon: aquela é específica do consumidor da F2.3-C, pelo contrato de `.ico` e
+`.svg` fora do escopo, e não tem paralelo aqui.
+
+---
+
+##### Cache
+
+**Decisão:** nenhum cache de banner nesta fase.
+
+A consulta pública vai ao banco pelo `BannerService`. Não se cria chave por
+posição, TTL nem invalidação — introduzir cache antes de medir necessidade
+custaria definir consistência após cada CRUD e cada reordenação, para um ganho
+que ninguém demonstrou.
+
+*Fronteira:* cache futuro precisará definir chave, TTL, invalidação e
+consistência após CRUD e reorder. Fora desta fase enquanto não houver
+necessidade comprovada.
+
+---
+
+##### Fora do escopo
+
+Upload próprio, processamento próprio de imagem e cópia da mídia; variantes
+desktop/mobile; *cropper*; agendamento; campanhas; analytics; contagem de
+impressões e cliques; *targeting*; personalização; multi-tenancy; marketplace;
+HTML arbitrário; editor visual; *drag-and-drop* visual de banners; cache; API
+pública específica de banners; roles, permissions e policies; auditoria
+persistente; e `SoftDeletes`.
+
+Autoria e autorização administrativa definitivas dependem da Fase 3 — não há
+`created_by`, `updated_by`, *audit log*, *activity log*, histórico nem *restore*.
+
+---
+
+##### Entregáveis planejados
+
+###### F2.5-A — Domínio, persistência e Service Layer 📋 Planejada
+
+- [ ] Migration `banners` conforme o schema contratado
+- [ ] FK `media_id` com `restrictOnDelete()`
+- [ ] Model `Banner`, sem `SoftDeletes`
+- [ ] Enum `BannerPosition` (`hero`, `sidebar`, `footer`), persistido em coluna string
+- [ ] Relacionamento `Banner → Media`
+- [ ] Índice composto `(position, is_active, sort_order)`
+- [ ] Default `is_active = false` no schema
+- [ ] `BannerService` com as invariantes da entidade
+- [ ] Atribuição do `sort_order` inicial no `BannerService`, anexando ao fim da posição
+- [ ] Normalização de `link_url` no `BannerService`
+- [ ] Consulta ordenada básica por `sort_order ASC, id ASC`
+- [ ] Registro do consumidor `Banner` no `MediaUsageRegistry`
+- [ ] Factory de `Banner`, se os testes exigirem
+- [ ] Testes de domínio e persistência
+
+Sem interface administrativa, sem rota pública e sem alteração visual da home.
+
+###### F2.5-B — Administração e ordenação 📋 Planejada
+
+- [ ] Controller administrativo de banners
+- [ ] Form Requests de criação e de atualização
+- [ ] Blades de listagem, criação e edição
+- [ ] As seis rotas administrativas, somente com `auth`
+- [ ] Seleção *server-side* de mídia existente
+- [ ] Validação de `position` restrita aos casos do enum
+- [ ] Validação *server-side* de `link_url`, recusando esquemas inseguros
+- [ ] Alternância de `is_active`
+- [ ] Reatribuição do `sort_order` ao fim quando a `position` muda, de forma atômica
+- [ ] `sort_order` não exposto como campo numérico livre do formulário
+- [ ] Ordenação por posição, com rota própria decidida nesta subfase
+- [ ] Sidebar e breadcrumbs, somente quando as rotas existirem
+- [ ] Feedback de sucesso e de erro
+- [ ] Testes administrativos
+
+Sem upload, sem Livewire, sem Alpine e sem AJAX.
+
+###### F2.5-C — Consulta pública, integração e hardening 📋 Planejada
+
+- [ ] Consulta pública por posição no `BannerService`
+- [ ] Somente banners ativos são expostos
+- [ ] Ordem determinística na consulta pública
+- [ ] Integração mínima do `hero` na home
+- [ ] URL da imagem derivada da F2.7
+- [ ] `alt_text` renderizado na imagem pública
+- [ ] Link opcional aplicado com segurança
+- [ ] Regressão da proteção de mídia em uso
+- [ ] Regressão do CRUD e da ordenação
+- [ ] Suíte completa verde
+- [ ] Hardening final
+
+---
+
+##### Critérios arquiteturais de aceite da F2.5 completa
+
+- [ ] O banner referencia `Media.id`, nunca path ou URL
+- [ ] A FK impede excluir mídia referenciada por um banner
+- [ ] O `MediaUsageRegistry` identifica mídia usada por banner, com o rótulo `Banner`
+- [ ] Excluir um banner não exclui a mídia
+- [ ] A mídia volta a ser removível quando o último uso desaparece
+- [ ] `position` aceita somente `hero`, `sidebar` e `footer`
+- [ ] A ordenação é respeitada dentro de cada posição
+- [ ] O empate de `sort_order` é desempatado por `id ASC`
+- [ ] Novo banner é anexado ao fim da posição
+- [ ] O primeiro banner de uma posição recebe `sort_order = 1`
+- [ ] Alterar campos sem mudar `position` preserva o `sort_order`
+- [ ] Mudar `position` move o banner para o fim da nova posição
+- [ ] Novo banner nasce inativo por default quando o estado não é explicitamente informado
+- [ ] Banner inativo não aparece publicamente
+- [ ] Banner ativo aparece somente na posição correta
+- [ ] A consulta pública usa o filtro `position` + `is_active` e mantém ordem determinística
+- [ ] O link é opcional e esquemas inseguros são recusados
+- [ ] `link_url` vazio ou só com espaços é normalizado para `null`
+- [ ] Link relativo iniciado por `//` é rejeitado
+- [ ] URL absoluta é aceita somente com esquema HTTP/HTTPS e host válido
+- [ ] `alt_text` é persistido e renderizado
+- [ ] Não existe upload paralelo
+- [ ] Não existe cache prematuro
+- [ ] A home consome pelo menos a posição `hero`
+- [ ] Suíte completa permanece verde
+- [ ] Pint passa
+- [ ] `git diff --check` passa
+
+**Bloqueadores / decisões pendentes:** nenhum. As dependências F2.2 e F2.7 estão
+concluídas. A F2.5 aguarda apenas a autorização para iniciar a **F2.5-A**.
 
 ---
 
