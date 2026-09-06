@@ -13,9 +13,10 @@
     - F2.4-B — Administração e CRUD: ✅ concluída
     - F2.4-C — Publicação, Markdown, preview e SEO: ✅ concluída
   - Próxima etapa planejada: **F2.7 — Biblioteca de Mídia** (📋 planejada, não
-    iniciada). Pela ordem de execução ainda vêm, depois dela, F2.3-C, F2.5 e só
-    então F2.6 — cuja dependência da F2.4 está satisfeita, sem que isso a
-    promova na fila
+    iniciada), com contrato arquitetural fechado em 2026-09-06 e dividida em
+    F2.7-A, F2.7-B e F2.7-C — todas 📋 planejadas. Pela ordem de execução ainda
+    vêm, depois dela, F2.3-C, F2.5 e só então F2.6 — cuja dependência da F2.4
+    está satisfeita, sem que isso a promova na fila
 - **Fase 1:** ✅ Concluída em 2026-09-04
 - **Data de Início:** 2026-09-04
 - **Data Estimada de MVP Completo:** 2026-09-30
@@ -213,17 +214,18 @@ no repositório e foi executado/validado com sucesso.**
 | F2.2 — Fundação do Admin | ✅ Concluída | Autenticação, rotas, layout e navegação de `/admin` | Fase 1 |
 | F2.3 — Configurações Globais | ⏳ Em desenvolvimento | Configurações gerais, tema e identidade visual integrada à F2.7 | F2.1, F2.2 (C também da F2.7) |
 | F2.4 — Páginas Estáticas | ✅ Concluída | CRUD de páginas com SEO e publicação | F2.2 |
-| F2.7 — Biblioteca de Mídia | 📋 Planejado | Upload, processamento e consulta de mídia | F2.2 |
+| F2.7 — Biblioteca de Mídia | 📋 Planejado | Upload, processamento e consulta de mídia, em F2.7-A/B/C | F2.2 |
 | F2.5 — Banners | 📋 Planejado | CRUD de banners com ordenação, sobre a mídia da F2.7 | F2.2, **F2.7** |
 | F2.6 — Menus | 📋 Planejado | Menus hierárquicos e itens | F2.2, F2.4 |
 
 > A tabela segue a **ordem de execução**, não a numeração: a F2.7 precede a
 > F2.5 porque os banners dependem da biblioteca de mídia.
 
-> A F2.3 e a F2.4 têm subfases internas — `F2.3-A/B/C` e `F2.4-A/B/C`. Elas
-> continuam sendo **uma** subfase da Fase 2 cada. A F2.6 dependia da **F2.4
-> completa**: com a F2.4 concluída, essa dependência está satisfeita — mas a
-> F2.6 continua na sua posição da fila, depois de F2.7, F2.3-C e F2.5.
+> A F2.3, a F2.4 e a F2.7 têm subfases internas — `F2.3-A/B/C`, `F2.4-A/B/C` e
+> `F2.7-A/B/C`. Elas continuam sendo **uma** subfase da Fase 2 cada. A F2.6
+> dependia da **F2.4 completa**: com a F2.4 concluída, essa dependência está
+> satisfeita — mas a F2.6 continua na sua posição da fila, depois de F2.7,
+> F2.3-C e F2.5.
 
 ---
 
@@ -741,13 +743,26 @@ proteção contra exclusão de mídia em uso, que já é contrato da F2.7.
 > `SiteSetting` deverá armazenar uma referência estável à mídia gerenciada pela
 > F2.7, conforme o contrato que estiver definido nessa subfase.
 
-Se a referência será ID, UUID, caminho ou outra forma é decisão **interna da
-F2.7** — não antecipada aqui.
+Se a referência será ID, UUID, caminho ou outra forma sempre foi decisão
+**interna da F2.7** — e a auditoria arquitetural de 2026-09-06 a fechou:
+**`Media.id`**, `BIGINT` autoincremental. A F2.3-C persistirá esse identificador
+como valor de configuração e resolverá a URL por `Storage`, nunca guardando
+caminho ou URL. Nada disso antecipa a F2.3-C; apenas registra o contrato que ela
+encontrará pronto.
 
 **Proteção de referências**
 
 Logo e favicon configurados contam como mídia **em uso**. A F2.3-C integra-se
 ao contrato de proteção já previsto na F2.7, em vez de criar proteção paralela.
+
+> **Contrato de consumidor herdado da F2.7.** A F2.3-C registrará seus próprios
+> verificadores no registro de uso da biblioteca — a F2.7 não conhece logo nem
+> favicon. Duas consequências já conhecidas, ambas trabalho da F2.3-C: como a
+> referência mora em `site_settings`, uma tabela genérica de chave/valor, **não
+> há chave estrangeira** disponível como barreira final, e resta apenas o
+> registro de verificadores; e o favicon virá da biblioteca em **PNG**, já que
+> `.ico` e `.svg` estão fora do escopo da F2.7. Exigir outro formato será
+> requisito novo da F2.3-C, com justificativa própria.
 
 **Critérios de aceite planejados**
 
@@ -1754,6 +1769,15 @@ armazenamento/upload para banners. Isso evita duas rotas de upload, dois
 formatos de armazenamento e a duplicação do processamento de imagens — e é o
 motivo de a F2.7 ser executada antes da F2.5.
 
+> **Contrato de consumidor herdado da F2.7** (auditoria de 2026-09-06). O
+> banner referenciará a imagem por `media_id → media.id`, nunca por caminho ou
+> URL. Tendo coluna própria, a migration de `banners` deverá declarar
+> `foreign('media_id')->references('id')->on('media')->restrictOnDelete()` — a
+> barreira final contra excluir mídia em uso —, e a F2.5 registrará seu próprio
+> verificador no registro de uso da biblioteca. A F2.7 não conhece `Banner`; a
+> direção `F2.7 → F2.5` permanece. Como a modelagem do banner será feita é
+> decisão da auditoria arquitetural da F2.5.
+
 **Bloqueadores / decisões pendentes:** nenhum. A dependência da F2.2 está
 satisfeita.
 
@@ -1803,38 +1827,1382 @@ satisfeita.
 
 #### F2.7 — Biblioteca de Mídia 📋 Planejado
 
-**Objetivo:** centralizar upload, processamento e reuso de arquivos de mídia.
+**Status:** 📋 **Planejada — não iniciada.** Nenhum código foi escrito, nenhuma
+migration criada e nenhum pacote instalado.
 
-**Entregáveis**
+> **Contrato arquitetural definido antes da implementação**, no mesmo formato
+> adotado pela F2.4. As decisões desta seção foram fechadas em **2026-09-06**,
+> sobre o HEAD `9ab0629`, por auditoria confrontando o contrato anterior com o
+> repositório real: `composer.json`, `composer.lock`, `config/filesystems.php`,
+> `.env.example`, `docker/Dockerfile`, `docker/php.ini`, `docker/nginx.conf`,
+> `routes/web.php`, os models, services e Form Requests existentes, o layout
+> administrativo e a **API realmente instalada** do Intervention Image.
 
-- [ ] Model e migration `Media`
-- [ ] Upload
-- [ ] Armazenamento
-- [ ] Processamento/compressão de imagens com Intervention Image
-- [ ] Grid/consulta da biblioteca
-- [ ] Exclusão (delete) de itens da biblioteca
-- [ ] Proteção contra exclusão de mídia em uso
+**Objetivo:** centralizar upload, processamento e reuso de arquivos de imagem,
+entregando às subfases seguintes uma **referência estável de mídia** em vez de
+caminhos de arquivo espalhados por configurações e tabelas.
 
-**Testes / critério de aceite**
+Não é um DAM (*digital asset manager*) e não é um gerenciador de arquivos: o
+escopo é a biblioteca de imagens administrativas reutilizáveis.
 
-- [ ] Upload persiste o arquivo e o registro correspondente
-- [ ] Imagem é processada/comprimida conforme configurado
-- [ ] Consulta da biblioteca retorna os itens esperados
-- [ ] **Excluir mídia em uso é impedido** — este é o critério que justifica a
-      subfase existir separada
+---
 
-**Dependências:** F2.2 (layout e rotas admin). O `intervention/image 4.3.2` já
-foi instalado na Fase 1.
+##### Direção de dependência — preservada
 
-**Consumidores:** a **F2.5 (Banners)** e a **F2.3-C (Logo e favicon)** dependem
-desta subfase — por isso a F2.7 é executada antes de ambas.
+```text
+F2.7  →  F2.3-C   (logo e favicon)
+F2.7  →  F2.5     (banners)
+```
 
-> **A F2.7 não depende da F2.3-C.** A direção é `F2.7 → F2.3-C`, nunca o
-> inverso: a biblioteca de mídia pode ser implementada e validada de forma
-> independente, sem que logo ou favicon existam.
+> **A F2.7 não depende da F2.3-C nem da F2.5.** A direção nunca se inverte: a
+> biblioteca é infraestrutura e pode ser implementada, validada e encerrada com
+> **zero consumidores existentes**.
 
-**Bloqueadores / decisões pendentes:** nenhum. A dependência da F2.2 está
-satisfeita.
+Consequência direta e vinculante: nada nesta subfase menciona logo, favicon,
+banner, produto ou categoria em código. Não há `Banner::`, `SiteSetting::` nem
+`Product::` dentro do `MediaService`. Nenhum verificador de consumidor é
+implementado aqui — os consumidores se registram quando existirem.
+
+**Dependências:** F2.2 (layout e rotas admin) — satisfeita.
+
+---
+
+##### Fatos confirmados no repositório
+
+A auditoria verificou o que o contrato anterior afirmava, em vez de repeti-lo.
+
+**Intervention Image — já é dependência direta.**
+
+```text
+composer.json   "intervention/image": "^4.3"
+composer.lock   4.3.2
+```
+
+**Nenhum pacote novo é necessário** e nenhum será instalado pela F2.7 — ao
+contrário da F2.4-C, que precisou promover `league/commonmark` a dependência
+direta. A biblioteca já está no `require`, e sua API já é usada diretamente
+pela aplicação a partir daí.
+
+**O *bridge* `intervention/image-laravel` NÃO está instalado.** Não existe
+facade `Image`, não existe `config/image.php` e não há service provider do
+pacote. Consequência: a F2.7 **instancia o `ImageManager` explicitamente**,
+escolhendo o driver, e o registra no container se quiser injeção — não há atalho
+de facade a usar, e inventar um exigiria instalar um pacote que o contrato não
+pede.
+
+**API real da versão 4.3.2** — verificada no código instalado e exercitada no
+container, não deduzida de versões anteriores:
+
+```text
+new ImageManager(\Intervention\Image\Drivers\Gd\Driver::class)
+ImageManager::usingDriver(...)
+$manager->decode(...) | decodeBinary(...) | decodePath(...) | decodeSplFileInfo(...)
+$image->orient()
+$image->scaleDown(width, height)
+$image->width() | height()
+$image->encode(EncoderInterface)
+```
+
+> `ImageManager::gd()`, `ImageManager::imagick()` e `Image::make()` **não
+> existem** na 4.3.2. São API de versões anteriores ou do *bridge* Laravel, e
+> documentá-las produziria código que não compila.
+
+**Filesystem — confirmado em `config/filesystems.php`:** discos `local`,
+`public` e `s3`; `public` com `root = storage_path('app/public')`,
+`visibility = public` e `url` derivada de `APP_URL`; e o link simbólico
+`public/storage → storage/app/public` declarado em `links`.
+
+A F2.7 **reutiliza o Laravel Filesystem**. Nenhuma arquitetura paralela de
+arquivos, nenhum acesso direto a `file_put_contents`, `move_uploaded_file` ou
+`public_path()`.
+
+**Limites de infraestrutura já suficientes:** `docker/php.ini` define
+`upload_max_filesize = 100M` e `post_max_size = 100M`, `memory_limit = 512M`, e
+`docker/nginx.conf` define `client_max_body_size 100M`. O limite de upload da
+F2.7 é, portanto, **decisão de aplicação** e cabe com folga na infraestrutura
+atual — nenhuma alteração de `docker/` é necessária por causa do tamanho.
+
+---
+
+##### Pré-requisitos de ambiente — dois, ambos reais
+
+A auditoria encontrou duas condições de ambiente que **não estão satisfeitas
+hoje** e que a implementação precisa tratar. Nenhuma delas é resolvida nesta
+execução documental.
+
+**1. `public/storage` não existe.**
+
+```text
+public/storage        →  ausente no host e dentro do container
+.gitignore            →  /public/storage (versionar o link seria errado)
+docker/entrypoint.sh  →  não cria o link
+```
+
+`Storage::disk('public')->url()` já devolve a URL correta —
+`http://localhost/storage/media/...`, confirmado no container —, mas **sem o
+link ela responde 404**.
+
+**Decisão — gate operacional da F2.7-A.** O filesystem **não** é redesenhado e
+**não** se cria rota própria para servir arquivos: a configuração do Laravel já
+prevê o link em `config/filesystems.php`. O que falta é executá-lo:
+
+```bash
+php artisan storage:link
+```
+
+ou o equivalente idempotente exigido pelo ambiente. Precisa ficar documentado no
+README/INSTALACAO_RAPIDA no momento da implementação.
+
+**Critério de aceite operacional — quatro passos, no Docker real:**
+
+```text
+1. escrever um arquivo de prova no disk public
+2. resolver a URL via Storage::disk('public')->url(...)
+3. confirmar acesso HTTP ao arquivo por /storage/...
+4. remover o arquivo de prova
+```
+
+> **`Storage::fake('public')` é adequado aos testes unitários e de feature de
+> storage, mas não comprova que o symlink público existe em uma instalação
+> real.** O *fake* substitui o disco inteiro: a suíte fica verde com o link
+> ausente.
+
+Por isso este gate é **verificação no ambiente Docker real durante a
+implementação da F2.7-A**, e não um teste automatizado. O `storage:link` **não
+é executado por esta auditoria** — alterar o ambiente estaria fora do escopo
+documental; aqui apenas se documenta o contrato.
+
+**2. O GD da imagem atual não suporta WebP.**
+
+Verificado por `gd_info()` no container `app`:
+
+```text
+JPEG Support = true
+PNG  Support = true
+GIF  Read/Create Support = true
+WebP Support = false
+AVIF Support = false
+```
+
+A causa está em `docker/Dockerfile`, que configura
+`docker-php-ext-configure gd --with-freetype --with-jpeg` e instala
+`libpng`/`libjpeg-turbo`/`freetype`, **sem `libwebp`**. Imagick não está
+instalado. Tentar codificar WebP hoje falha de forma dura:
+
+```text
+Error: Call to undefined function Intervention\Image\Drivers\Gd\Encoders\imagewebp()
+```
+
+É um `Error` do PHP, não uma exceção do Intervention — ou seja, **não seria
+capturado** por um `catch (Throwable)` mal posicionado nem produziria erro de
+validação amigável.
+
+**Decisão — quem satisfaz o gate: a própria F2.7-B.**
+
+> O WebP **faz parte do escopo planejado da F2.7-B**, e sua aceitação depende de
+> uma alteração explícita de infraestrutura **executada dentro da própria
+> F2.7-B**. Não é uma condição externa, delegada a outra fase ou deixada sem
+> dono: é uma tarefa da subfase, com verificação obrigatória.
+
+**Gate técnico da F2.7-B — quatro passos, nesta ordem:**
+
+```text
+1. Docker fornece as bibliotecas de build/runtime necessárias ao WebP
+2. GD é recompilado com suporte a WebP
+3. o ambiente comprova gd_info()['WebP Support'] === true
+4. uma codificação WebP real pelo Intervention Image passa
+```
+
+**Enquanto os quatro passos não estiverem satisfeitos, `image/webp` NÃO pode ser
+aceito pelo upload** — não entra na lista de MIME válidos, não chega ao
+*encoder*, e o contrato registra a redução. Aceitar um formato que quebra em
+execução seria pior do que não oferecê-lo.
+
+**JPEG e PNG não dependem deste gate** e são aceitos desde o primeiro dia da
+F2.7-B. Nada mais muda: **GIF permanece rejeitado**, **SVG permanece fora do
+escopo**, e **não há conversão automática entre formatos** — o gate decide
+apenas se `image/webp` é um formato de *entrada* aceitável.
+
+A alteração de `docker/` pertence à implementação da F2.7-B e **não é feita por
+esta auditoria documental**, que apenas a especifica.
+
+---
+
+##### Identidade — decisão fundamental
+
+> **`Media.id` é a identidade interna estável da mídia. Caminho, nome físico e
+> URL são representações do armazenamento, e não identidade.**
+
+**Decisão:** `BIGINT` autoincremental, via `$table->id()`, seguindo a convenção
+já usada por `users`, `site_settings` e `pages`.
+
+**Motivo:** nenhum requisito atual justifica divergir da convenção. UUID e ULID
+resolvem geração distribuída, ocultação de cardinalidade em URL pública e
+inserção sem *round-trip* — e a mídia não tem nada disso: é criada por um único
+banco, referenciada apenas por rotas administrativas e nunca exposta por
+identificador em URL pública. Introduzir UUID aqui seria inventar um requisito.
+
+**Consequência:** consumidores referenciam a mídia por `media_id → media.id`.
+
+```text
+Banner / configuração / outro consumidor
+        ↓
+     media_id
+        ↓
+     Media.id
+```
+
+e **nunca**:
+
+```text
+consumidor  →  "/storage/media/2026/09/01J.....webp"
+```
+
+**Fronteira:** trocar o disco, reorganizar a estrutura de pastas ou migrar para
+S3 no futuro não invalida nenhuma referência existente, porque nenhuma
+referência guarda caminho.
+
+---
+
+##### Schema de `media`
+
+O model `Media` resolve a tabela `media` automaticamente — confirmado:
+`Str::plural('Media') === 'Media'` e o nome de tabela derivado é `media`, não
+`medias`. Nenhum `$table` explícito é necessário, embora declará-lo seja
+inofensivo.
+
+```text
+media
+
+id             BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY
+disk           VARCHAR(32)   NOT NULL
+path           VARCHAR(255)  NOT NULL
+original_name  VARCHAR(255)  NOT NULL
+mime_type      VARCHAR(128)  NOT NULL
+size           INT UNSIGNED  NOT NULL   -- bytes do arquivo armazenado
+width          INT UNSIGNED  NOT NULL   -- pixels do arquivo armazenado
+height         INT UNSIGNED  NOT NULL   -- pixels do arquivo armazenado
+created_at
+updated_at
+
+UNIQUE (disk, path)
+```
+
+**`extension` foi removida do contrato.**
+*Decisão:* não existe coluna `extension`.
+*Motivo:* ela seria a terceira fonte da mesma informação. O nome físico é
+gerado pelo sistema e sua extensão é escolhida pelo *encoder* a partir do
+formato de saída, que já está em `mime_type`; a extensão real está no `path` e
+sai de `pathinfo($media->path, PATHINFO_EXTENSION)` sem ambiguidade. Três
+fontes divergem na primeira mudança; duas já bastam.
+*Consequência:* consultas por extensão passam a ser consultas por `mime_type`.
+*Fronteira:* se algum dia existir um tipo cuja extensão não seja derivável do
+MIME, a coluna volta com justificativa própria.
+
+**`width` e `height` são `NOT NULL`, não *nullable*.**
+*Decisão:* dimensões obrigatórias.
+*Motivo:* *nullable* só faz sentido se a biblioteca aceitar arquivos sem
+dimensão. A primeira versão aceita **exclusivamente imagens raster**, e o
+pipeline sempre produz uma imagem decodificada — se não produzir, não existe
+registro. Uma coluna *nullable* que nunca recebe `null` é um convite a
+consumidores defensivos sem motivo.
+*Consequência:* admitir no futuro um tipo sem dimensões (SVG, PDF) exige
+migration e decisão explícita — que é exatamente o efeito desejado.
+
+**`size` é `INT UNSIGNED`, não `BIGINT`.**
+*Decisão:* `unsignedInteger`, capaz de 0 a 4.294.967.295 bytes (~4 GB).
+*Motivo:* o contrato limita o upload a 5 MB e a biblioteca é de imagens; um
+`BIGINT` aqui reservaria o dobro do espaço para uma faixa que o próprio
+contrato torna inalcançável.
+*Consequência:* elevar o limite acima de 4 GB — o que exigiria mudar tudo o
+mais nesta subfase — pediria também esta migration.
+
+**`UNIQUE (disk, path)`.**
+*Decisão:* índice único composto.
+*Motivo:* mesma filosofia já adotada em `pages.slug` — o serviço gera um nome
+com componente aleatório e verifica, mas **só o banco fecha a corrida** entre
+gerar e inserir. Dois registros apontando para o mesmo arquivo produziriam uma
+exclusão que apaga o arquivo do outro.
+*Custo:* `(32 + 255) × 4` bytes em utf8mb4 = 1.148 bytes, dentro do limite de
+3.072 bytes de índice do InnoDB no MySQL 8.4.
+
+**Nenhum índice adicional.**
+A ordenação padrão da biblioteca é `id DESC` (ver *Consulta e paginação*), que
+usa a chave primária. Não há `index` em `created_at`, `mime_type` nem
+`original_name`: não existe consulta que os filtre no escopo desta subfase.
+
+**`timestamps()` mantidos** por consistência com `pages` e `site_settings`,
+ainda que a mídia seja imutável após a criação — `updated_at` normalmente será
+igual a `created_at`.
+
+**Explicitamente fora do schema**, por ausência de requisito concreto:
+
+```text
+extension    metadata JSON   folder_id   collection   status
+caption      title           alt_text    user_id      uuid       hash
+deleted_at   disk_url        variants    parent_id
+```
+
+- `alt_text` e `caption`: texto alternativo é propriedade **do uso**, não do
+  arquivo — a mesma imagem descreve coisas diferentes num banner e num logo.
+  Quando um consumidor real precisar, ele decide onde guardar.
+- `hash`: serviria para deduplicação, que ninguém pediu.
+- `user_id`: autoria depende da Fase 3.
+- `folder_id`, `collection`, `status`: organização e ciclo de vida que o
+  contrato atual não tem.
+- `deleted_at`: ver *SoftDeletes*.
+
+---
+
+##### Disk e path
+
+**Disk — decisão:** `public` na implementação inicial, definido em **um único
+lugar** (constante do `MediaService`), e **persistido em cada registro**.
+
+*Motivo:* o disco padrão da aplicação é `local`
+(`.env.example` → `FILESYSTEM_DISK=local`), e no Laravel 12 o disco `local`
+aponta para `storage/app/private`. Confiar no padrão colocaria as imagens num
+diretório privado, servido apenas por rota autenticada — o oposto do que a
+biblioteca precisa. O disco é, portanto, **sempre explícito**, nunca herdado.
+
+*Motivo de centralizar:* espalhar o literal `'public'` por Service, Controller,
+Blade e testes faz uma futura troca de disco virar caça ao literal. Uma
+constante no `MediaService` resolve, no mesmo espírito em que o `ThemeService`
+concentra chaves e defaults — **sem** criar `config/media.php` nem variável de
+ambiente nova, que seriam configuração antes de haver o que configurar.
+
+*Motivo de persistir:* `media.disk` guardado por registro é o que permite uma
+migração futura de backend sem reescrever histórico. Registros antigos
+continuam resolvendo pelo disco em que foram gravados.
+
+*Consequência:* leitura e exclusão sempre usam `$media->disk`, nunca a
+constante.
+
+**S3 não é implementado nesta fase.** O disco existe em `config/filesystems.php`
+desde o esqueleto do Laravel, sem credenciais e sem uso. A arquitetura apenas
+**não impede** a migração; não a executa e não a testa.
+
+**Path — decisão:**
+
+```text
+media/{YYYY}/{MM}/{nome-gerado}.{ext}
+```
+
+Exemplo:
+
+```text
+media/2026/09/01K4T7WQZ8N3B6MJX5F2VHRA9DC.jpg
+```
+
+*Motivo do particionamento por ano/mês:* mantém a quantidade de entradas por
+diretório limitada e previsível, torna o armazenamento navegável e não depende
+de nenhum dado controlado pelo usuário.
+
+*Motivo de `{ext}` vir da saída:* a extensão é derivada do **formato
+efetivamente codificado**, não da extensão enviada pelo cliente.
+
+**Nome físico — decisão:** gerado pelo sistema, opaco, com componente
+aleatório — um ULID (`Str::ulid()`) atende: 26 caracteres, alfabeto
+`[0-9A-HJKMNP-TV-Z]`, ordenável por tempo, sem colisão prática.
+
+> O ULID aqui é **nome de arquivo**, não identidade. A identidade continua sendo
+> `Media.id`. Nenhum consumidor referencia o nome.
+
+*O nome enviado pelo usuário nunca compõe o path* — nem cru, nem *slugificado*.
+
+```text
+"Minha Logo Final (2).PNG"   →  apenas metadado em original_name
+```
+
+*Motivo:* qualquer derivação do nome do usuário reintroduz três problemas de
+uma vez — colisão entre uploads homônimos, caracteres problemáticos no sistema
+de arquivos e superfície de *path traversal*. Um nome gerado não tem nenhum dos
+três, e o nome original continua disponível para o administrador reconhecer o
+arquivo na grid.
+
+*Fronteira:* `original_name` é texto controlado pelo usuário. É escapado ao ser
+exibido, é truncado ao limite da coluna e **nunca** é usado para montar caminho,
+URL, cabeçalho ou nome de download.
+
+---
+
+##### URL — derivada, nunca persistida
+
+**Decisão:** não existe coluna de URL.
+
+```php
+Storage::disk($media->disk)->url($media->path)
+```
+
+*Motivo:* URL é função do disco e da configuração (`APP_URL`, `AWS_URL`,
+domínio, CDN futura). Persisti-la congelaria o valor de um ambiente e faria
+todo registro antigo apontar para o lugar errado assim que qualquer um deles
+mudasse.
+
+*Consequência:* trocar `APP_URL` ou o disco corrige toda a biblioteca de uma
+vez, sem migration de dados.
+
+*Fronteira:* a derivação depende do link `public/storage` existir — ver
+*Pré-requisitos de ambiente*.
+
+*Nota operacional:* `docker/nginx.conf` já serve `png|jpg|jpeg|gif|ico|svg` com
+`expires 30d` e `Cache-Control: public, immutable`. Isso é **seguro** com o
+contrato de nome adotado, porque um path nunca é reescrito: cada upload gera um
+nome novo, e a exclusão não recicla o anterior. `webp` não está nessa lista e,
+se o gate técnico da F2.7-B for cumprido, será servido pelo `location /` sem
+cabeçalho de cache — funcional, apenas sem o cache agressivo. Ajustar a lista é
+opcional e pertence à implementação, não a este contrato.
+
+---
+
+##### Tipos de arquivo aceitos
+
+A biblioteca chama-se "de mídia", mas os consumidores conhecidos da Fase 2 —
+logo, favicon e banners — são todos **imagens visuais**. A primeira versão é
+restrita a **imagens raster**:
+
+| Tipo | MIME | Decisão |
+| --- | --- | --- |
+| JPEG | `image/jpeg` | ✅ aceito |
+| PNG | `image/png` | ✅ aceito |
+| WebP | `image/webp` | ⚠️ **só é aceito depois do gate técnico da F2.7-B** (ver abaixo) |
+| GIF | `image/gif` | ❌ rejeitado nesta versão |
+| SVG | `image/svg+xml` | ❌ fora do escopo inicial |
+| AVIF, HEIC, BMP, TIFF, ICO | — | ❌ fora |
+| PDF, ZIP, Office, vídeo, áudio | — | ❌ fora |
+
+**WebP — aceito somente depois do gate técnico da F2.7-B.**
+*Decisão:* `image/webp` pertence ao escopo planejado da F2.7-B, mas **não é
+aceito enquanto os quatro passos do gate não estiverem cumpridos** — bibliotecas
+no Docker, GD recompilado, `gd_info()['WebP Support'] === true` comprovado e uma
+codificação WebP real passando pelo Intervention. O gate é responsabilidade da
+própria F2.7-B, não de terceiros. Detalhamento em *Pré-requisitos de ambiente*.
+*Consequência:* até lá, um upload `image/webp` é **rejeitado pela validação**,
+como qualquer outro tipo não suportado — nunca aceito para falhar depois no
+*encoder*.
+*Fronteira:* **JPEG e PNG não dependem deste gate.**
+
+**GIF — decisão explícita: rejeitado.**
+*Motivo:* o GD do container lê e cria GIF, e o Intervention traz
+`intervention/gif`, então a rejeição **não** é uma limitação técnica — é uma
+decisão de contrato. Aceitar GIF obrigaria a decidir agora o que fazer com
+animação: preservar todos os quadros (e então o *resize* e a compressão precisam
+valer quadro a quadro, com custo de memória multiplicado), achatar para o
+primeiro quadro (e entregar silenciosamente algo diferente do que foi enviado)
+ou rejeitar apenas os animados (validação que exige inspecionar a estrutura do
+arquivo). Nenhum consumidor conhecido precisa de animação.
+*Consequência:* GIF é rejeitado na validação, com mensagem clara, e **não** é
+aceito por omissão.
+*Fronteira:* se um requisito real de animação aparecer, o GIF entra com política
+de animação própria — não como efeito colateral.
+
+**SVG — decisão explícita: fora do escopo inicial.**
+*Motivo:* SVG é um documento XML que pode conter `<script>`, `<foreignObject>`,
+entidades externas e referências remotas. Tratá-lo como "mais um formato de
+imagem" o serviria diretamente do domínio da loja, com XSS armazenado como
+resultado. Um SVG seguro exige contrato próprio — sanitização dedicada,
+possivelmente servir com `Content-Disposition`/CSP específicos — que não é o
+contrato de imagem raster desta subfase. O GD, além disso, não decodifica SVG:
+não há sequer pipeline em que ele caiba hoje.
+*Consequência:* upload de SVG é rejeitado pela validação de MIME.
+*Fronteira e risco residual reconhecido:* favicons modernos costumam ser
+`.ico` ou `.svg`. Com este contrato, a **F2.3-C terá apenas PNG** como formato
+de favicon vindo da biblioteca. PNG é aceito por todos os navegadores atuais
+via `<link rel="icon" type="image/png">`, então a F2.3-C é viável — mas se ela
+exigir `.ico` ou `.svg`, isso será um requisito **novo**, dela, e reabrirá esta
+decisão com justificativa própria. A F2.7 não antecipa esse requisito.
+
+**Validação por MIME real, não por extensão.**
+*Decisão:* o tipo aceito é decidido pelo conteúdo do arquivo, validado no
+servidor.
+*Motivo:* a extensão e o `Content-Type` do formulário são fornecidos pelo
+cliente e podem mentir. `arquivo.php` renomeado para `arquivo.jpg` precisa ser
+rejeitado.
+*Como:* regras `image` + `mimetypes:` do Laravel, que usam a detecção de
+`fileinfo` (extensão confirmada carregada no container) sobre o arquivo
+temporário. `mimes:` sozinho não basta — ele decide por extensão.
+*Reforço:* mesmo passando na validação, o arquivo ainda precisa ser
+**decodificado com sucesso** pelo Intervention. Um arquivo que não decodifica
+não vira mídia. Essa é a segunda barreira, e a decisiva.
+
+---
+
+##### Limite de upload
+
+**Decisão:** **5 MB por arquivo**, validado na aplicação (`max:5120`, em KB).
+
+*Motivo:* cabe com folga nos consumidores conhecidos — um logo é da ordem de
+dezenas de KB, um favicon menos ainda, e um banner de 2000 px em JPEG q85 fica
+tipicamente entre 200 e 800 KB. Ao mesmo tempo, 5 MB acomoda o que o
+administrador realisticamente carrega como *entrada*: uma foto de celular ou um
+PNG exportado de ferramenta de design.
+
+*Fronteira:* o limite é sobre o **arquivo enviado**, antes do processamento. O
+arquivo armazenado costuma ser sensivelmente menor, e `media.size` registra o
+armazenado, não o enviado.
+
+*Não é limite de infraestrutura:* PHP e nginx aceitam 100 MB. Recusar acima de
+5 MB é decisão de produto, e o erro precisa ser de validação amigável — não um
+413 do nginx nem um POST truncado pelo PHP.
+
+**Guarda adicional de dimensões de entrada.**
+*Decisão:* rejeitar imagens acima de **6000 × 6000 px** na validação, antes de
+decodificar.
+*Motivo:* isto é uma proteção contra *decompression bomb*, e é independente do
+limite de bytes. O GD decodifica para bitmap cru a ~4 bytes por pixel, e uma
+imagem de 12.000 × 12.000 px cabe folgadamente em 5 MB comprimida — o limite de
+bytes, sozinho, não limita pixels.
+*Como:* a regra `dimensions:max_width=6000,max_height=6000` lê apenas o
+cabeçalho da imagem (via `getimagesize`), sem decodificá-la — barato e anterior
+ao risco.
+
+> **Por que 6000 e não 8000.** O buffer decodificado **não é o único consumo de
+> memória da requisição**. Durante o processamento coexistem, em graus variados:
+> o buffer decodificado, as estruturas internas do GD, o resultado de
+> `orient()`, a imagem redimensionada, o *encoder* e o binário de saída — além
+> do próprio runtime de PHP, Laravel e Intervention. Uma conta de pico único
+> (`8000 × 8000 × 4 ≈ 256 MB`) **não é prova suficiente de segurança** contra o
+> `memory_limit = 512M`, porque trata como isolado um consumo que é
+> concorrente. 6000 × 6000 reduz o pico do buffer a ~144 MB e deixa margem real
+> para tudo o mais que vive na mesma requisição.
+
+*Consequência:* 6000 × 6000 px continua muito acima da necessidade concreta dos
+consumidores conhecidos — logo, favicon e banners —, cuja saída é limitada a
+2000 px no maior lado de qualquer forma.
+
+**Contrato de upload, consolidado:**
+
+```text
+arquivo enviado  ≤ 5 MB
+largura          ≤ 6000 px
+altura           ≤ 6000 px
+saída            ≤ 2000 px no maior lado
+proporção preservada
+sem upscale
+```
+
+**Upload único — decisão:** `1 request → 1 arquivo`. Sem upload múltiplo, sem
+*drag-and-drop*, sem envio assíncrono. Um único arquivo mantém a semântica de
+falha trivial: ou a requisição criou uma mídia, ou não criou nenhuma. Upload
+múltiplo forçaria decidir agora o que fazer quando 3 de 5 arquivos falham.
+
+---
+
+##### Processamento de imagem
+
+"Processamento/compressão" é substituído por comportamento testável. O pipeline
+é **único** e vale para todo upload aceito:
+
+```text
+UploadedFile
+   → decodifica (Intervention, driver GD)
+   → orient()                      corrige orientação a partir do EXIF
+   → scaleDown(2000, 2000)         reduz se preciso; nunca amplia
+   → encode(<encoder do formato de origem>)
+   → grava no disco
+   → mede size/width/height do RESULTADO
+```
+
+**Dimensão máxima — decisão:** maior lado ≤ **2000 px**, proporção preservada.
+
+*Motivo:* 2000 px cobre um banner *full-width* em telas de alta densidade sem
+guardar arquivos de câmera. Verificado no container com a API instalada:
+
+```text
+4000 × 1000  →  2000 × 500     (redimensionada, proporção preservada)
+2000 × 2000  →  2000 × 2000    (exatamente no limite: inalterada)
+ 300 ×  200  →   300 × 200     (menor que o limite: sem upscale)
+```
+
+**Upscale — decisão:** nunca. `scaleDown()` só reduz; ampliar uma imagem
+pequena inventaria pixels e aumentaria o arquivo sem acrescentar informação. É
+a razão de o contrato usar `scaleDown()` e **não** `scale()` ou `resize()`.
+
+**Orientação — decisão:** `orient()` aplicado **antes** de medir e redimensionar.
+
+*Motivo:* fotos de celular chegam com a rotação em metadado EXIF. Sem
+`orient()`, `width()`/`height()` reportariam os lados trocados, o *resize*
+usaria o eixo errado e a imagem sairia deitada. A extensão `exif` está carregada
+no container — confirmado.
+
+*Consequência:* após `orient()` a rotação está aplicada aos pixels, e o EXIF
+deixa de ser necessário. A recodificação descarta os metadados originais,
+inclusive **GPS** — efeito colateral desejável de privacidade, já que a mídia é
+servida publicamente.
+
+**Encoding por formato — o formato é preservado, não convertido.**
+
+| Formato de entrada | Encoder | Parâmetros |
+| --- | --- | --- |
+| JPEG | `JpegEncoder` | `quality: 85` |
+| WebP | `WebpEncoder` | `quality: 85` — **só depois do gate técnico da F2.7-B** |
+| PNG | `PngEncoder` | **sem parâmetro de qualidade** |
+
+> **Correção de contrato:** "qualidade ≈ 85" **não se aplica ao PNG**. O
+> `PngEncoder` da versão 4.3.2 recebe apenas `interlaced` e `indexed` — não
+> existe `quality`. PNG é um formato sem perdas, e o único botão disponível
+> seria `indexed: true`, que quantiza para 256 cores.
+
+**Decisão para PNG:** `PngEncoder` com os padrões (`interlaced: false`,
+`indexed: false`).
+*Motivo:* `indexed: true` destruiria gradientes e transparência suave — que é
+exatamente o caso de um logo, o primeiro consumidor previsto.
+*Consequência, declarada sem eufemismo:* para PNG, "compressão" significa apenas
+o ganho do redimensionamento e da recodificação. Um PNG fotográfico grande
+continuará grande. A alternativa — converter PNG em JPEG — é rejeitada abaixo.
+
+**Conversão de formato — decisão: não há.**
+*Motivo:* converter tudo para JPEG destruiria o canal alfa, e um logo sobre
+fundo transparente viraria um logo sobre fundo preto — quebrando o consumidor
+mais provável. Converter tudo para WebP seria atraente em tamanho, mas depende
+do gate técnico da F2.7-B e surpreenderia o administrador, que
+receberia de volta um formato diferente do que enviou.
+*Consequência:* `media.mime_type` do registro é sempre igual ao MIME validado
+na entrada.
+*Fronteira:* conversão automática pode ser reavaliada quando houver medida real
+de custo de armazenamento ou banda — não por antecipação.
+
+**Transparência — decisão:** preservada, como consequência de não haver
+conversão. PNG e WebP mantêm o canal alfa; JPEG não tem alfa e nunca é o destino
+de uma imagem que tinha. A pergunta "o que fazer com transparência ao converter
+para JPEG" **não existe** neste contrato.
+
+**Imagem menor que o limite — decisão:** ainda assim é decodificada, orientada e
+recodificada.
+*Motivo:* o pipeline precisa ser de caminho único. Recodificar é o que garante
+que o arquivo armazenado é uma imagem válida, com orientação aplicada, sem
+metadados do original, e cujas `size`/`width`/`height` gravadas descrevem
+exatamente o que está no disco.
+*Consequência, declarada:* um JPEG pequeno já otimizado a q95 pode sair
+ligeiramente menor e um pouco mais suave; um já salvo a q60 pode sair
+ligeiramente maior. Aceita-se essa variação em troca de um único caminho de
+código e de um registro que nunca mente sobre o arquivo.
+
+**Original × versão processada — decisão: apenas a versão processada é
+armazenada.**
+*Motivo:* nenhum consumidor conhecido precisa do original; guardá-lo dobraria o
+armazenamento e criaria um segundo ciclo de vida sem dono — quem o exclui,
+quando, e o que acontece se ele sumir e a derivada não.
+*Consequência, declarada sem eufemismo:* **o upload é irreversível.** O arquivo
+original do administrador não é recuperável a partir da biblioteca, e a
+interface administrativa deve dizê-lo. Reprocessamento futuro **não é
+prometido** — não há de onde reprocessar.
+*Fronteira:* nada de *thumbnails* múltiplos, *responsive images*, variantes,
+derivados, conversão assíncrona ou pipeline de filas. A grid administrativa
+exibe a própria imagem, restringida por CSS.
+
+---
+
+##### SoftDeletes — decisão: não
+
+**Decisão:** `Media` **não** usa `SoftDeletes`. Não há `deleted_at`.
+
+*Motivo:* `SoftDeletes` obrigaria a definir agora lixeira, `restore`, política de
+retenção do arquivo físico, `purge`, e — o pior — a semântica de uma mídia
+"excluída mas ainda referenciada". Nada disso está no contrato.
+
+*Contraste com `Page`, que usa `SoftDeletes`:* lá, o motivo é concreto e
+documentado — o `slug` é endereço público e precisa continuar **reservado**
+depois da exclusão, para que uma URL antiga não passe a servir outro conteúdo.
+A mídia não tem esse problema: seu path é opaco, gerado e **nunca reciclado**.
+O motivo que justifica `SoftDeletes` em `pages` simplesmente não existe aqui.
+
+*Agravante:* uma mídia soft-deleted cujo arquivo já foi apagado seria um
+registro que mente — e obrigaria toda consulta e todo verificador de uso a
+decidir se a considera ou não.
+
+*Consequência:* a exclusão da F2.7 é exclusão real, do registro e do arquivo, e
+só acontece quando a mídia **não está em uso**.
+
+---
+
+##### Camadas
+
+```text
+Admin Controller
+      ↓
+Form Request
+      ↓
+MediaService
+      ↓
+Media (Eloquent)  ·  Laravel Filesystem  ·  Intervention Image
+```
+
+Controller fino, no padrão já estabelecido por `PageController`: nenhuma regra
+de negócio, nenhum acesso direto ao Eloquent, nenhum `Storage::` e nenhum
+`ImageManager` na camada HTTP.
+
+**`MediaService` — superfície planejada:**
+
+```text
+paginate(int $perPage = 24): LengthAwarePaginator
+url(Media $media): string
+store(UploadedFile $file): Media
+delete(Media $media): void
+```
+
+Distribuídas entre as subfases: `paginate()` e `url()` na F2.7-A, `store()` na
+F2.7-B, `delete()` na F2.7-C. Assinaturas exatas são decisão da implementação;
+o contrato é o comportamento.
+
+O `MediaService` pode usar Eloquent diretamente, como fazem `PageService`,
+`SiteSettingService` e `ThemeService`.
+
+> **Repository não é necessário para a F2.7.**
+
+Não serão criados `MediaRepository`, `MediaRepositoryInterface` nem
+`EloquentMediaRepository`. As consultas previstas são uma listagem paginada e
+uma busca por chave primária; um repositório aqui seria abstração prematura,
+pela mesma diretriz já aplicada à F2.4.
+
+**Exceção de domínio — decisão:** uma exceção dedicada para mídia em uso,
+conceitualmente `MediaInUseException`.
+*Motivo:* diverge do precedente da F2.4, que usa `InvalidArgumentException` para
+violação de contrato — e diverge com razão. O argumento passado a `delete()` é
+perfeitamente válido; o que impede a operação é o **estado** do sistema. Além
+disso, o Controller precisa distinguir *este* caso para exibir a mensagem certa,
+e capturar `RuntimeException` genérica engoliria erros não relacionados.
+*Consequência:* o Controller captura exatamente essa exceção e devolve mensagem
+administrativa; qualquer outra falha continua propagando.
+
+---
+
+##### Mídia em uso — a decisão central
+
+O critério que justifica esta subfase existir separada é **"excluir mídia em uso
+é impedido"**. A dificuldade não é a checagem: é implementá-la **sem que a
+infraestrutura conheça seus consumidores**.
+
+> **Proibido:** `MediaService` referenciar `Banner`, `SiteSetting`, `Product`,
+> `Category` ou qualquer consumidor. Isso inverteria a direção de dependência e
+> faria a F2.7 depender de módulos que ainda não existem.
+
+**Decisão: um registro de verificadores, pequeno e concreto — não uma
+hierarquia de interfaces.**
+
+Conceitualmente, uma única classe (nomeação final segundo a convenção do
+projeto, por exemplo `MediaUsageRegistry`):
+
+```text
+register(string $rotulo, Closure $verificador): void
+usages(Media $media): array<string>    -- rótulos de quem usa
+isInUse(Media $media): bool
+```
+
+```text
+MediaService
+     ↓
+registro de verificadores de uso   (vazio na F2.7)
+     ↑
+consumidores se registram quando existirem   (F2.3-C, F2.5, …)
+```
+
+*Motivo de ser um registro, e não uma consulta direta:* é o menor mecanismo que
+inverte a dependência. O consumidor conhece a mídia; a mídia não conhece o
+consumidor.
+
+*Motivo de ser uma classe só, com `Closure`, e não interface + implementações:*
+o projeto já rejeitou abstração antecipada em `PageRepository`, e a mesma régua
+se aplica. Com zero consumidores, uma interface `MediaUsageChecker` mais um
+*registry* mais um *provider* seriam três tipos para expressar uma lista vazia.
+Uma `Closure` com rótulo entrega a mesma inversão em uma classe.
+
+*Motivo do rótulo:* a mensagem administrativa precisa dizer **por que** a
+exclusão foi impedida — "esta imagem está em uso: Logo do site" é acionável;
+"não é possível excluir" não é.
+
+*Consequência:* introduzir uma interface depois é aditivo e não quebra
+consumidores já registrados. Se dois ou três consumidores reais mostrarem que a
+`Closure` ficou apertada, a interface entra então, com motivo observado.
+
+**Lifetime do registro — decisão obrigatória, não detalhe de implementação**
+
+> O conjunto de verificadores registrados **vive em uma instância compartilhada**
+> do serviço/registro durante o ciclo da aplicação/requisição. O objeto em que os
+> consumidores chamam `register()` **deve ser o mesmo estado lógico** consultado
+> pelo `MediaService` em `isInUse()`.
+
+*Motivo:* sem essa regra, a implementação mais natural — instanciar o registro
+onde ele é necessário — produziria objetos transitórios independentes: o
+consumidor registraria seu verificador em uma instância e o `MediaService`
+consultaria outra, vazia. O resultado seria a pior falha possível deste
+contrato: **mídia em uso apagada silenciosamente**, sem erro, sem log e com a
+suíte verde — porque um teste que registra e consulta na mesma instância passaria
+mesmo assim.
+
+*Consequência:* consumidores futuros poderão registrar seus verificadores durante
+o **bootstrap da aplicação**, e o registro estará populado quando a exclusão
+consultar.
+
+```text
+bootstrap / provider
+        ↓
+registro compartilhado de usos
+        ↑
+F2.3-C / F2.5 / consumidores futuros
+
+MediaService
+        ↓
+consulta esse MESMO registro
+```
+
+*Fronteira:* isto define **estado compartilhado**, não mecanismo. A F2.7 **não**
+define provider concreto, **não** implementa *container binding* e não escolhe
+entre singleton do container, propriedade estática ou outra forma — a decisão é
+da implementação, desde que o requisito acima seja satisfeito e verificável.
+
+O `MediaService` continua sem conhecer `Banner`, `SiteSetting`, `Product`, logo
+ou favicon: compartilhar a instância não é o mesmo que conhecer quem registrou.
+
+**Comportamento com zero consumidores — e é assim que a F2.7 nasce:**
+
+```text
+registro vazio  →  isInUse() == false  →  toda mídia é excluível
+```
+
+Isso é **correto**, não uma lacuna: se ninguém referencia mídia, nenhuma mídia
+está em uso. E é plenamente testável agora:
+
+- registro vazio permite excluir;
+- um verificador falso registrado devolvendo `true` impede a exclusão;
+- um verificador falso devolvendo `false` não impede;
+- dois verificadores, um deles positivo, impedem;
+- a mensagem administrativa cita o rótulo do verificador que impediu;
+- **um verificador registrado fora do `MediaService` — como um consumidor faria
+  no bootstrap — é visto por `isInUse()`**, comprovando a instância
+  compartilhada.
+
+Nenhum desses testes menciona logo, favicon ou banner.
+
+**Barreira de banco — contrato para os consumidores, declarado por eles.**
+
+A F2.7 **não cria** chaves estrangeiras: não há tabela consumidora. Ela registra
+a obrigação, no mesmo espírito do `UNIQUE(slug)` da F2.4 — verificação na
+aplicação, fechamento no banco:
+
+> Consumidor que tiver **coluna própria** de referência (por exemplo
+> `banners.media_id`) deve declarar, na **sua** migration,
+> `foreign('media_id')->references('id')->on('media')->restrictOnDelete()`.
+
+*Motivo:* entre consultar o registro e apagar a linha existe uma janela. Sob a
+operação de administrador único da Fase 2 a janela é estreita, mas a `FK
+RESTRICT` a fecha de graça.
+
+**Assimetria reconhecida, e importante:** a F2.3-C guarda a referência de logo e
+favicon em `site_settings`, uma tabela genérica de chave/valor — que **não pode**
+receber uma FK para `media`. Para esse consumidor, o registro de verificadores é
+a **única** barreira, e a janela de corrida permanece. Está registrado como risco
+residual aceito, e não é escondido atrás de uma promessa de integridade que a
+modelagem não sustenta.
+
+**Obrigação recíproca dos consumidores:** um consumidor cuja referência aponte
+para mídia inexistente deve degradar graciosamente — não renderizar o logo, em
+vez de quebrar a página. Como cada um faz isso é contrato **dele**, definido na
+sua própria subfase.
+
+---
+
+##### Exclusão e consistência entre banco e filesystem
+
+> Banco e sistema de arquivos **não compartilham transação**. Este contrato não
+> promete atomicidade — declara qual estado é preferível quando algo falha.
+
+**Ordem decidida — registro primeiro, arquivo depois:**
+
+```text
+1. verificar uso   →  em uso?  aborta, nada é tocado
+2. apagar o REGISTRO   (dentro de transação)
+3. apagar o ARQUIVO    (após o commit, melhor esforço)
+```
+
+*Motivo — e é o inverso da ordem intuitiva:* comparados os dois modos de falha,
+um é claramente pior.
+
+- *Arquivo primeiro:* se o passo do banco falhar, sobra um **registro órfão**.
+  Ele aparece na grid, exibe imagem quebrada, e um consumidor futuro pode
+  selecioná-lo. O banco passa a mentir sobre a existência do arquivo.
+- *Registro primeiro:* se o passo do arquivo falhar, sobra um **arquivo órfão**.
+  Ele é invisível, não é referenciável por ninguém — nenhum registro aponta para
+  ele e o nome nunca é reciclado — e custa apenas bytes.
+
+Um arquivo órfão desperdiça espaço. Um registro órfão corrompe a interface e o
+modelo. A ordem escolhida é a que satisfaz literalmente o critério **"falha do
+Filesystem não deixa o banco mentir sobre uma exclusão bem-sucedida"**: quando o
+administrador vê "excluída", o registro realmente não existe mais.
+
+**Comportamento por cenário:**
+
+| Cenário | Comportamento contratado |
+| --- | --- |
+| Mídia em uso | Nada é excluído. Erro administrativo citando quem usa. |
+| Caminho feliz | Registro e arquivo removidos; sucesso ao administrador. |
+| Arquivo já ausente | Sucesso. `Storage::delete()` sobre arquivo inexistente devolve `true` — verificado no container. Não é erro: o estado desejado já vigora. |
+| Filesystem falha ao apagar | Registro **já** foi removido. Reporta sucesso, registra `warning` no log com `disk`, `path` e `media.id`. Arquivo órfão aceito. |
+| Falha ao remover o registro | A transação reverte, o arquivo **ainda não foi tocado**, a exceção propaga. Estado consistente. |
+| Registro existe, arquivo inconsistente | A grid exibe imagem quebrada; a exclusão funciona normalmente e limpa o registro. |
+
+*Nota técnica:* o disco `public` é configurado com `'throw' => false`, então
+`Storage::disk('public')->delete()` **devolve `false`** em vez de lançar. O
+contrato exige verificar o retorno — ignorá-lo perderia a falha em silêncio.
+
+**Consistência na criação (F2.7-B), pela mesma lógica invertida:**
+
+```text
+1. valida (MIME, tamanho, dimensões de entrada)
+2. decodifica e processa            → falhou? nada foi gravado, nada persistido
+3. grava o ARQUIVO                  → falhou? nada persistido
+4. cria o REGISTRO                  → falhou? apaga o arquivo (melhor esforço)
+```
+
+*Consequência:* **nenhuma `Media` inválida é criada** — o registro só nasce
+depois de o arquivo existir, e `size`/`width`/`height` são medidos do resultado
+codificado, nunca do upload.
+
+**Limite de consistência conhecido, declarado:** entre o passo 3 e o passo 4 da
+criação, e entre o commit e a remoção física da exclusão, existem janelas em que
+arquivo e registro podem divergir. O contrato reduz cada janela ao mínimo e
+escolhe, em cada uma, o lado cujo resíduo é inofensivo (arquivo órfão). **Não
+há compensação distribuída, não há fila de reconciliação e não há varredura de
+órfãos** — seriam sistemas próprios, para um problema que hoje custa bytes.
+
+---
+
+##### Consulta e paginação
+
+**Decisão:** a biblioteca é paginada desde a primeira versão.
+
+*Motivo:* uma grid de imagens sem limite carrega todos os arquivos da biblioteca
+em uma requisição. Diferente de uma listagem textual, o custo cresce em bytes
+transferidos e em imagens decodificadas pelo navegador. Deixar para depois é
+dívida evitável, e `PageService::paginate()` já provou o padrão.
+
+```text
+MediaService::paginate(int $perPage = 24): LengthAwarePaginator
+```
+
+*Motivo de 24:* divide exatamente por 2, 3, 4 e 6 colunas, então a última linha
+da grid nunca fica órfã em nenhum *breakpoint*.
+
+**Ordenação padrão — decisão:** `id DESC`, e nada mais.
+
+*Motivo:* mídia é imutável após a criação, então `id` autoincremental já é a
+ordem cronológica inversa — mais recente primeiro. Ordenar por `id` é
+**determinístico sem desempate** e usa a chave primária, dispensando índice
+extra. É deliberadamente diferente de `PageService::paginate()`, que ordena por
+`updated_at` com desempate por `id` — lá a diferença importa porque páginas são
+editadas; aqui não são.
+
+**Sem busca, sem filtros, sem ordenação configurável** nesta versão.
+
+---
+
+##### Rotas administrativas
+
+```text
+GET    /admin/midias             admin.media.index
+POST   /admin/midias             admin.media.store
+DELETE /admin/midias/{media}     admin.media.destroy
+```
+
+Convenção confirmada em `routes/web.php`: **segmento de URL em português**
+(`configuracoes`, `paginas`), **nome de rota em inglês** (`admin.settings.*`,
+`admin.pages.*`). `admin.media.*` segue o padrão — e `media` é plural em si
+mesmo, sem virar `medias`.
+
+Entram no grupo já existente `Route::middleware('auth')->prefix('admin')->name('admin.')`.
+
+**Middleware — decisão:** somente `auth`, durante toda a Fase 2.
+Sem policies, sem roles, sem permissions, sem `Gate`, sem autorização granular —
+isso permanece na Fase 3, exatamente como em F2.3 e F2.4.
+
+**Não são criadas** `create`, `edit`, `update` nem `show`. O upload acontece na
+própria `index`, não há edição de metadados no contrato, e não há tela de
+detalhe. Rotas sem caso de uso são superfície morta.
+
+**Binding — decisão:** `{media}` resolve por `Media.id`, o padrão do Laravel. Sem
+`getRouteKeyName()` customizado — igual ao que a F2.4-B decidiu para `{page}`.
+
+---
+
+##### Interface administrativa
+
+**Decisão:** Blade *server-side* simples, no layout administrativo da F2.2.
+
+Sem Livewire, sem Alpine, sem JavaScript de upload — coerente com o preview
+*server-side* da F2.3-B e com o `textarea` da F2.4-B.
+
+**Grid** — por item:
+
+```text
+preview visual   (a própria imagem, restringida por CSS)
+nome original    (escapado)
+dimensões        (width × height)
+tipo             (rótulo derivado de mime_type)
+tamanho          (bytes formatados)
+data             (created_at)
+ação de exclusão
+```
+
+O preview usa a imagem armazenada com dimensões limitadas por CSS. **Não** há
+*thumbnail* derivado: gerar derivadas exigiria decidir seu ciclo de vida, sua
+exclusão e seu reprocessamento — tudo fora do escopo.
+
+**Upload:** formulário com `<input type="file">` e
+`enctype="multipart/form-data"`, um arquivo por envio, na própria `index`.
+
+**Estado vazio** e **feedback de sucesso/erro** no padrão já usado pela listagem
+de páginas.
+
+**Navegação:** item "Mídia" na sidebar e breadcrumb `Dashboard / Mídia`, no
+padrão da F2.2-C. Como em toda subfase anterior, **o link só é adicionado quando
+a rota realmente existir** — portanto durante a implementação da F2.7-C, e não
+antes.
+
+**Não entram nesta versão:** Livewire, JavaScript complexo, *drag-and-drop*,
+*cropper*, edição de imagem, upload múltiplo, pastas, *tags*, *infinite scroll*,
+modal global, busca avançada e **seletor global de mídia**.
+
+> O seletor que a F2.3-C ou a F2.5 vierem a precisar será desenhado **quando o
+> primeiro consumidor for implementado**, com o caso de uso real à vista. A F2.7
+> não o antecipa: um seletor sem consumidor seria projetado no escuro.
+
+---
+
+##### Segurança
+
+- **Tipo decidido por MIME validado no servidor**, nunca pela extensão ou pelo
+  `Content-Type` enviado pelo cliente.
+- **Decodificação bem-sucedida é a barreira final:** o que não decodifica como
+  imagem não vira mídia, mesmo que passe na validação.
+- **O nome original nunca compõe path**, nem cru nem normalizado; é apenas
+  metadado, escapado na exibição.
+- **O path é gerado pelo sistema**, com componente aleatório e alfabeto
+  restrito — não há entrada do usuário na formação do caminho, portanto não há
+  superfície de *path traversal*.
+- **Nada do que é enviado é executado.** Arquivos ficam sob
+  `storage/app/public/media/`, servidos como estáticos; nenhum `.php` sobrevive
+  à validação de MIME, e o `location ~ \.php$` do nginx exige `try_files $uri
+  =404` — mas a barreira que vale é a validação, não a configuração do servidor.
+- **Limite de tamanho:** 5 MB por arquivo.
+- **Limite de dimensões de entrada:** 6000 × 6000 px, verificado antes da
+  decodificação, contra *decompression bomb*.
+- **SVG fora do escopo**, pelo motivo já registrado.
+- **Nada de arquivo privado exposto por engano:** o disco é explícito e público
+  por decisão; não há caminho em que um arquivo do disco `local`
+  (`storage/app/private`) seja publicado pela biblioteca.
+- **Metadados EXIF, inclusive GPS, são descartados** na recodificação.
+
+> A F2.7 **não** é antivírus nem *scanner* de malware. Varredura de conteúdo
+> malicioso não é requisito e não será implementada.
+
+---
+
+##### Divisão interna — F2.7-A → F2.7-B → F2.7-C
+
+A F2.7 é executada em três subfases internas, incrementais e testáveis
+isoladamente. A divisão é **documental e organizacional**: não altera o contrato
+acima, não antecipa implementação e não promove A/B/C a subfases independentes
+da Fase 2. A F2.7 continua sendo **uma** subfase da Fase 2.
+
+```text
+F2.7-A → F2.7-B → F2.7-C
+```
+
+| Subfase | Status | Entrega principal | Depende de |
+| --- | --- | --- | --- |
+| F2.7-A — Domínio, persistência e storage | 📋 Planejada | Model `Media`, migration, identidade, política de disk/path, `MediaService` base e URL derivada | F2.2 |
+| F2.7-B — Upload e processamento | 📋 Planejada | Form Request, upload único, validação de MIME/tamanho/dimensões, pipeline do Intervention Image e persistência coordenada | F2.7-A |
+| F2.7-C — Biblioteca administrativa e exclusão protegida | 📋 Planejada | Controller, rotas, grid paginada, sidebar, exclusão e verificação de uso | F2.7-B |
+
+**Por que dividir:** as três concentram riscos de natureza distinta — modelagem
+e política de armazenamento, processamento de arquivo binário vindo de fora, e
+exclusão com consistência entre dois sistemas de persistência. São os mesmos
+motivos que justificaram dividir a F2.4, e a fronteira aqui é ainda mais nítida:
+**a F2.7-A é inteiramente testável sem HTTP e sem upload**, criando registros
+diretamente e verificando derivação de URL, ordenação, paginação e restrições de
+schema.
+
+**A F2.7 só é encerrada após a F2.7-C.** Uma subfase posterior não começa
+automaticamente ao término da anterior.
+
+---
+
+##### F2.7-A — Domínio, persistência e storage 📋 Planejada
+
+**Objetivo:** estabelecer a entidade `Media`, sua identidade e a política de
+armazenamento **antes** de existir upload. Se o schema, a identidade ou a
+política de disk/path estiverem errados aqui, nenhuma tela corrige depois.
+
+**Dependências:** F2.2 (satisfeita).
+
+**Gate operacional desta subfase — `storage:link`**
+
+O disco `public` aponta para `storage/app/public`, a URL é derivada por
+`Storage::disk('public')->url(...)` e o link já está previsto em
+`config/filesystems.php` — mas `public/storage` **não existe fisicamente** no
+ambiente atual. Nada de filesystem é redesenhado e nenhuma rota própria de
+entrega de arquivos é criada; o que falta é executar:
+
+```bash
+php artisan storage:link
+```
+
+ou o equivalente idempotente exigido pelo ambiente.
+
+**Critério de aceite operacional, no Docker real:**
+
+```text
+1. escrever um arquivo de prova no disk public
+2. resolver a URL via Storage::disk('public')->url(...)
+3. confirmar acesso HTTP ao arquivo por /storage/...
+4. remover o arquivo de prova
+```
+
+> `Storage::fake('public')` serve aos testes de storage, mas **não comprova que
+> o symlink público existe em uma instalação real** — ele substitui o disco, e a
+> suíte fica verde com o link ausente. Este gate é verificação manual no
+> ambiente Docker durante a implementação da F2.7-A.
+
+**Entregáveis planejados**
+
+- [ ] Model `Media` (sem `SoftDeletes`, conforme decidido)
+- [ ] Migration `media` conforme o schema contratado, com `UNIQUE (disk, path)`
+- [ ] Casts e configuração do model necessários ao contrato
+- [ ] Constante única do disco de mídia no `MediaService` — sem `config/media.php` e sem variável de ambiente nova
+- [ ] Política de geração de path `media/{YYYY}/{MM}/{nome-gerado}.{ext}` no `MediaService`
+- [ ] Geração do nome físico opaco, sem qualquer derivação do nome enviado
+- [ ] `MediaService::url()` derivando a URL de `disk` + `path`
+- [ ] `MediaService::paginate()` com ordenação `id DESC`
+- [ ] Factory de `Media`, se os testes exigirem
+- [ ] `php artisan storage:link` executado no ambiente e documentado no README/INSTALACAO_RAPIDA
+
+**Testes / critério de aceite planejados**
+
+- [ ] `Media` é criada com `disk`, `path`, `original_name`, `mime_type`, `size`, `width` e `height` corretos
+- [ ] `Media.id` é a identidade e não depende de `path`, nome ou URL
+- [ ] Alterar `path` não altera `Media.id`
+- [ ] A URL é **derivada** de `disk` + `path`, e não existe coluna de URL
+- [ ] Trocar `APP_URL` muda a URL derivada sem migration de dados
+- [ ] `disk` e `path` são preservados exatamente como gravados
+- [ ] Dois registros com o mesmo `disk` + `path` são rejeitados pelo banco
+- [ ] O path gerado segue `media/{YYYY}/{MM}/…` e não contém nenhum fragmento do nome enviado
+- [ ] O nome físico gerado não contém `/`, `\`, `..` nem caractere fora do alfabeto previsto
+- [ ] O disco usado é explícito e **não** o padrão da aplicação (`local`)
+- [ ] `paginate()` respeita o tamanho de página e ordena por `id DESC` de forma determinística
+- [ ] `width` e `height` são obrigatórios — registro sem dimensões é rejeitado
+- [ ] Campos não suportados não são persistidos
+- [ ] Nenhuma rota, Controller, Form Request ou Blade é criado nesta subfase
+- [ ] **Gate operacional cumprido no Docker real, pelos quatro passos:** arquivo de prova escrito no disk `public`, URL resolvida por `Storage::disk('public')->url(...)`, acesso HTTP por `/storage/...` confirmado e arquivo de prova removido
+- [ ] Registrado que `Storage::fake('public')` não comprova o symlink — o gate é verificação de ambiente, não teste da suíte
+- [ ] Suíte completa permanece verde
+- [ ] Pint passa
+- [ ] `git diff --check` passa
+
+**Fora do escopo da F2.7-A:** upload HTTP, Form Request, Controller, rotas,
+Blade, Intervention Image, exclusão e verificação de uso.
+
+---
+
+##### F2.7-B — Upload e processamento 📋 Planejada
+
+**Objetivo:** transformar um `UploadedFile` em uma `Media` válida, com pipeline
+de imagem determinístico e consistência entre arquivo e registro.
+
+**Dependências:** **F2.7-A.**
+
+**Gate técnico de infraestrutura — desta subfase, e não de terceiros**
+
+O WebP está no escopo planejado da F2.7-B, mas sua aceitação depende de uma
+alteração de infraestrutura que **a própria F2.7-B executa**:
+
+```text
+1. Docker fornece as bibliotecas de build/runtime necessárias ao WebP
+2. GD é recompilado com suporte a WebP
+3. o ambiente comprova gd_info()['WebP Support'] === true
+4. uma codificação WebP real pelo Intervention Image passa
+```
+
+```text
+habilitar WebP no GD
+  → comprovar suporte
+    → habilitar validação/encoding de image/webp
+```
+
+**Enquanto o gate não estiver satisfeito, `image/webp` não é aceito pelo
+upload:** fica fora da lista de MIME válidos e é rejeitado pela validação. Não
+cumprido o gate, WebP sai do contrato de tipos aceitos e a redução é registrada.
+**JPEG e PNG não dependem deste gate.**
+
+**Entregáveis planejados**
+
+- [ ] Form Request de upload, com validação de MIME real, tamanho e dimensões de entrada
+- [ ] Passos 1 e 2 do gate: bibliotecas WebP no `docker/Dockerfile` e GD recompilado com `--with-webp`
+- [ ] Passo 3 do gate: `gd_info()['WebP Support'] === true` comprovado no ambiente
+- [ ] Passo 4 do gate: codificação WebP real pelo Intervention Image passando
+- [ ] `image/webp` habilitado na validação e no *encoder* **somente após os quatro passos** — ou removido do contrato
+- [ ] `MediaService::store(UploadedFile $file): Media`
+- [ ] Instanciação explícita do `ImageManager` com driver GD (sem facade, sem *bridge* Laravel)
+- [ ] Pipeline `orient()` → `scaleDown(2000, 2000)` → `encode(<encoder do formato>)`
+- [ ] Encoders por formato: JPEG q85, WebP q85, PNG com padrões (sem `quality`)
+- [ ] Gravação no disco pelo Laravel Filesystem
+- [ ] `size`, `width` e `height` medidos do **resultado codificado**
+- [ ] Limpeza do arquivo em caso de falha ao criar o registro
+
+**Testes / critério de aceite planejados**
+
+- [ ] Upload de JPEG válido cria arquivo e registro
+- [ ] Upload de PNG válido cria arquivo e registro
+- [ ] Com o gate cumprido, upload de WebP válido cria arquivo e registro
+- [ ] **Sem o gate cumprido, upload de WebP é rejeitado pela validação** — nunca aceito para falhar depois no *encoder*
+- [ ] JPEG e PNG funcionam independentemente do estado do gate
+- [ ] GIF é **rejeitado**, com mensagem de validação
+- [ ] SVG é rejeitado
+- [ ] PDF/ZIP/documento/vídeo/áudio são rejeitados
+- [ ] Arquivo não-imagem renomeado com extensão de imagem é rejeitado pela validação de MIME real
+- [ ] Arquivo acima de 5 MB é rejeitado
+- [ ] Imagem acima de 6000 × 6000 px é rejeitada antes da decodificação
+- [ ] Um `request` aceita exatamente um arquivo
+- [ ] Imagem maior que 2000 px é reduzida, com proporção preservada
+- [ ] Imagem não quadrada mantém a proporção (ex.: 4000 × 1000 → 2000 × 500)
+- [ ] Imagem exatamente em 2000 px permanece inalterada
+- [ ] Imagem menor que 2000 px **não** sofre upscale
+- [ ] `width`/`height` gravados correspondem ao arquivo armazenado, não ao enviado
+- [ ] `size` gravado corresponde ao arquivo armazenado
+- [ ] `mime_type` gravado é igual ao MIME validado — não há conversão de formato
+- [ ] PNG com transparência preserva o canal alfa
+- [ ] Imagem com orientação EXIF é gravada já rotacionada, com dimensões coerentes
+- [ ] Metadados EXIF não sobrevivem à recodificação
+- [ ] O nome original não influencia o path gravado
+- [ ] Falha de processamento **não** cria registro nem arquivo
+- [ ] Falha de gravação no disco **não** cria registro
+- [ ] Falha ao criar o registro remove o arquivo já gravado
+- [ ] Nenhuma `Media` inválida existe após qualquer caminho de falha
+- [ ] Nenhuma rota, Controller ou Blade é criado nesta subfase
+- [ ] O comportamento entregue pela F2.7-A permanece inalterado
+- [ ] Suíte completa permanece verde
+- [ ] Pint passa
+- [ ] `git diff --check` passa
+
+**Fora do escopo da F2.7-B:** Controller, rotas, grid, exclusão, verificação de
+uso, sidebar e breadcrumbs.
+
+---
+
+##### F2.7-C — Biblioteca administrativa e exclusão protegida 📋 Planejada
+
+**Objetivo:** entregar a operação administrativa da biblioteca e a exclusão
+protegida — o critério que justifica a F2.7 existir como subfase própria.
+
+**Dependências:** **F2.7-B.**
+
+**Entregáveis planejados**
+
+- [ ] Controller administrativo de mídia, fino, sobre o `MediaService`
+- [ ] Rotas `admin.media.index`, `admin.media.store` e `admin.media.destroy`, somente com `auth`
+- [ ] Blade de listagem com grid paginada, preview, metadados e estado vazio
+- [ ] Formulário de upload de arquivo único na própria `index`
+- [ ] Registro de verificadores de uso, com `register()`, `usages()` e `isInUse()`
+- [ ] Instância **compartilhada** do registro durante o ciclo da aplicação/requisição — quem chama `register()` e quem consulta `isInUse()` veem o mesmo estado lógico
+- [ ] `MediaService::delete()` na ordem contratada: verificar uso → registro → arquivo
+- [ ] Exceção dedicada para mídia em uso
+- [ ] Log de `warning` quando o Filesystem falhar ao remover o arquivo
+- [ ] Mensagens administrativas de sucesso e de bloqueio, citando quem usa a mídia
+- [ ] Item "Mídia" na sidebar e breadcrumb — somente agora, quando a rota existir
+
+**Testes / critério de aceite planejados**
+
+- [ ] Guest é redirecionado em `index`, `store` e `destroy`
+- [ ] Usuário autenticado acessa a biblioteca
+- [ ] A grid exibe os itens esperados
+- [ ] A paginação funciona e a ordenação padrão é determinística
+- [ ] Estado vazio é exibido quando não há mídia
+- [ ] Upload válido pela rota administrativa cria a mídia e dá feedback
+- [ ] Upload inválido retorna erro de validação, sem criar mídia
+- [ ] Mídia livre é excluída: registro e arquivo somem
+- [ ] **Mídia em uso não é excluída** — nem o registro, nem o arquivo
+- [ ] A mensagem de bloqueio informa o administrador e cita o rótulo do consumidor
+- [ ] Com **zero verificadores registrados**, toda mídia é excluível
+- [ ] Um verificador registrado **fora** do `MediaService`, como faria um consumidor no bootstrap, é enxergado por `isInUse()` — a instância é compartilhada, não transitória
+- [ ] Um verificador registrado devolvendo `true` impede a exclusão
+- [ ] Um verificador registrado devolvendo `false` não impede
+- [ ] Com dois verificadores, um positivo basta para impedir
+- [ ] Arquivo físico já ausente: a exclusão conclui com sucesso
+- [ ] Falha do Filesystem ao remover: o registro **já** foi removido e o sucesso reportado é verdadeiro
+- [ ] Falha ao remover o registro: nada é removido e o arquivo permanece intacto
+- [ ] Nenhum verificador de logo, favicon, banner, produto ou categoria é implementado
+- [ ] O `MediaService` não referencia nenhum model consumidor
+- [ ] Nenhuma autorização da Fase 3 é antecipada
+- [ ] Nenhuma funcionalidade da F2.3-C ou da F2.5 é antecipada
+- [ ] O comportamento entregue por F2.7-A e F2.7-B permanece inalterado
+- [ ] Suíte completa permanece verde
+- [ ] Pint passa
+- [ ] `git diff --check` passa
+
+**Fora do escopo da F2.7-C:** seletor global de mídia, edição de metadados,
+*tags*, pastas, busca, autorização granular e qualquer consumidor concreto.
+
+---
+
+##### Fora do escopo
+
+Vale para a F2.7 inteira — A, B e C.
+
+**Outras subfases:** F2.3-C, logo e favicon; F2.5 e banners; F2.6 e menus;
+produtos, categorias e galeria de produto (Fase 4).
+
+**Tipos:** SVG, GIF, documentos, PDF, vídeo, áudio, anexos genéricos, integração
+com `Page` e conteúdo do editor.
+
+**Processamento:** *thumbnails* múltiplos, *responsive images*, variantes,
+conversão de formato, conversão assíncrona, filas, otimização assíncrona,
+*cropper* e edição de imagem.
+
+**Interface:** upload múltiplo, *drag-and-drop*, pastas, *tags*, busca avançada,
+seletor global de mídia, WYSIWYG e Livewire.
+
+**Arquitetura:** `MediaRepository` e variações, `SoftDeletes`, S3 operacional,
+CDN, REST API pública de mídia, auditoria persistente, *marketplace* e
+*multi-tenancy* — o projeto é *single-store*, e não existem `seller_id`,
+`merchant_id`, mídia por vendedor ou storage por *tenant*.
+
+**Fase 3:** papéis, permissões, policies e autoria de mídia por usuário.
+
+---
+
+##### Riscos residuais reconhecidos
+
+1. **WebP depende de mudança da imagem Docker, feita pela própria F2.7-B.**
+   Enquanto os quatro passos do gate não forem cumpridos, `image/webp` é
+   rejeitado pela validação e o formato mais eficiente do contrato fica
+   indisponível. JPEG e PNG não são afetados. Registrado nos Bloqueadores da
+   Fase 2.
+2. **`public/storage` é gate operacional da F2.7-A** e a suíte não o detecta,
+   porque `Storage::fake('public')` substitui o disco real. Exige verificação no
+   ambiente Docker real, pelo roteiro de quatro passos do critério de aceite
+   operacional.
+3. **A F2.3-C não terá barreira de banco** contra exclusão de mídia em uso: a
+   referência mora em `site_settings`, chave/valor, onde não cabe FK. Restam o
+   registro de verificadores e uma janela de corrida estreita.
+4. **Favicon em `.ico` ou `.svg` não é suportado** por este contrato. Se a
+   F2.3-C exigir, será requisito novo dela.
+5. **O upload é irreversível:** o original não é preservado e não há
+   reprocessamento.
+6. **Arquivos órfãos podem se acumular** após falhas do Filesystem. Não há
+   varredura de reconciliação — decisão consciente.
+7. **Recodificação sempre acontece**, mesmo em imagens pequenas já otimizadas,
+   com variação possível de tamanho e qualidade em ambos os sentidos.
+
+---
+
+**Bloqueadores / decisões pendentes:** nenhuma decisão arquitetural pendente. A
+dependência da F2.2 está satisfeita. Restam dois **gates de ambiente**, cada um
+com dono definido dentro da própria F2.7 e nenhum deles bloqueando o contrato:
+
+- **gate operacional da F2.7-A** — `php artisan storage:link`, verificado no
+  Docker real pelo roteiro de quatro passos;
+- **gate técnico da F2.7-B** — suporte a WebP no GD, em quatro passos. Enquanto
+  não cumprido, `image/webp` é rejeitado pela validação; **JPEG e PNG não
+  dependem dele**.
 
 ---
 
@@ -1843,7 +3211,12 @@ satisfeita.
 Preservadas da versão anterior deste Roadmap:
 
 - `SiteSetting` com cache Redis (TTL de 5 minutos) — F2.1
-- Intervention/Image para processamento de imagens — F2.7
+- Intervention/Image para processamento de imagens — F2.7. Já é dependência
+  **direta** (`intervention/image ^4.3`, instalado `4.3.2`); a F2.7 não instala
+  pacote algum. O *bridge* `intervention/image-laravel` **não** está instalado:
+  não existe facade `Image` nem `config/image.php`, e o `ImageManager` é
+  instanciado explicitamente com o driver GD. `ImageManager::gd()` e
+  `Image::make()` não existem nessa versão — são API de versões anteriores.
 - Campos nativos de cor no formulário Blade, com preview server-side — F2.3-B
 - Middleware `auth` para proteger as rotas administrativas — F2.2; autorização
   granular permanece na Fase 3
@@ -1852,6 +3225,31 @@ Preservadas da versão anterior deste Roadmap:
   etapa futura, preferencialmente após a consolidação de usuários, papéis e
   permissões na Fase 3.
 
+Acrescentadas pela auditoria arquitetural da F2.7 (2026-09-06), todas
+verificadas no repositório e no ambiente Docker:
+
+- O disco padrão da aplicação é `local` (`.env.example` →
+  `FILESYSTEM_DISK=local`) e, no Laravel 12, o `local` aponta para
+  `storage/app/private`. Qualquer código que grave arquivo público precisa
+  **nomear o disco explicitamente** — herdar o padrão publicaria no lugar
+  errado. É por isso que a F2.7 fixa `public` numa constante única e persiste
+  `media.disk` por registro.
+- `public/storage` **não existe** no repositório nem no container, e está em
+  `.gitignore`. `Storage::disk('public')->url()` monta a URL correta, mas ela
+  responde 404 até que `php artisan storage:link` seja executado. A suíte não
+  detecta a ausência, porque `Storage::fake('public')` substitui o disco —
+  daí o gate operacional da F2.7-A ser verificação de ambiente, não teste.
+- O GD da imagem atual **não tem suporte a WebP** (`gd_info()` →
+  `WebP Support = false`): o `docker/Dockerfile` configura
+  `docker-php-ext-configure gd --with-freetype --with-jpeg`, sem `libwebp`, e
+  Imagick não está instalado. Codificar WebP hoje falha com
+  `Call to undefined function ...imagewebp()` — um `Error` do PHP, não uma
+  exceção do Intervention.
+- `docker/php.ini` (`upload_max_filesize`/`post_max_size` de 100M,
+  `memory_limit` de 512M) e `docker/nginx.conf` (`client_max_body_size 100M`)
+  já acomodam upload com folga: limites menores são decisão de aplicação, não
+  de infraestrutura.
+
 #### Bloqueadores da Fase 2
 
 - Nenhum bloqueador arquitetural pendente. A **F2.2 — Fundação do Admin** foi
@@ -1859,9 +3257,24 @@ Preservadas da versão anterior deste Roadmap:
   a **F2.4 está concluída**; a **F2.7 é a próxima etapa planejada**; a F2.3-C
   aguarda a F2.7; a F2.5 permanece planejada, também depois da F2.7; e a F2.6
   permanece planejada para depois da F2.5 — sua dependência da F2.4 está
-  satisfeita, mas isso não a antecipa na ordem de execução.
+  satisfeita, mas isso não a antecipa na ordem de execução. O contrato
+  arquitetural da F2.7 foi fechado pela auditoria de 2026-09-06 e a subfase
+  está pronta para implementação, dividida em F2.7-A, F2.7-B e F2.7-C — sem que
+  nada tenha sido iniciado.
 - A autorização granular permanece na Fase 3. Durante toda a Fase 2, qualquer
   usuário autenticado acessa `/admin`.
+- **Gates de ambiente da F2.7 — não são bloqueadores arquiteturais, mas são
+  tarefas das próprias subfases, com dono definido:**
+  - **Gate operacional da F2.7-A:** `php artisan storage:link` (ou equivalente
+    idempotente do ambiente) precisa ser executado para que as URLs de mídia
+    resolvam, e a verificação acontece no Docker real — a suíte usa
+    `Storage::fake('public')` e não comprova o symlink;
+  - **Gate técnico da F2.7-B:** o GD precisa ganhar suporte a WebP
+    (bibliotecas no `docker/Dockerfile`, recompilação com `--with-webp`,
+    `gd_info()['WebP Support'] === true` comprovado e uma codificação WebP real
+    passando). **Enquanto os quatro passos não estiverem cumpridos,
+    `image/webp` não é aceito pelo upload** — é rejeitado pela validação, em vez
+    de aceito para quebrar em execução. JPEG e PNG não dependem deste gate.
 
 #### Dependências
 
@@ -1872,6 +3285,12 @@ Preservadas da versão anterior deste Roadmap:
 concluída, a F2.7 é a próxima na ordem de execução, porque a F2.3-C e a F2.5
 consomem a biblioteca de mídia e não podem precedê-la. A Fase 3 permanece após
 a conclusão da Fase 2.
+
+Seu contrato arquitetural está fechado desde a auditoria de **2026-09-06** e a
+subfase está dividida em **F2.7-A** (domínio, persistência e storage),
+**F2.7-B** (upload e processamento) e **F2.7-C** (biblioteca administrativa e
+exclusão protegida). A próxima etapa concreta é a **implementação da F2.7-A** —
+nenhum código foi escrito até aqui.
 
 Depois da F2.7 seguem F2.3-C, F2.5 e, por último, F2.6. A dependência da F2.6
 em relação à F2.4 está satisfeita, mas ela continua sendo a última da fila.
@@ -2773,6 +4192,42 @@ Atualizado toda segunda-feira com progresso real.
   (`f650c18`). A dependência da F2.6 em relação à F2.4 fica **satisfeita**, o
   que não a antecipa na ordem de execução: a próxima etapa planejada é a **F2.7
   — Biblioteca de Mídia**, seguida de F2.3-C, F2.5 e só então F2.6.
+- **2026-09-06:** F2.7 — auditoria arquitetural documental concluída sobre o
+  HEAD `9ab0629`, confrontando o contrato anterior com o código realmente
+  existente no repositório. O entregável genérico — "upload", "armazenamento",
+  "processamento/compressão" — foi substituído por contrato testável, e a
+  subfase foi dividida em **F2.7-A** (domínio, persistência e storage),
+  **F2.7-B** (upload e processamento) e **F2.7-C** (biblioteca administrativa e
+  exclusão protegida). Decisões fechadas: identidade em `Media.id` `BIGINT`;
+  schema `media` **sem** `extension`, **sem** `SoftDeletes`, com `width`/`height`
+  obrigatórios e `UNIQUE (disk, path)`; disco `public` explícito, centralizado e
+  persistido por registro; path `media/{YYYY}/{MM}/{nome-gerado}.{ext}` com nome
+  opaco independente do arquivo enviado; URL sempre **derivada**, nunca
+  persistida; tipos restritos a JPEG e PNG, com WebP dentro do escopo da F2.7-B
+  mas **inaceitável até que o gate técnico dela seja cumprido** (bibliotecas no
+  Docker, GD recompilado, `gd_info()['WebP Support'] === true` comprovado e uma
+  codificação WebP real passando), **GIF explicitamente rejeitado** e SVG fora
+  do escopo; limite de 5 MB somado a guarda de **6000 × 6000 px** contra
+  *decompression bomb* — 6000 e não 8000 porque o buffer decodificado não é o
+  único consumo de memória concorrente da requisição;
+  pipeline `orient()` → `scaleDown(2000, 2000)` → *encode* por formato, sem
+  conversão e sem *upscale*; apenas a versão processada é armazenada; exclusão
+  na ordem **registro primeiro, arquivo depois**, com os limites de consistência
+  entre banco e filesystem declarados em vez de atomicidade prometida; e
+  verificação de "mídia em uso" por um registro de verificadores **de instância
+  compartilhada** — o mesmo estado lógico em que os consumidores chamam
+  `register()` é o consultado pelo `MediaService` em `isInUse()` —, preservando
+  as direções `F2.7 → F2.3-C` e `F2.7 → F2.5` e funcionando com **zero
+  consumidores**. Sem Repository. A auditoria também converteu os dois achados
+  de ambiente em **gates com dono**: o operacional da F2.7-A (`storage:link`,
+  com roteiro de verificação no Docker real, já que `Storage::fake()` não
+  comprova o symlink) e o técnico da F2.7-B (suporte a WebP no GD, em quatro
+  passos); e corrigiu o contrato de compressão de PNG, cujo *encoder* na versão
+  instalada **não possui** parâmetro de qualidade. **A F2.7 permanece 📋
+  planejada e não iniciada**:
+  nenhum código foi escrito, nenhuma migration criada e nenhum pacote instalado;
+  F2.7-A, F2.7-B e F2.7-C nascem 📋 planejadas, com todos os itens em `[ ]`. A
+  ordem global da Fase 2 permanece inalterada.
 - *Próxima revisão: 2026-09-11*
 
 ---
@@ -2796,6 +4251,6 @@ R: Veja [CONTRIBUTING.md](./CONTRIBUTING.md)
 
 ---
 
-**Última atualização:** 2026-09-05
+**Última atualização:** 2026-09-06
 
 **Próxima revisão:** 2026-09-11
