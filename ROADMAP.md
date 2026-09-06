@@ -15,8 +15,9 @@
   - **F2.7 — Biblioteca de Mídia: ⏳ em desenvolvimento**, com contrato
     arquitetural fechado em 2026-09-06
     - F2.7-A — Domínio, persistência e storage: ✅ concluída em 2026-09-06
-    - F2.7-B — Upload e processamento: 📋 planejada — **próxima etapa**
-    - F2.7-C — Biblioteca administrativa e exclusão protegida: 📋 planejada
+    - F2.7-B — Upload e processamento: ✅ concluída em 2026-09-06
+    - F2.7-C — Biblioteca administrativa e exclusão protegida: 📋 planejada —
+      **próxima etapa**
   - Pela ordem de execução ainda vêm, depois da F2.7 **completa**, F2.3-C, F2.5
     e só então F2.6 — cuja dependência da F2.4 está satisfeita, sem que isso a
     promova na fila
@@ -183,9 +184,9 @@ F2.3-A → F2.3-B → [F2.4-A → F2.4-B → F2.4-C]
 Uma subfase posterior não começa automaticamente ao término da anterior. A F2.3
 aparece dividida porque suas três partes têm dependências distintas.
 
-> **Ponto atual da fila:** a F2.7-A está concluída; a próxima etapa é a
-> **F2.7-B**. A F2.3-C e a F2.5 só são liberadas pela F2.7 **completa**, isto é,
-> após a F2.7-C — concluir apenas a F2.7-A não as antecipa.
+> **Ponto atual da fila:** a F2.7-A e a F2.7-B estão concluídas; a próxima
+> etapa é a **F2.7-C**. A F2.3-C e a F2.5 só são liberadas pela F2.7
+> **completa**, isto é, após a F2.7-C — concluir a F2.7-B não as antecipa.
 
 Duas decisões arquiteturais explicam essa ordem, e ambas evitam duplicar o
 mesmo mecanismo:
@@ -222,7 +223,7 @@ no repositório e foi executado/validado com sucesso.**
 | F2.2 — Fundação do Admin | ✅ Concluída | Autenticação, rotas, layout e navegação de `/admin` | Fase 1 |
 | F2.3 — Configurações Globais | ⏳ Em desenvolvimento | Configurações gerais, tema e identidade visual integrada à F2.7 | F2.1, F2.2 (C também da F2.7) |
 | F2.4 — Páginas Estáticas | ✅ Concluída | CRUD de páginas com SEO e publicação | F2.2 |
-| F2.7 — Biblioteca de Mídia | ⏳ Em desenvolvimento | Upload, processamento e consulta de mídia, em F2.7-A/B/C (A concluída) | F2.2 |
+| F2.7 — Biblioteca de Mídia | ⏳ Em desenvolvimento | Upload, processamento e consulta de mídia, em F2.7-A/B/C (A e B concluídas) | F2.2 |
 | F2.5 — Banners | 📋 Planejado | CRUD de banners com ordenação, sobre a mídia da F2.7 | F2.2, **F2.7** |
 | F2.6 — Menus | 📋 Planejado | Menus hierárquicos e itens | F2.2, F2.4 |
 
@@ -424,8 +425,8 @@ o teste falhar.
 **Dependências posteriores:** a conclusão da F2.2 satisfez a dependência que
 originalmente bloqueava F2.3, F2.4 e F2.7. Desde então, a F2.3-A e a F2.3-B
 foram executadas, a **F2.4 foi concluída** e a **F2.7 está em desenvolvimento**:
-a F2.7-A foi concluída em 2026-09-06 e a próxima etapa interna é a **F2.7-B**,
-ainda não iniciada.
+a F2.7-A e a F2.7-B foram concluídas em 2026-09-06, e a próxima etapa interna
+é a **F2.7-C**, ainda não iniciada.
 
 As dependências adicionais continuam valendo: a **F2.5 depende da F2.7
 completa** (os banners consomem a biblioteca de mídia), a **F2.6 depende da
@@ -433,8 +434,8 @@ F2.4** (itens de menu que apontam para páginas — dependência hoje satisfeita
 que não a antecipa na fila) e a **F2.3-C depende da F2.3-A + F2.7 completa**
 (logo e favicon usam a biblioteca de mídia).
 
-> Concluir apenas a F2.7-A **não** libera F2.3-C nem F2.5: as duas aguardam a
-> F2.7 encerrada, isto é, após a F2.7-C.
+> Mesmo com F2.7-A e F2.7-B concluídas, F2.3-C e F2.5 continuam bloqueadas até
+> o encerramento da F2.7 após a F2.7-C.
 
 A ordem de execução detalhada segue:
 
@@ -507,8 +508,8 @@ subfase é preferível a duplicar upload de arquivos só para fechá-la antes.
 
 Com a F2.3-A e a F2.3-B concluídas, a F2.3 está **parcialmente aberta**: falta
 apenas a F2.3-C, que aguarda a **F2.7 completa**. Com a F2.4 concluída, a ordem
-de execução seguiu para a F2.7, hoje ⏳ em desenvolvimento — a F2.7-A já foi
-concluída, restam a F2.7-B e a F2.7-C. Só depois do encerramento da F2.7 a
+de execução seguiu para a F2.7, hoje ⏳ em desenvolvimento — a F2.7-A e a
+F2.7-B já foram concluídas, resta a F2.7-C. Só depois do encerramento da F2.7 a
 execução retorna aqui para a F2.3-C.
 
 **Dependências:** F2.1 (fundação e cache), F2.2 (layout e rotas admin) — ambas
@@ -1749,8 +1750,8 @@ Internamente: `F2.4-A → F2.4-B → F2.4-C`.
 
 **Bloqueadores / decisões pendentes:** nenhum. Com A, B e C concluídas, a
 **F2.4 está encerrada**. A Fase 2 seguiu para a **F2.7 — Biblioteca de Mídia**,
-hoje ⏳ em desenvolvimento: a F2.7-A está concluída e a próxima etapa interna é
-a **F2.7-B**, ainda não iniciada.
+hoje ⏳ em desenvolvimento: a F2.7-A e a F2.7-B estão concluídas e a próxima
+etapa interna é a **F2.7-C**, ainda não iniciada.
 
 ---
 
@@ -1843,11 +1844,11 @@ satisfeita.
 
 #### F2.7 — Biblioteca de Mídia ⏳ Em desenvolvimento
 
-**Status:** ⏳ **Em desenvolvimento.** A **F2.7-A está concluída** (commit
-`8811b75`, 2026-09-06); **F2.7-B e F2.7-C permanecem 📋 planejadas e não
-iniciadas**. A F2.7 só será encerrada após a F2.7-C — nem o upload, nem o
-processamento de imagem, nem a interface administrativa existem ainda, e nenhum
-pacote foi instalado.
+**Status:** ⏳ **Em desenvolvimento.** A **F2.7-A** (commit `8811b75`) e a
+**F2.7-B** (commit `29fdacb`) estão concluídas, ambas em 2026-09-06; a
+**F2.7-C permanece 📋 planejada e não iniciada**. A F2.7 só será encerrada após
+a F2.7-C — a interface administrativa, a exclusão e a verificação de mídia em
+uso ainda não existem, e nenhum pacote Composer foi instalado.
 
 > **Contrato arquitetural definido antes da implementação**, no mesmo formato
 > adotado pela F2.4. As decisões desta seção foram fechadas em **2026-09-06**,
@@ -1991,7 +1992,8 @@ implementação da F2.7-A**, e não um teste automatizado. O `storage:link` **n�
 é executado por esta auditoria** — alterar o ambiente estaria fora do escopo
 documental; aqui apenas se documenta o contrato.
 
-**2. O GD da imagem atual não suporta WebP.**
+**2. Na auditoria arquitetural inicial, o GD da imagem então vigente não
+suportava WebP.**
 
 Verificado por `gd_info()` no container `app`:
 
@@ -2006,7 +2008,8 @@ AVIF Support = false
 A causa está em `docker/Dockerfile`, que configura
 `docker-php-ext-configure gd --with-freetype --with-jpeg` e instala
 `libpng`/`libjpeg-turbo`/`freetype`, **sem `libwebp`**. Imagick não está
-instalado. Tentar codificar WebP hoje falha de forma dura:
+instalado. Naquele estado do ambiente, tentar codificar WebP falhava de forma
+dura:
 
 ```text
 Error: Call to undefined function Intervention\Image\Drivers\Gd\Encoders\imagewebp()
@@ -2022,6 +2025,11 @@ validação amigável.
 > uma alteração explícita de infraestrutura **executada dentro da própria
 > F2.7-B**. Não é uma condição externa, delegada a outra fase ou deixada sem
 > dono: é uma tarefa da subfase, com verificação obrigatória.
+
+> **Estado: ✅ gate cumprido nos quatro passos em 2026-09-06**, pela F2.7-B
+> (commit `29fdacb`). O texto abaixo é preservado como contrato — é ele que
+> define o que precisava ser comprovado, e continua valendo para qualquer
+> ambiente novo em que a imagem seja reconstruída.
 
 **Gate técnico da F2.7-B — quatro passos, nesta ordem:**
 
@@ -2042,8 +2050,10 @@ F2.7-B. Nada mais muda: **GIF permanece rejeitado**, **SVG permanece fora do
 escopo**, e **não há conversão automática entre formatos** — o gate decide
 apenas se `image/webp` é um formato de *entrada* aceitável.
 
-A alteração de `docker/` pertence à implementação da F2.7-B e **não é feita por
-esta auditoria documental**, que apenas a especifica.
+A alteração de `docker/` pertenceu à implementação da F2.7-B — a auditoria
+documental apenas a especificou. Ela foi executada em 2026-09-06, num diff de
+três linhas: `libwebp` no runtime, `libwebp-dev` nas build deps e `--with-webp`
+no `docker-php-ext-configure gd`.
 
 ---
 
@@ -2267,10 +2277,11 @@ vez, sem migration de dados.
 *Nota operacional:* `docker/nginx.conf` já serve `png|jpg|jpeg|gif|ico|svg` com
 `expires 30d` e `Cache-Control: public, immutable`. Isso é **seguro** com o
 contrato de nome adotado, porque um path nunca é reescrito: cada upload gera um
-nome novo, e a exclusão não recicla o anterior. `webp` não está nessa lista e,
-se o gate técnico da F2.7-B for cumprido, será servido pelo `location /` sem
-cabeçalho de cache — funcional, apenas sem o cache agressivo. Ajustar a lista é
-opcional e pertence à implementação, não a este contrato.
+nome novo, e a exclusão não recicla o anterior. `webp` não está nessa regex de
+cache agressivo. Como o gate da F2.7-B já foi cumprido, arquivos WebP são hoje
+servidos pelo `location /`, de forma funcional, porém sem o `Cache-Control:
+public, immutable` de 30 dias aplicado aos formatos listados nessa regex.
+Ajustar a lista é opcional e pertence à implementação, não a este contrato.
 
 ---
 
@@ -2930,7 +2941,7 @@ F2.7-A → F2.7-B → F2.7-C
 | Subfase | Status | Entrega principal | Depende de |
 | --- | --- | --- | --- |
 | F2.7-A — Domínio, persistência e storage | ✅ Concluída | Model `Media`, migration, identidade, política de disk/path, `MediaService` base e URL derivada | F2.2 |
-| F2.7-B — Upload e processamento | 📋 Planejada | Form Request, upload único, validação de MIME/tamanho/dimensões, pipeline do Intervention Image e persistência coordenada | F2.7-A |
+| F2.7-B — Upload e processamento | ✅ Concluída | Form Request, upload único, validação de MIME/tamanho/dimensões, pipeline do Intervention Image e persistência coordenada | F2.7-A |
 | F2.7-C — Biblioteca administrativa e exclusão protegida | 📋 Planejada | Controller, rotas, grid paginada, sidebar, exclusão e verificação de uso | F2.7-B |
 
 **Por que dividir:** as três concentram riscos de natureza distinta — modelagem
@@ -2944,10 +2955,10 @@ schema.
 **A F2.7 só é encerrada após a F2.7-C.** Uma subfase posterior não começa
 automaticamente ao término da anterior.
 
-Estado atual da divisão interna: **F2.7-A concluída** em 2026-09-06 (commit
-`8811b75`); a próxima etapa interna é a **F2.7-B**, ainda não iniciada. A F2.7
-permanece ⏳ em desenvolvimento, e nem a F2.3-C nem a F2.5 são liberadas por
-isso — elas dependem da F2.7 **completa**.
+Estado atual da divisão interna: **F2.7-A** (commit `8811b75`) e **F2.7-B**
+(commit `29fdacb`) concluídas em 2026-09-06; a próxima etapa interna é a
+**F2.7-C**, ainda não iniciada. A F2.7 permanece ⏳ em desenvolvimento, e nem a
+F2.3-C nem a F2.5 são liberadas por isso — elas dependem da F2.7 **completa**.
 
 ---
 
@@ -3145,93 +3156,375 @@ criado — a busca por `UploadedFile`, `ImageManager`, `MediaController`,
 `MediaUsage` e `MediaInUseException` no commit não retorna implementação, apenas
 comentários que delimitam escopo.
 
-**Bloqueadores / decisões pendentes:** nenhum. A próxima etapa interna é a
-**F2.7-B — Upload e processamento**, ainda não iniciada.
+**Bloqueadores / decisões pendentes:** nenhum. A F2.7-B, que a sucedeu, também
+está concluída; a próxima etapa interna é a **F2.7-C — Biblioteca
+administrativa e exclusão protegida**, ainda não iniciada.
 
 ---
 
-##### F2.7-B — Upload e processamento 📋 Planejada
+##### F2.7-B — Upload e processamento ✅ Concluída
+
+**Concluída e validada em 2026-09-06.**
+Commit: `29fdacb8f9a5e8d1de3cf26f2d8811bad83eb136`
+(`feat(fase-2): adiciona upload e processamento da biblioteca de midia`)
+
+Publicado em `main` e **verificado remotamente de forma independente** antes
+deste fechamento documental.
+
+Validação: 34 testes focados / 148 assertions da F2.7-B — 17 / 29 do Form
+Request e 17 / 119 do upload; 41 testes / 99 assertions da F2.7-A sem
+regressão; 75 testes / 247 assertions no conjunto de mídia; 298 testes / 907
+assertions na suíte completa; Pint sem violações (71 arquivos);
+`composer validate` válido; `composer audit` sem vulnerabilidades conhecidas;
+`git diff --check` limpo.
 
 **Objetivo:** transformar um `UploadedFile` em uma `Media` válida, com pipeline
 de imagem determinístico e consistência entre arquivo e registro.
 
 **Dependências:** **F2.7-A.**
 
-**Gate técnico de infraestrutura — desta subfase, e não de terceiros**
+**Gate técnico de infraestrutura — ✅ cumprido nos quatro passos**
 
-O WebP está no escopo planejado da F2.7-B, mas sua aceitação depende de uma
-alteração de infraestrutura que **a própria F2.7-B executa**:
-
-```text
-1. Docker fornece as bibliotecas de build/runtime necessárias ao WebP
-2. GD é recompilado com suporte a WebP
-3. o ambiente comprova gd_info()['WebP Support'] === true
-4. uma codificação WebP real pelo Intervention Image passa
-```
+O WebP dependia de uma alteração de infraestrutura que a **própria F2.7-B**
+executou:
 
 ```text
-habilitar WebP no GD
-  → comprovar suporte
-    → habilitar validação/encoding de image/webp
+1. libwebp 1.6.0-r0 e libwebp-dev 1.6.0-r0 no docker/Dockerfile   → ok
+2. GD recompilado com --with-webp (JPEG e FreeType preservados)   → ok
+3. gd_info()['WebP Support'] === true; php -i → WebP Support => enabled → ok
+4. WebpEncoder(quality: 85) produzindo WebP real                  → ok
 ```
 
-**Enquanto o gate não estiver satisfeito, `image/webp` não é aceito pelo
-upload:** fica fora da lista de MIME válidos e é rejeitado pela validação. Não
-cumprido o gate, WebP sai do contrato de tipos aceitos e a redução é registrada.
-**JPEG e PNG não dependem deste gate.**
+O passo 4 não se contentou com a presença da biblioteca: a codificação foi
+executada e o resultado conferido como WebP verdadeiro — `mediaType`
+`image/webp`, assinatura `RIFF`/`WEBP`, redecodificável pelo Intervention e
+reconhecido por `getimagesizefromstring()` como `IMAGETYPE_WEBP`.
+
+O diff no `docker/Dockerfile` foi de **três linhas** — `libwebp` no runtime,
+`libwebp-dev` nas build deps e `--with-webp` no `docker-php-ext-configure gd`.
+Alpine, PHP, demais bibliotecas, entrypoint, nginx e `php.ini` não foram
+tocados.
+
+**JPEG e PNG nunca dependeram deste gate**, e há teste que o comprova.
 
 **Entregáveis planejados**
 
-- [ ] Form Request de upload, com validação de MIME real, tamanho e dimensões de entrada
-- [ ] Passos 1 e 2 do gate: bibliotecas WebP no `docker/Dockerfile` e GD recompilado com `--with-webp`
-- [ ] Passo 3 do gate: `gd_info()['WebP Support'] === true` comprovado no ambiente
-- [ ] Passo 4 do gate: codificação WebP real pelo Intervention Image passando
-- [ ] `image/webp` habilitado na validação e no *encoder* **somente após os quatro passos** — ou removido do contrato
-- [ ] `MediaService::store(UploadedFile $file): Media`
-- [ ] Instanciação explícita do `ImageManager` com driver GD (sem facade, sem *bridge* Laravel)
-- [ ] Pipeline `orient()` → `scaleDown(2000, 2000)` → `encode(<encoder do formato>)`
-- [ ] Encoders por formato: JPEG q85, WebP q85, PNG com padrões (sem `quality`)
-- [ ] Gravação no disco pelo Laravel Filesystem
-- [ ] `size`, `width` e `height` medidos do **resultado codificado**
-- [ ] Limpeza do arquivo em caso de falha ao criar o registro
+- [x] Form Request de upload, com validação de MIME real, tamanho e dimensões de entrada
+- [x] Passos 1 e 2 do gate: bibliotecas WebP no `docker/Dockerfile` e GD recompilado com `--with-webp`
+- [x] Passo 3 do gate: `gd_info()['WebP Support'] === true` comprovado no ambiente
+- [x] Passo 4 do gate: codificação WebP real pelo Intervention Image passando
+- [x] `image/webp` habilitado na validação e no *encoder* **somente após os quatro passos** — ou removido do contrato
+- [x] `MediaService::store(UploadedFile $file): Media`
+- [x] Instanciação explícita do `ImageManager` com driver GD (sem facade, sem *bridge* Laravel)
+- [x] Pipeline `orient()` → `scaleDown(2000, 2000)` → `encode(<encoder do formato>)`
+- [x] Encoders por formato: JPEG q85, WebP q85, PNG com padrões (sem `quality`)
+- [x] Gravação no disco pelo Laravel Filesystem
+- [x] `size`, `width` e `height` medidos do **resultado codificado**
+- [x] Limpeza do arquivo em caso de falha ao criar o registro
 
 **Testes / critério de aceite planejados**
 
-- [ ] Upload de JPEG válido cria arquivo e registro
-- [ ] Upload de PNG válido cria arquivo e registro
-- [ ] Com o gate cumprido, upload de WebP válido cria arquivo e registro
-- [ ] **Sem o gate cumprido, upload de WebP é rejeitado pela validação** — nunca aceito para falhar depois no *encoder*
-- [ ] JPEG e PNG funcionam independentemente do estado do gate
-- [ ] GIF é **rejeitado**, com mensagem de validação
-- [ ] SVG é rejeitado
-- [ ] PDF/ZIP/documento/vídeo/áudio são rejeitados
-- [ ] Arquivo não-imagem renomeado com extensão de imagem é rejeitado pela validação de MIME real
-- [ ] Arquivo acima de 5 MB é rejeitado
-- [ ] Imagem acima de 6000 × 6000 px é rejeitada antes da decodificação
-- [ ] Um `request` aceita exatamente um arquivo
-- [ ] Imagem maior que 2000 px é reduzida, com proporção preservada
-- [ ] Imagem não quadrada mantém a proporção (ex.: 4000 × 1000 → 2000 × 500)
-- [ ] Imagem exatamente em 2000 px permanece inalterada
-- [ ] Imagem menor que 2000 px **não** sofre upscale
-- [ ] `width`/`height` gravados correspondem ao arquivo armazenado, não ao enviado
-- [ ] `size` gravado corresponde ao arquivo armazenado
-- [ ] `mime_type` gravado é igual ao MIME validado — não há conversão de formato
-- [ ] PNG com transparência preserva o canal alfa
-- [ ] Imagem com orientação EXIF é gravada já rotacionada, com dimensões coerentes
-- [ ] Metadados EXIF não sobrevivem à recodificação
-- [ ] O nome original não influencia o path gravado
-- [ ] Falha de processamento **não** cria registro nem arquivo
-- [ ] Falha de gravação no disco **não** cria registro
-- [ ] Falha ao criar o registro remove o arquivo já gravado
-- [ ] Nenhuma `Media` inválida existe após qualquer caminho de falha
-- [ ] Nenhuma rota, Controller ou Blade é criado nesta subfase
-- [ ] O comportamento entregue pela F2.7-A permanece inalterado
-- [ ] Suíte completa permanece verde
-- [ ] Pint passa
-- [ ] `git diff --check` passa
+- [x] Upload de JPEG válido cria arquivo e registro
+- [x] Upload de PNG válido cria arquivo e registro
+- [x] Com o gate cumprido, upload de WebP válido cria arquivo e registro
+- [x] **Sem o gate cumprido, upload de WebP é rejeitado pela validação** — nunca aceito para falhar depois no *encoder*
+- [x] JPEG e PNG funcionam independentemente do estado do gate
+- [x] GIF é **rejeitado**, com mensagem de validação
+- [x] SVG é rejeitado
+- [x] PDF/ZIP/documento/vídeo/áudio são rejeitados
+- [x] Arquivo não-imagem renomeado com extensão de imagem é rejeitado pela validação de MIME real
+- [x] Arquivo acima de 5 MB é rejeitado
+- [x] Imagem acima de 6000 × 6000 px é rejeitada antes da decodificação
+- [x] Um `request` aceita exatamente um arquivo
+- [x] Imagem maior que 2000 px é reduzida, com proporção preservada
+- [x] Imagem não quadrada mantém a proporção (ex.: 4000 × 1000 → 2000 × 500)
+- [x] Imagem exatamente em 2000 px permanece inalterada
+- [x] Imagem menor que 2000 px **não** sofre upscale
+- [x] `width`/`height` gravados correspondem ao arquivo armazenado, não ao enviado
+- [x] `size` gravado corresponde ao arquivo armazenado
+- [x] `mime_type` gravado é igual ao MIME validado — não há conversão de formato
+- [x] PNG com transparência preserva o canal alfa
+- [x] Imagem com orientação EXIF é gravada já rotacionada, com dimensões coerentes
+- [x] Metadados EXIF não sobrevivem à recodificação
+- [x] O nome original não influencia o path gravado
+- [x] Falha de processamento **não** cria registro nem arquivo
+- [x] Falha de gravação no disco **não** cria registro
+- [x] Falha ao criar o registro remove o arquivo já gravado
+- [x] Nenhuma `Media` inválida existe após qualquer caminho de falha
+- [x] Nenhuma rota, Controller ou Blade é criado nesta subfase
+- [x] O comportamento entregue pela F2.7-A permanece inalterado
+- [x] Suíte completa permanece verde
+- [x] Pint passa
+- [x] `git diff --check` passa
+
+**Resultado entregue**
+
+Oito arquivos no commit técnico — cinco novos:
+
+```text
+app/Http/Requests/Admin/StoreMediaRequest.php
+app/Services/ImageCapabilities.php
+tests/Feature/StoreMediaRequestTest.php
+tests/Feature/MediaUploadTest.php
+tests/Fixtures/exif-orientation-6.jpg
+```
+
+e três modificados:
+
+```text
+app/Services/MediaService.php
+docker/Dockerfile
+tests/Feature/MediaServiceTest.php
+```
+
+Estatística do commit técnico: **8 arquivos, 1.038 inserções, 5 remoções**.
+
+**Barreira de entrada — `StoreMediaRequest`**
+
+`App\Http\Requests\Admin\StoreMediaRequest`, com campo singular `file`:
+
+```text
+required
+file
+image
+mimetypes:<tipos suportados no runtime>
+max:5120                                     (5 MB)
+dimensions:max_width=6000,max_height=6000
+```
+
+A regra `file` recusa array, então **um request carrega exatamente um
+arquivo** — upload múltiplo continua fora do escopo. O Form Request não criou
+rota nem Controller: ele fica pronto para a F2.7-C consumir.
+
+**MIME real, nunca o que o cliente afirma**
+
+A decisão de tipo vem do conteúdo, via `fileinfo`:
+
+```text
+usa      → UploadedFile::getMimeType()
+ignora   → getClientMimeType(), getClientOriginalExtension(), nome do arquivo
+```
+
+Comprovado com um arquivo PHP nomeado `shell.jpg` e enviado com
+`Content-Type: image/jpeg`: `getClientMimeType()` devolve `image/jpeg`, mas
+`getMimeType()` devolve `text/x-php`, e a validação recusa.
+
+> Os casos de tipo foram deliberadamente testados com `UploadedFile` **real**,
+> e não com `UploadedFile::fake()`. O fake sobrescreve `getMimeType()` para
+> derivar do **nome** do arquivo (`MimeType::from($this->name)`), o que faria a
+> regra `mimetypes` passar por um motivo que não existe em produção. A
+> descoberta veio de um teste que falhou, e mudou a estratégia de prova.
+
+**Limites de entrada**
+
+```text
+arquivo enviado  ≤ 5 MB      (max:5120, em KB)
+largura          ≤ 6000 px
+altura           ≤ 6000 px
+```
+
+A guarda de dimensões acontece **na validação**, antes de o arquivo chegar ao
+pipeline do Intervention: `dimensions` lê apenas o cabeçalho da imagem, sem
+decodificá-la, que é o que a torna útil contra *decompression bomb*. Os limites
+de infraestrutura permanecem deliberadamente acima (`upload_max_filesize`,
+`post_max_size` e `client_max_body_size` em 100M), para que o excesso vire erro
+de validação amigável em vez de 413 do servidor ou POST truncado.
+
+**Tipos suportados**
+
+```text
+image/jpeg   sempre
+image/png    sempre
+image/webp   somente quando o runtime realmente suporta WebP
+```
+
+A aceitação de WebP **não é incondicional**: ela deriva da capacidade real do
+GD. Num runtime sem WebP, JPEG e PNG continuam funcionando e `image/webp` é
+rejeitado ainda na validação.
+
+**`ImageCapabilities` — capacidade lida do runtime**
+
+```text
+App\Services\ImageCapabilities::supportsWebp(): bool
+  → (gd_info()['WebP Support'] ?? false) === true
+```
+
+Sem `.env`, sem `WEBP_ENABLED`, sem *feature flag* e sem `config/media.php`:
+uma flag manual poderia afirmar um suporte que a imagem não tem, e o erro só
+apareceria no meio de um upload — como um `Error` do PHP
+(`Call to undefined function imagewebp()`), que nenhuma validação
+interceptaria. A classe é um objeto, e não um método estático, para poder ser
+substituída no container e permitir testar o cenário em que o WebP **não** está
+disponível, sem depender da máquina que roda a suíte.
+
+`MediaService::supportedMimeTypes()` é a fonte central consultada tanto pelo
+Form Request quanto por `store()`, de modo que a barreira HTTP e a do serviço
+nunca divirjam sobre quais formatos existem.
+
+**`MediaService` — o que a F2.7-B acrescentou**
+
+```php
+public function store(UploadedFile $file): Media
+```
+
+`generatePath()`, `url()` e `paginate()`, fundados pela F2.7-A, permaneceram
+**intactos**. `delete()` não existe: pertence à F2.7-C.
+
+**Pipeline**
+
+```text
+MIME real
+  → decodeSplFileInfo()
+  → orient()
+  → scaleDown(2000, 2000)
+  → encode(<encoder do formato de origem>)
+  → Storage::disk(DISK)->put()
+  → Media::create()
+```
+
+**Orientação sob controle da aplicação**
+
+```php
+new ImageManager(Driver::class, autoOrientation: false)
+```
+
+*Decisão:* a auto-orientação do Intervention é **desabilitada**, e `orient()`
+passa a ser quem aplica a rotação, antes do redimensionamento.
+
+*Motivo:* o `Config::$autoOrientation` da 4.3.2 vem `true`, e com ele o
+decodificador já orientava a imagem sozinho — o resultado era correto, mas
+dependia de um default da biblioteca que poderia mudar numa atualização sem que
+nada aqui acusasse. Com `autoOrientation: false`, a ordem do pipeline é
+responsabilidade explícita do nosso código.
+
+*Consequência:* a chamada a `orient()` é **load-bearing**, e não redundante —
+removê-la quebra os testes de EXIF.
+
+**Redimensionamento**
+
+```text
+maior lado ≤ 2000 px, proporção preservada, sem upscale
+
+4000 × 1000  →  2000 × 500
+2000 × 2000  →  2000 × 2000
+ 300 ×  200  →   300 × 200
+```
+
+`scaleDown()` — e não `scale()` ou `resize()` — porque só ele reduz sem nunca
+ampliar e sem distorcer a proporção.
+
+**Encoders — o formato de entrada é preservado**
+
+```text
+image/jpeg  →  JpegEncoder(quality: 85)  →  .jpg
+image/png   →  PngEncoder()              →  .png
+image/webp  →  WebpEncoder(quality: 85)  →  .webp
+```
+
+O PNG **não** recebe `quality`, porque o `PngEncoder` da 4.3.2 não tem esse
+parâmetro. **Não há conversão automática de formato**: `media.mime_type` é
+sempre igual ao MIME validado na entrada.
+
+**Transparência PNG** — comprovada no arquivo efetivamente armazenado, e não
+assumida a partir do encoder: o pixel enviado transparente é lido de volta com
+alfa 127, e o opaco com alfa 0.
+
+**EXIF e orientação**
+
+A fixture `tests/Fixtures/exif-orientation-6.jpg` (1.153 bytes) é uma imagem
+120 × 60 com `Orientation = 6`, `Make`, `Model` e coordenadas GPS. Depois do
+pipeline, o arquivo armazenado é fisicamente **60 × 120** e os metadados —
+`Make`, `Model`, `GPSLatitude`, `GPSLatitudeRef` — **não sobrevivem à
+recodificação**. A imagem não depende mais da tag EXIF para aparecer orientada:
+um visualizador que a ignore a renderiza corretamente, e o descarte do GPS é um
+efeito colateral desejável de privacidade, já que a mídia é servida
+publicamente.
+
+**Metadados persistidos**
+
+```text
+original_name  →  metadado administrativo apenas
+path           →  media/YYYY/MM/ULID.ext
+extensão       →  derivada do MIME real, nunca da extensão do cliente
+size           →  strlen(bytes codificados)
+width/height   →  dimensões da imagem processada
+```
+
+`original_name` não influencia diretório, nome físico nem extensão. Um nome
+hostil como `../../Minha Foto Final (2) ###.JpEg` sobrevive apenas como
+metadado — já sem o `../../`, que o próprio Symfony descarta ao normalizar — e
+o caminho gerado é conferido por expressão exaustiva, sem asserção
+probabilística contra substrings que pudessem surgir num ULID.
+
+`size`, `width` e `height` descrevem o **arquivo realmente armazenado**, não o
+upload: as asserções confrontam o registro contra os bytes lidos de volta do
+disco.
+
+**Consistência na criação**
+
+```text
+1. valida                → falhou? nada acontece
+2. decodifica e processa → falhou? nenhum arquivo, nenhuma Media
+3. grava o ARQUIVO       → put() === false? nenhuma Media
+4. cria o REGISTRO       → falhou? remove o arquivo (melhor esforço) e propaga
+```
+
+A `Media` só nasce **depois** de o arquivo existir. O retorno de
+`Storage::put()` é verificado explicitamente, e isso importa porque o disco
+`public` usa `throw => false`: ignorá-lo criaria um registro apontando para um
+arquivo ausente. A limpeza compensatória é **melhor esforço** — não há fila,
+job nem tabela de compensação, e a exceção original continua sendo a falha
+principal.
+
+> **Limite de consistência, declarado:** banco e sistema de arquivos não
+> compartilham transação. Se `Media::create()` falhar **e** a remoção
+> compensatória também falhar, um arquivo órfão pode permanecer — invisível e
+> não referenciável, porque nenhum registro aponta para ele e o nome nunca é
+> reciclado. Esse resíduo é aceito por esta arquitetura.
+
+**Cobertura por mutation checks**
+
+Cada invariante foi confrontada com o defeito que deveria pegar; todas as
+mutações foram integralmente revertidas, e nenhuma delas está no código.
+
+| Mutação aplicada | Testes que falharam |
+| --- | --- |
+| `scaleDown` → `scale` (permite upscale) | 4, incl. imagem pequena sem upscale |
+| JPEG codificado com `PngEncoder` | 3 |
+| Mapa MIME→extensão: `image/jpeg` → `png` | 2 |
+| `size` do upload em vez do resultado codificado | 7 |
+| Remoção da limpeza após falha do banco | limpeza do arquivo já gravado |
+| Retorno `false` do `put()` ignorado | falha de gravação não cria registro |
+| `capability = false` ainda aceitando `image/webp` | 2 (serviço e Form Request) |
+| Remoção de `orient()` | 2 de EXIF — `120 × 60` em vez de `60 × 120` |
+
+> **Sobre a ordem `orient()` × `scaleDown()`:** ela é contratada e está
+> implementada, mas **não é observável** por mutação. Com uma caixa quadrada
+> (`2000, 2000`), rotação de 90° e escala uniforme comutam — inverter os dois
+> produz exatamente o mesmo resultado. Forçar cobertura sobre comportamentos
+> equivalentes geraria um teste frágil sem valor. A mutação que importa é
+> `orient()` presente × ausente, e essa passou a falhar depois do hardening que
+> desligou a auto-orientação.
+
+**Ambiente**
+
+Após o rebuild da imagem `app`, os 7 serviços seguiram `running`, com `app`,
+`mysql`, `redis`, `nginx` e `mailpit` `healthy`. O link `public/storage`
+sobreviveu ao rebuild, apontando corretamente para `storage/app/public`, e o
+acesso HTTP foi reconfirmado com 200 — não foi necessário executar
+`storage:link` de novo. O gate operacional do symlink continua pertencendo à
+F2.7-A.
 
 **Fora do escopo da F2.7-B:** Controller, rotas, grid, exclusão, verificação de
-uso, sidebar e breadcrumbs.
+uso, sidebar e breadcrumbs — nada disso foi criado. Também permanecem fora:
+upload múltiplo, *drag-and-drop*, *cropper*, edição de imagem, *thumbnails*,
+*responsive images*, variantes, filas, processamento assíncrono, preservação do
+original, S3 e CDN operacionais, PDF, vídeo, áudio, SVG, GIF, AVIF, HEIC,
+documentos, seletor reutilizável, consumidores e papéis/policies.
+
+**Bloqueadores / decisões pendentes:** nenhum. A próxima etapa interna é a
+**F2.7-C — Biblioteca administrativa e exclusão protegida**, ainda não
+iniciada.
 
 ---
 
@@ -3318,21 +3611,22 @@ CDN, REST API pública de mídia, auditoria persistente, *marketplace* e
 
 ##### Riscos residuais reconhecidos
 
-1. **WebP depende de mudança da imagem Docker, feita pela própria F2.7-B.**
-   Enquanto os quatro passos do gate não forem cumpridos, `image/webp` é
-   rejeitado pela validação e o formato mais eficiente do contrato fica
-   indisponível. JPEG e PNG não são afetados. Registrado nos Bloqueadores da
-   Fase 2.
+1. **WebP depende da imagem Docker, e o gate foi cumprido pela F2.7-B em
+   2026-09-06.** A aceitação continua derivando da capacidade real do runtime
+   (`ImageCapabilities::supportsWebp()`): num ambiente cuja imagem não tenha
+   sido reconstruída com `--with-webp`, `image/webp` volta a ser rejeitado pela
+   validação, e JPEG e PNG seguem funcionando. É degradação silenciosa por
+   decisão — o administrador só percebe pela mensagem de validação.
 2. **`public/storage` é estado de ambiente, não do repositório.** O gate da
    F2.7-A foi cumprido em 2026-09-06, mas o link não é versionado: **cada nova
    instalação precisa repetir `php artisan storage:link`**, e a suíte não
    detecta a ausência porque `Storage::fake('public')` substitui o disco real.
    Documentado no README e na instalação rápida.
-3. **A F2.7-B precisa normalizar a extensão** para a forma canônica que
-   `MediaService::generatePath()` aceita (`jpg`, `png`, `webp`): um `jpeg`
-   vindo do processamento seria recusado com `InvalidArgumentException`. O
-   comportamento é o desejado — uma extensão por formato —, mas exige a
-   normalização no chamador.
+3. **A normalização da extensão ficou a cargo da F2.7-B e está resolvida:** o
+   mapa MIME → extensão canônica (`image/jpeg` → `jpg`) alimenta
+   `MediaService::generatePath()`, de modo que `jpeg` nunca chega lá. Qualquer
+   consumidor futuro que chame `generatePath()` diretamente precisa respeitar a
+   mesma forma canônica.
 4. **`MediaFactory` replica o formato do path** como fixture. Se o contrato de
    path mudar, a factory precisa acompanhar. É deliberado: o teste da geração de
    path exercita o `MediaService`, não uma cópia sua.
@@ -3352,17 +3646,20 @@ CDN, REST API pública de mídia, auditoria persistente, *marketplace* e
 
 **Bloqueadores / decisões pendentes:** nenhuma decisão arquitetural pendente. A
 dependência da F2.2 está satisfeita. Dos dois **gates de ambiente**, cada um com
-dono dentro da própria F2.7, um já foi cumprido:
+dono dentro da própria F2.7, **ambos já cumpridos**:
 
 - **gate operacional da F2.7-A — ✅ cumprido em 2026-09-06.**
   `php artisan storage:link` executado e a cadeia até HTTP 200 verificada no
   Docker real pelo roteiro de quatro passos. Permanece como estado de ambiente
   a repetir em cada instalação;
-- **gate técnico da F2.7-B — 📋 pendente.** Suporte a WebP no GD, em quatro
-  passos. Enquanto não cumprido, `image/webp` é rejeitado pela validação;
-  **JPEG e PNG não dependem dele**.
+- **gate técnico da F2.7-B — ✅ cumprido em 2026-09-06.** Suporte a WebP no GD
+  comprovado nos quatro passos: `libwebp`/`libwebp-dev` no `Dockerfile`, GD
+  recompilado com `--with-webp`, `gd_info()['WebP Support'] === true` e uma
+  codificação WebP real pelo Intervention. A aceitação continua derivando da
+  capacidade do runtime, e **JPEG e PNG nunca dependeram dele**.
 
-**Estado da F2.7:** ⏳ em desenvolvimento — F2.7-A ✅, F2.7-B 📋, F2.7-C 📋.
+**Estado da F2.7:** ⏳ em desenvolvimento — F2.7-A ✅, F2.7-B ✅, F2.7-C 📋. A
+próxima etapa interna é a **F2.7-C**.
 
 ---
 
@@ -3414,11 +3711,12 @@ verificadas no repositório e no ambiente Docker:
 
 - Nenhum bloqueador arquitetural pendente. A **F2.2 — Fundação do Admin** foi
   concluída (A, B e C) e liberou as subfases que dependiam dela. Estado atual:
-  a **F2.4 está concluída**; a **F2.7 está em desenvolvimento**, com a F2.7-A
-  concluída em 2026-09-06 e a **F2.7-B como próxima etapa**; a F2.3-C aguarda a
-  F2.7 **completa**; a F2.5 permanece planejada, também depois da F2.7
-  completa; e a F2.6 permanece planejada para depois da F2.5 — sua dependência
-  da F2.4 está satisfeita, mas isso não a antecipa na ordem de execução.
+  a **F2.4 está concluída**; a **F2.7 está em desenvolvimento**, com a F2.7-A e
+  a F2.7-B concluídas em 2026-09-06 e a **F2.7-C como próxima etapa**; a F2.3-C
+  aguarda a F2.7 **completa**; a F2.5 permanece planejada, também depois da
+  F2.7 completa; e a F2.6 permanece planejada para depois da F2.5 — sua
+  dependência da F2.4 está satisfeita, mas isso não a antecipa na ordem de
+  execução.
 - A autorização granular permanece na Fase 3. Durante toda a Fase 2, qualquer
   usuário autenticado acessa `/admin`.
 - **Gates de ambiente da F2.7 — não são bloqueadores arquiteturais, mas são
@@ -3431,30 +3729,32 @@ verificadas no repositório e no ambiente Docker:
     instalação precisa repetir o comando — e a suíte não detecta a ausência,
     porque usa `Storage::fake('public')`. Documentado no README e na instalação
     rápida;
-  - **Gate técnico da F2.7-B:** o GD precisa ganhar suporte a WebP
-    (bibliotecas no `docker/Dockerfile`, recompilação com `--with-webp`,
-    `gd_info()['WebP Support'] === true` comprovado e uma codificação WebP real
-    passando). **Enquanto os quatro passos não estiverem cumpridos,
-    `image/webp` não é aceito pelo upload** — é rejeitado pela validação, em vez
-    de aceito para quebrar em execução. JPEG e PNG não dependem deste gate.
+  - **Gate técnico da F2.7-B: ✅ cumprido em 2026-09-06.** O GD ganhou suporte
+    a WebP — `libwebp`/`libwebp-dev` no `docker/Dockerfile`, recompilação com
+    `--with-webp`, `gd_info()['WebP Support'] === true` comprovado e uma
+    codificação WebP real pelo Intervention Image. A aceitação de `image/webp`
+    continua condicionada à capacidade do runtime: numa imagem sem esse
+    suporte, o formato volta a ser rejeitado pela validação em vez de quebrar
+    em execução. JPEG e PNG nunca dependeram deste gate.
 
 #### Dependências
 
 - ✅ Fase 1 (concluída)
 
 #### Próximo Passo
-→ **F2.7-B — Upload e processamento** — 📋 planejada, **não iniciada**. A F2.7
-está ⏳ em desenvolvimento: sua primeira etapa interna, a **F2.7-A**, foi
-concluída em 2026-09-06 (commit `8811b75`), entregando a entidade `Media`, a
-migration, a política de disk/path e o núcleo do `MediaService`. A Fase 3
-permanece após a conclusão da Fase 2.
+→ **F2.7-C — Biblioteca administrativa e exclusão protegida** — 📋 planejada,
+**não iniciada**. A F2.7 está ⏳ em desenvolvimento: a **F2.7-A** foi concluída
+em 2026-09-06 (commit `8811b75`), entregando a entidade `Media`, a migration, a
+política de disk/path e o núcleo do `MediaService`; e a **F2.7-B** foi concluída
+no mesmo dia (commit `29fdacb`), entregando o upload único com validação de MIME
+real, o pipeline do Intervention Image e o gate técnico do WebP, cumprido nos
+quatro passos. A Fase 3 permanece após a conclusão da Fase 2.
 
-A F2.7-B transforma um `UploadedFile` em `Media` válida: Form Request, upload
-único, validação de MIME real, limites de tamanho e dimensões, pipeline do
-Intervention Image e persistência coordenada de arquivo e registro. Ela é dona
-do **gate técnico do WebP** — enquanto os quatro passos não forem cumpridos,
-`image/webp` não é aceito pelo upload. Depois dela vem a **F2.7-C**, que fecha a
-F2.7.
+A F2.7-C fecha a subfase: Controller administrativo, as três rotas protegidas
+por `auth`, a grid paginada, a integração do upload à interface, sidebar e
+breadcrumbs, o registro compartilhado de verificadores de uso, a exclusão
+protegida com `MediaInUseException` e a regressão de A e B. Nada disso existe
+hoje.
 
 Somente com a **F2.7 completa** seguem F2.3-C, F2.5 e, por último, F2.6. A
 dependência da F2.6 em relação à F2.4 está satisfeita, mas ela continua sendo a
@@ -4242,8 +4542,8 @@ Atualizado toda segunda-feira com progresso real.
 - ✅ **F2.2 — Fundação do Admin:** concluída (A, B e C).
 - Nenhum bloqueador arquitetural conhecido para a próxima etapa. A **F2.4 está
   concluída** e a **F2.7 — Biblioteca de Mídia está ⏳ em desenvolvimento**: a
-  F2.7-A foi concluída em 2026-09-06 e a próxima etapa é a **F2.7-B**, ainda não
-  iniciada, seguida da F2.7-C. A F2.3-C aguarda a **F2.7 completa**; a F2.5
+  F2.7-A e a F2.7-B foram concluídas em 2026-09-06 e a próxima etapa é a
+  **F2.7-C**, ainda não iniciada. A F2.3-C aguarda a **F2.7 completa**; a F2.5
   também depende da **F2.7 completa**; e a dependência da F2.6 em relação à F2.4
   já está satisfeita, mas sua execução permanece somente depois de
   F2.7 → F2.3-C → F2.5. A autorização granular permanece na Fase 3.
@@ -4418,6 +4718,35 @@ Atualizado toda segunda-feira com progresso real.
   libera. Nada de upload, processamento de imagem, interface administrativa ou
   exclusão foi antecipado, e o gate técnico do WebP continua pendente na
   F2.7-B. Próxima etapa: **F2.7-B — Upload e processamento**.
+- **2026-09-06:** F2.7-B — Upload e processamento concluída. Commit técnico:
+  `29fdacb8f9a5e8d1de3cf26f2d8811bad83eb136`, publicado em `main` e verificado
+  remotamente. Entrega o `StoreMediaRequest` com upload de **um único arquivo**
+  validado por **MIME real** do conteúdo — nunca pela extensão ou pelo
+  `Content-Type` do cliente —, limite de 5 MB e guarda de 6000 × 6000 px
+  aplicada na validação, antes da decodificação. O `MediaService` ganhou
+  `store(UploadedFile): Media`, com pipeline `decodeSplFileInfo()` →
+  `orient()` → `scaleDown(2000, 2000)` → `encode()` → `Storage::put()` →
+  `Media::create()`, preservando `generatePath()`, `url()` e `paginate()` da
+  F2.7-A. O **gate técnico do WebP foi cumprido nos quatro passos** —
+  `libwebp`/`libwebp-dev` no `Dockerfile`, GD recompilado com `--with-webp`,
+  `gd_info()['WebP Support'] === true` e uma codificação WebP real pelo
+  Intervention —, e a aceitação de `image/webp` passou a derivar da capacidade
+  do runtime por `ImageCapabilities`, sem env nem *feature flag*. A orientação
+  ficou sob controle explícito da aplicação: o `ImageManager` é instanciado com
+  `autoOrientation: false` para que `orient()` seja quem aplica a rotação, e o
+  arquivo armazenado sai fisicamente orientado, com EXIF e GPS descartados na
+  recodificação. `size`, `width` e `height` descrevem o arquivo realmente
+  gravado, o formato de entrada é preservado sem conversão, e a criação segue a
+  ordem arquivo → registro, com remoção compensatória de melhor esforço se a
+  persistência falhar. Validação: 34 testes / 148 assertions da F2.7-B, 41
+  testes / 99 assertions da F2.7-A sem regressão, 298 testes / 907 assertions na
+  suíte completa; Pint, `composer validate`, `composer audit` e
+  `git diff --check` verdes; oito mutation checks confirmando resize, encoder,
+  extensão, `size`, cleanup, filesystem, capability de WebP e orientação. **A
+  F2.7 permanece ⏳ em desenvolvimento** — a F2.7-C não foi iniciada, e nem a
+  F2.3-C nem a F2.5 são liberadas por esta conclusão: ambas continuam
+  aguardando o encerramento completo da F2.7. Próxima etapa: **F2.7-C —
+  Biblioteca administrativa e exclusão protegida**.
 - *Próxima revisão: 2026-09-11*
 
 ---
