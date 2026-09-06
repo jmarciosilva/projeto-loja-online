@@ -5,9 +5,10 @@
 - **Fase Atual:** Fase 2 — CMS e Configurações Admin ⏳ (iniciada em 2026-09-04)
   - F2.1 — Fundação do CMS: ✅ concluída
   - F2.2 — Fundação do Admin: ✅ concluída
-  - F2.3-A — Configurações gerais: ✅ concluída
-  - F2.3-B — Tema e cores: ✅ concluída
-  - F2.3 permanece parcialmente aberta: a F2.3-C está planejada e sua dependência da F2.7 foi satisfeita
+  - **F2.3 — Configurações Globais: ✅ concluída em 2026-09-06**
+    - F2.3-A — Configurações gerais: ✅ concluída
+    - F2.3-B — Tema e cores: ✅ concluída
+    - F2.3-C — Logo e favicon: ✅ concluída em 2026-09-06
   - **F2.4 — Páginas Estáticas: ✅ concluída em 2026-09-05**
     - F2.4-A — Fundação de domínio e persistência: ✅ concluída
     - F2.4-B — Administração e CRUD: ✅ concluída
@@ -16,7 +17,9 @@
     - F2.7-A — Domínio, persistência e storage: ✅ concluída em 2026-09-06
     - F2.7-B — Upload e processamento: ✅ concluída em 2026-09-06
     - F2.7-C — Biblioteca administrativa e exclusão protegida: ✅ concluída em 2026-09-06
-  - Próxima etapa operacional: F2.3-C, seguida de F2.5 e então F2.6.
+  - Próxima etapa operacional: **F2.5 — Banners**, seguida de F2.6 — Menus.
+    Ambas permanecem 📋 planejadas; a Fase 2 segue ⏳ em desenvolvimento
+    enquanto elas não forem concluídas.
 - **Fase 1:** ✅ Concluída em 2026-09-04
 - **Data de Início:** 2026-09-04
 - **Data Estimada de MVP Completo:** 2026-09-30
@@ -180,17 +183,17 @@ F2.3-A → F2.3-B → [F2.4-A → F2.4-B → F2.4-C]
 Uma subfase posterior não começa automaticamente ao término da anterior. A F2.3
 aparece dividida porque suas três partes têm dependências distintas.
 
-> **Ponto atual da fila:** F2.7-A, F2.7-B e F2.7-C estão concluídas; a F2.7
-> está completa e satisfez a dependência técnica da F2.3-C. A próxima etapa
-> operacional é a **F2.3-C**, ainda planejada e não iniciada; depois seguem
-> F2.5 e F2.6.
+> **Ponto atual da fila:** a F2.3-C está concluída e, com ela, a **F2.3 está
+> encerrada** — assim como F2.4 e F2.7. A próxima etapa operacional é a
+> **F2.5 — Banners**, ainda planejada e não iniciada; depois vem a F2.6.
 
 Duas decisões arquiteturais explicam essa ordem, e ambas evitam duplicar o
 mesmo mecanismo:
 
 - **A F2.7 precede a F2.3-C**, porque logo e favicon usam a biblioteca de mídia
-  em vez de upload próprio. Consequência intencional: a F2.3 fica
-  **parcialmente executada** após A e B, e só é encerrada quando a F2.7 existir.
+  em vez de upload próprio. Consequência intencional, hoje realizada: a F2.3
+  ficou **parcialmente executada** após A e B, e só foi encerrada depois que a
+  F2.7 existiu e a F2.3-C reutilizou sua infraestrutura.
 - **A F2.7 precede a F2.5**, porque os banners também consomem a biblioteca.
 
 A numeração das subfases é preservada — apenas a ordem de execução muda. A F2.7
@@ -218,7 +221,7 @@ no repositório e foi executado/validado com sucesso.**
 | --- | --- | --- | --- |
 | F2.1 — Fundação do CMS | ✅ Concluída | Domínio e infraestrutura de configuração | Fase 1 |
 | F2.2 — Fundação do Admin | ✅ Concluída | Autenticação, rotas, layout e navegação de `/admin` | Fase 1 |
-| F2.3 — Configurações Globais | ⏳ Em desenvolvimento | Configurações gerais, tema e identidade visual integrada à F2.7 | F2.1, F2.2 (C também da F2.7) |
+| F2.3 — Configurações Globais | ✅ Concluída | Configurações gerais, tema e identidade visual integrada à F2.7 | F2.1, F2.2 (C também da F2.7) |
 | F2.4 — Páginas Estáticas | ✅ Concluída | CRUD de páginas com SEO e publicação | F2.2 |
 | F2.7 — Biblioteca de Mídia | ✅ Concluída | Upload, processamento e consulta de mídia, em F2.7-A/B/C concluídas | F2.2 |
 | F2.5 — Banners | 📋 Planejado | CRUD de banners com ordenação, sobre a mídia da F2.7 | F2.2, **F2.7** |
@@ -230,8 +233,7 @@ no repositório e foi executado/validado com sucesso.**
 > A F2.3, a F2.4 e a F2.7 têm subfases internas — `F2.3-A/B/C`, `F2.4-A/B/C` e
 > `F2.7-A/B/C`. Elas continuam sendo **uma** subfase da Fase 2 cada. A F2.6
 > dependia da **F2.4 completa**: com a F2.4 concluída, essa dependência está
-> satisfeita — mas a F2.6 continua na sua posição da fila, depois de F2.7,
-> F2.3-C e F2.5.
+> satisfeita — mas a F2.6 continua na sua posição da fila, depois da F2.5.
 
 ---
 
@@ -430,8 +432,9 @@ F2.4** (itens de menu que apontam para páginas — dependência hoje satisfeita
 que não a antecipa na fila) e a **F2.3-C depende da F2.3-A + F2.7 completa**
 (logo e favicon usam a biblioteca de mídia).
 
-> A dependência técnica da F2.3-C e da F2.5 na F2.7 está satisfeita. A F2.3-C
-> continua planejada e é a próxima etapa operacional; F2.5 segue depois dela.
+> A dependência técnica da F2.3-C na F2.7 foi satisfeita e **a F2.3-C já foi
+> concluída**, encerrando a F2.3. A F2.5 também depende da F2.7 completa e é a
+> próxima etapa operacional.
 
 A ordem de execução detalhada segue:
 
@@ -441,7 +444,7 @@ F2.3-A → F2.3-B → F2.4 → F2.7 → F2.3-C → F2.5 → F2.6
 
 ---
 
-#### F2.3 — Configurações Globais ⏳ Em desenvolvimento
+#### F2.3 — Configurações Globais ✅ Concluída
 
 **Objetivo:** fornecer a interface administrativa de configurações globais
 consumindo o `SiteSettingService`, sem reimplementar persistência ou cache e
@@ -483,7 +486,7 @@ log, pacote externo, histórico before/after ou eventos de auditoria.
 | --- | --- | --- |
 | F2.3-A — Configurações gerais | ✅ Concluída | F2.1, F2.2 |
 | F2.3-B — Tema e cores | ✅ Concluída | F2.3-A |
-| F2.3-C — Logo e favicon | 📋 Planejada | F2.3-A **+ F2.7** |
+| F2.3-C — Logo e favicon | ✅ Concluída | F2.3-A **+ F2.7** |
 
 **Dependências internas**
 
@@ -497,14 +500,18 @@ para acoplá-las: cores e arquivos de identidade são independentes entre si.
 
 **Encerramento da F2.3**
 
-A F2.3 só pode ser encerrada depois da implementação e validação da F2.3-C. A
-dependência F2.3-A + F2.7 está satisfeita: a F2.7 foi concluída em 2026-09-06.
-Na prática, a F2.3 fica **parcialmente executada** após a conclusão de A e B.
-Isso é intencional: dividir a subfase é preferível a duplicar upload de arquivos.
+**A F2.3 foi encerrada em 2026-09-06**, após a conclusão e a validação da
+F2.3-C. Com A, B e C concluídas, nenhuma parte dela permanece aberta.
 
-Com a F2.3-A e a F2.3-B concluídas, a F2.3 está **parcialmente aberta**: falta
-apenas a F2.3-C, planejada e não iniciada. Com F2.4 e F2.7 concluídas, a
-próxima etapa operacional é a F2.3-C.
+A dependência `F2.3-A + F2.7` foi satisfeita pela conclusão da biblioteca de
+mídia, e é ela que explica a ordem: logo e favicon reutilizaram a
+infraestrutura centralizada da F2.7 — armazenamento, processamento e proteção
+contra exclusão de mídia em uso — em vez de criar um upload paralelo. Entre
+A/B e C a F2.3 ficou deliberadamente **parcialmente executada**; dividir a
+subfase foi preferível a duplicar upload de arquivos só para fechá-la antes.
+
+Com F2.3, F2.4 e F2.7 concluídas, a próxima etapa operacional é a **F2.5 —
+Banners**, ainda planejada.
 
 **Dependências:** F2.1 (fundação e cache), F2.2 (layout e rotas admin) — ambas
 concluídas.
@@ -621,8 +628,9 @@ As cores chegam ao layout público por um **View Composer específico de
 `auth`. As rotas de configurações gerais permanecem intactas.
 
 **Navegação** — navegação local de Configurações com **Gerais** e **Tema e
-cores**. "Identidade visual" não aparece: a F2.3-C ainda não existe. Breadcrumb
-da tela de tema: `Dashboard / Configurações / Tema e cores`.
+cores**. "Identidade visual" não aparecia então, porque a F2.3-C ainda não
+existia — ela foi acrescentada à navegação em 2026-09-06, quando a rota passou a
+existir. Breadcrumb da tela de tema: `Dashboard / Configurações / Tema e cores`.
 
 **Escopo entregue**
 
@@ -720,12 +728,27 @@ estava concluída.
 
 ---
 
-##### F2.3-C — Logo e favicon 📋 Planejada
+##### F2.3-C — Logo e favicon ✅ Concluída
 
 **Objetivo:** permitir a configuração da identidade visual baseada em arquivos,
 usando a Biblioteca de Mídia criada pela F2.7.
 
-**Dependências:** **F2.3-A + F2.7.** A F2.3-C não começa antes da F2.7.
+**Concluída e validada em 2026-09-06.**
+
+| Commit | Papel |
+| --- | --- |
+| `b63f14dacef95d4d31a0483925dbfe098190f922` | `feat(fase-2): adiciona logo e favicon com protecao de midia` |
+| `ad248d1b2db265754d13c7bd4186d7fc24d1902b` | `fix(fase-2): restringe favicon da identidade visual a PNG` |
+
+O segundo commit foi uma **correção residual contratual**, não um recurso novo:
+a primeira entrega aceitava qualquer mídia da biblioteca como favicon, enquanto
+este documento já estabelecia, antes da implementação, que o favicon viria da
+biblioteca em PNG. A verificação remota apontou a divergência e ela foi
+alinhada ao contrato prévio. O histórico fica registrado em dois commits em vez
+de reescrito.
+
+**Dependências:** **F2.3-A + F2.7** — ambas concluídas antes do início desta
+subfase.
 
 **Decisão arquitetural**
 
@@ -738,60 +761,181 @@ proteção contra exclusão de mídia em uso, que já é contrato da F2.7.
 
 **Escopo**
 
-- [ ] Integração com a F2.7
-- [ ] Seleção da logo a partir da biblioteca de mídia
-- [ ] Seleção do favicon a partir da biblioteca de mídia
-- [ ] Associação da mídia às configurações globais
-- [ ] Leitura das referências
-- [ ] Renderização da logo
-- [ ] Renderização do favicon
-- [ ] Proteção das referências
-- [ ] Testes
+- [x] Integração com a F2.7
+- [x] Seleção da logo a partir da biblioteca de mídia
+- [x] Seleção do favicon a partir da biblioteca de mídia
+- [x] Associação da mídia às configurações globais
+- [x] Leitura das referências
+- [x] Renderização da logo
+- [x] Renderização do favicon
+- [x] Proteção das referências
+- [x] Testes
 
-**Referência de mídia**
+**Referência de mídia — realizada**
 
-> `SiteSetting` deverá armazenar uma referência estável à mídia gerenciada pela
-> F2.7, conforme o contrato que estiver definido nessa subfase.
+`SiteSetting` armazena a referência estável à mídia gerenciada pela F2.7 em duas
+chaves canônicas:
 
-Se a referência será ID, UUID, caminho ou outra forma sempre foi decisão
-**interna da F2.7** — e a auditoria arquitetural de 2026-09-06 a fechou:
-**`Media.id`**, `BIGINT` autoincremental. A F2.3-C persistirá esse identificador
-como valor de configuração e resolverá a URL por `Storage`, nunca guardando
-caminho ou URL. Nada disso antecipa a F2.3-C; apenas registra o contrato que ela
-encontrará pronto.
+```text
+site.logo_media_id
+site.favicon_media_id
+```
 
-**Proteção de referências**
+Contrato de valor efetivamente implementado:
 
-Logo e favicon configurados contam como mídia **em uso**. A F2.3-C integra-se
-ao contrato de proteção já previsto na F2.7, em vez de criar proteção paralela.
+```text
+com mídia selecionada   →  type = integer   value = Media.id
+sem mídia               →  type = null      value = null
+```
 
-> **Contrato de consumidor herdado da F2.7.** A F2.3-C registrará seus próprios
-> verificadores no registro de uso da biblioteca — a F2.7 não conhece logo nem
-> favicon. Duas consequências já conhecidas, ambas trabalho da F2.3-C: como a
-> referência mora em `site_settings`, uma tabela genérica de chave/valor, **não
-> há chave estrangeira** disponível como barreira final, e resta apenas o
-> registro de verificadores; e o favicon virá da biblioteca em **PNG**, já que
-> `.ico` e `.svg` estão fora do escopo da F2.7. Exigir outro formato será
-> requisito novo da F2.3-C, com justificativa própria.
+`Media.id` é a identidade persistida. **Nem caminho nem URL são gravados** como
+referência: a URL é derivada da própria mídia pela infraestrutura da F2.7
+(`Storage::disk($media->disk)->url($media->path)`), de modo que trocar `APP_URL`
+ou o disco não invalida nenhum registro.
 
-**Critérios de aceite planejados**
+A leitura é defensiva: só um inteiro positivo é aceito como referência, e a
+mídia ainda precisa existir. Uma referência órfã — ou um tipo inconsistente
+resultante de manipulação externa do banco — degrada para ausência, e o
+storefront cai no fallback em vez de responder 500.
 
-- [ ] O administrador seleciona uma logo existente na biblioteca
-- [ ] O administrador seleciona um favicon existente na biblioteca
-- [ ] A configuração guarda a referência à mídia
-- [ ] A leitura resolve corretamente a referência
-- [ ] A logo configurada é renderizada no ponto definido
-- [ ] O favicon configurado é renderizado
-- [ ] Mídia configurada não pode ser removida ignorando a proteção de "em uso"
-- [ ] Nenhum fluxo paralelo de upload é criado
-- [ ] Suíte completa permanece verde
-- [ ] Pint passa
-- [ ] `git diff --check` passa
+**Persistência e atomicidade**
+
+O `VisualIdentityService` é a camada autoritativa da identidade visual: chaves,
+resolução, contrato de ausência e persistência vivem nele, e não no Controller,
+na Blade ou nos models.
+
+Logo e favicon são gravados em **uma única chamada** a
+`SiteSettingService::setMany()`. A F2.3-C **não cria transação própria** —
+reutiliza a atomicidade que o `SiteSettingService` já fornecia, cujo rollback
+integral foi validado. Um submit é uma decisão só: nenhuma tela consegue gravar
+metade da identidade visual.
+
+**Administração**
+
+```text
+GET  /admin/configuracoes/identidade-visual   admin.settings.identity.edit
+PUT  /admin/configuracoes/identidade-visual   admin.settings.identity.update
+```
+
+Protegidas somente por `auth`, no grupo administrativo já existente. A navegação
+local de Configurações passou a listar **Gerais**, **Tema e cores** e
+**Identidade visual** — esta última acrescentada apenas agora que a rota existe.
+
+A seleção é feita por **dois `<select>` server-side**, cujo `value` é sempre
+`Media.id`. Não há upload próprio na tela, nem Livewire, Alpine, modal, seletor
+global reutilizável ou AJAX. A consulta das mídias vive no Service Layer.
+
+**Logo**
+
+A logo aceita **JPEG, PNG e WebP** existentes na biblioteca da F2.7 — todo o
+conjunto que ela armazena.
+
+No storefront:
+
+```text
+logo configurada e resolvida  →  <img> no cabeçalho, com link para a home
+sem logo ou referência órfã   →  fallback textual com o nome da aplicação
+```
+
+A URL é sempre derivada, e a apresentação preserva a proporção da imagem. O
+fallback textual não foi removido.
+
+**Favicon**
+
+```text
+Favicon aceita somente mídia com mime_type = image/png.
+```
+
+A restrição pertence ao **consumidor**, não à biblioteca: a F2.7 continua
+aceitando JPEG, PNG e WebP, e seu pipeline não foi alterado. `.ico` e `.svg`
+continuam fora do escopo da F2.7, e **não há conversão automática** para PNG.
+
+A regra é decidida pelo `mime_type` gravado pela F2.7 — nunca pela extensão do
+arquivo, pelo `original_name` ou por inspeção de substring. Ela vale em três
+pontos: o seletor administrativo oferece apenas PNG; o Form Request rejeita um
+favicon JPEG ou WebP existente; e o `VisualIdentityService` também recusa a
+chamada direta, fora do HTTP, para que a interface não seja a única barreira.
+
+No storefront, `<link rel="icon">` é emitido apenas quando há favicon
+configurado e resolvido, com o `type` derivado do MIME da mídia.
+
+**Proteção de referências — realizada**
+
+Logo e favicon configurados contam como mídia **em uso**. A F2.3-C integrou-se
+ao contrato de proteção da F2.7 em vez de criar proteção paralela: ela registra
+seus próprios verificadores no `MediaUsageRegistry`, com dois rótulos humanos e
+estáveis:
+
+```text
+Logo do site
+Favicon do site
+```
+
+A direção de dependência foi preservada: **a F2.7 permanece genérica e não
+conhece logo nem favicon** — é a F2.3-C que se apresenta ao registro, no
+bootstrap da aplicação.
+
+Comportamento verificado:
+
+- mídia usada como logo não pode ser excluída;
+- mídia usada como favicon não pode ser excluída;
+- a mesma mídia pode acumular os dois usos, e a exclusão bloqueada reporta os
+  dois rótulos;
+- ao trocar ou limpar uma referência, a mídia anterior volta a ser removível se
+  nenhum outro consumidor a utilizar.
+
+> Como a referência mora em `site_settings`, uma tabela genérica de
+> chave/valor, **não há chave estrangeira** disponível como barreira final —
+> permanece valendo o registro de verificadores, como já previsto.
+
+**Critérios de aceite**
+
+- [x] O administrador seleciona uma logo existente na biblioteca
+- [x] O administrador seleciona um favicon existente na biblioteca
+- [x] A configuração guarda a referência à mídia
+- [x] A leitura resolve corretamente a referência
+- [x] A logo configurada é renderizada no ponto definido
+- [x] O favicon configurado é renderizado
+- [x] Mídia configurada não pode ser removida ignorando a proteção de "em uso"
+- [x] Nenhum fluxo paralelo de upload é criado
+- [x] Favicon JPEG ou WebP é rejeitado
+- [x] Referência órfã não quebra o storefront
+- [x] Troca ou limpeza da referência libera a mídia anterior
+- [x] A persistência conjunta de logo e favicon permanece atômica
+- [x] Suíte completa permanece verde
+- [x] Pint passa
+- [x] `git diff --check` passa
+
+**Validação**
+
+```text
+suíte completa       365 testes / 1110 assertions
+regressões focadas   218 testes / 685 assertions
+```
+
+Validado contra o MySQL 8.4 do ambiente Docker. Pint sem violações;
+`composer validate` válido; `composer audit` sem vulnerabilidades conhecidas;
+`npm run build` com sucesso; `git diff --check` limpo. Nenhuma migration foi
+criada — `site_settings` não mudou.
+
+Durante o hardening foram usados **mutation checks manuais** — não há framework
+de mutation testing instalado —, cobrindo de A a G. Dois merecem destaque:
+
+- **F — quebra da gravação conjunta:** substituir `setMany()` por duas chamadas
+  independentes derrubou os testes de payload e o de atomicidade, que passou a
+  flagrar o estado parcial;
+- **G — remoção da restrição PNG:** aceitar qualquer mídia como favicon derrubou
+  cinco testes, incluindo as rejeições de JPEG e WebP e o filtro do seletor.
+
+Todas as mutações foram integralmente revertidas.
 
 **Fora do escopo:** upload próprio, armazenamento próprio e qualquer
-processamento de imagem fora da F2.7.
+processamento de imagem fora da F2.7. Também ficaram deliberadamente de fora, e
+não foram implementados: `.ico`, SVG, conversão automática de formato, seletor
+global reutilizável, *cropper* e upload múltiplo.
 
-**Bloqueadores / decisões pendentes:** depende da F2.3-A e da F2.7.
+**Bloqueadores / decisões pendentes:** nenhum. As dependências F2.3-A e F2.7
+estão concluídas.
 
 ---
 
@@ -1744,8 +1888,9 @@ Internamente: `F2.4-A → F2.4-B → F2.4-C`.
 
 **Bloqueadores / decisões pendentes:** nenhum. Com A, B e C concluídas, a
 **F2.4 está encerrada**. Depois dela, a Fase 2 executou e concluiu a
-**F2.7 — Biblioteca de Mídia** em 2026-09-06; a próxima etapa operacional é a
-F2.3-C, ainda planejada e não iniciada.
+**F2.7 — Biblioteca de Mídia** e a **F2.3-C**, ambas em 2026-09-06, encerrando
+também a F2.3; a próxima etapa operacional é a **F2.5**, ainda planejada e não
+iniciada.
 
 ---
 
@@ -1845,9 +1990,11 @@ satisfeita.
 - F2.7-C — biblioteca administrativa e exclusão protegida — commit `eec2d6c`.
 
 Com A, B e C implementadas e validadas, a F2.7 está encerrada. A dependência
-técnica da F2.3-C e da F2.5 na biblioteca de mídia está satisfeita; a próxima
-etapa operacional continua sendo a F2.3-C, ainda planejada e não iniciada.
-Nenhum pacote Composer adicional foi necessário.
+técnica da F2.3-C e da F2.5 na biblioteca de mídia foi satisfeita, e a F2.3-C já
+a consumiu: ela foi concluída em 2026-09-06, registrando `Logo do site` e
+`Favicon do site` no `MediaUsageRegistry` sem que a F2.7 precisasse conhecê-los.
+A próxima etapa operacional é a **F2.5**, ainda planejada e não iniciada. Nenhum
+pacote Composer adicional foi necessário.
 
 > **Contrato arquitetural definido antes da implementação**, no mesmo formato
 > adotado pela F2.4. As decisões desta seção foram fechadas em **2026-09-06**,
@@ -3735,12 +3882,11 @@ verificadas no repositório e no ambiente Docker:
 
 - Nenhum bloqueador arquitetural pendente. A **F2.2 — Fundação do Admin** foi
   concluída (A, B e C) e liberou as subfases que dependiam dela. Estado atual:
-  a **F2.4 está concluída** e a **F2.7 está concluída** (A, B e C em
-  2026-09-06); a F2.3-C tem sua dependência técnica satisfeita, mas permanece
-  planejada e é a próxima etapa operacional. A F2.5 permanece planejada depois
-  da F2.3-C, e a F2.6 permanece planejada para depois da F2.5 — sua
-  dependência da F2.4 está satisfeita, mas isso não a antecipa na ordem de
-  execução.
+  a **F2.4 está concluída**, a **F2.7 está concluída** (A, B e C em
+  2026-09-06) e a **F2.3 está encerrada**, com a F2.3-C concluída na mesma
+  data. A **F2.5 é a próxima etapa operacional**, ainda planejada, e a F2.6
+  permanece planejada para depois dela — sua dependência da F2.4 está
+  satisfeita, mas isso não a antecipa na ordem de execução.
 - A autorização granular permanece na Fase 3. Durante toda a Fase 2, qualquer
   usuário autenticado acessa `/admin`.
 - **Gates de ambiente da F2.7 — não são bloqueadores arquiteturais, mas são
@@ -3766,23 +3912,19 @@ verificadas no repositório e no ambiente Docker:
 - ✅ Fase 1 (concluída)
 
 #### Próximo Passo
-→ **F2.3-C — Logo e favicon** — 📋 planejada, **não iniciada**. A F2.7 está ✅
-concluída e satisfez a dependência técnica desta etapa. A **F2.7-A** foi concluída
-em 2026-09-06 (commit `8811b75`), entregando a entidade `Media`, a migration, a
-política de disk/path e o núcleo do `MediaService`; e a **F2.7-B** foi concluída
-no mesmo dia (commit `29fdacb`), entregando o upload único com validação de MIME
-real, o pipeline do Intervention Image e o gate técnico do WebP, cumprido nos
-quatro passos. A Fase 3 permanece após a conclusão da Fase 2.
+→ **F2.5 — Banners** — 📋 planejada, **não iniciada**. Com a F2.3 encerrada em
+2026-09-06 — a F2.3-C concluiu logo e favicon sobre a biblioteca de mídia —, e
+com F2.4 e F2.7 também concluídas, a F2.5 passa a ser a próxima etapa
+operacional. Sua dependência da F2.7 está satisfeita: os banners consumirão a
+mesma biblioteca centralizada, sem upload próprio.
 
-A F2.7-C fecha a subfase: Controller administrativo, as três rotas protegidas
-por `auth`, a grid paginada, a integração do upload à interface, sidebar e
-breadcrumbs, o registro compartilhado de verificadores de uso, a exclusão
-protegida com `MediaInUseException` e a regressão de A e B. Nada disso existe
-hoje.
+Depois dela vem a **F2.6 — Menus**, última da fila. A dependência da F2.6 em
+relação à F2.4 está satisfeita, mas isso não a antecipa. A Fase 2 permanece
+⏳ em desenvolvimento enquanto F2.5 e F2.6 não forem concluídas, e a Fase 3
+permanece após o encerramento da Fase 2.
 
-Somente com a **F2.7 completa** seguem F2.3-C, F2.5 e, por último, F2.6. A
-dependência da F2.6 em relação à F2.4 está satisfeita, mas ela continua sendo a
-última da fila.
+A arquitetura da F2.5 não é definida aqui: ela receberá sua própria auditoria
+antes da implementação, como as subfases anteriores.
 
 ---
 
@@ -4567,9 +4709,10 @@ Atualizado toda segunda-feira com progresso real.
 - ✅ **F2.4 — Páginas Estáticas:** concluída.
 - ✅ **F2.7 — Biblioteca de Mídia:** concluída integralmente em 2026-09-06
   (F2.7-A, F2.7-B e F2.7-C). Nenhum bloqueador arquitetural conhecido para a
-  próxima etapa: a dependência técnica da F2.3-C está satisfeita, mas ela
-  permanece planejada e não iniciada, como próxima etapa operacional. Depois
-  seguem F2.5 e F2.6. A autorização granular permanece na Fase 3.
+  próxima etapa: a dependência técnica da F2.3-C foi satisfeita e ela já foi
+  concluída, encerrando a F2.3. A **F2.5 — Banners** é a próxima etapa
+  operacional, ainda planejada, seguida da F2.6. A autorização granular
+  permanece na Fase 3.
 
 ---
 
@@ -4770,6 +4913,39 @@ Atualizado toda segunda-feira com progresso real.
   F2.3-C nem a F2.5 são liberadas por esta conclusão: ambas continuam
   aguardando o encerramento completo da F2.7. Próxima etapa: **F2.7-C —
   Biblioteca administrativa e exclusão protegida**.
+- **2026-09-06:** **F2.3-C — Logo e favicon concluída, encerrando a F2.3.**
+  Commits técnicos: `b63f14dacef95d4d31a0483925dbfe098190f922`
+  (`feat(fase-2): adiciona logo e favicon com protecao de midia`) e
+  `ad248d1b2db265754d13c7bd4186d7fc24d1902b`
+  (`fix(fase-2): restringe favicon da identidade visual a PNG`) — o segundo foi
+  correção residual contratual, alinhando o favicon ao contrato de PNG que já
+  estava documentado antes da implementação. Entrega o `VisualIdentityService`
+  como camada autoritativa, com as chaves `site.logo_media_id` e
+  `site.favicon_media_id` guardando **`Media.id`** — `type = integer` quando há
+  seleção, `type = null` quando não há —, nunca caminho nem URL; a URL é sempre
+  derivada da mídia pela infraestrutura da F2.7, e uma referência órfã degrada
+  para ausência em vez de quebrar o storefront. Logo e favicon são persistidos
+  numa única chamada a `SiteSettingService::setMany()`, reutilizando a
+  atomicidade já existente. A tela administrativa
+  `/admin/configuracoes/identidade-visual` entrou com dois `select`
+  server-side, sem upload próprio, Livewire, Alpine, modal ou seletor global, e
+  "Identidade visual" passou a integrar a navegação de Configurações. No
+  storefront, a logo vira `<img>` com fallback textual preservado, e o
+  `<link rel="icon">` só é emitido quando há favicon resolvido. A logo aceita
+  JPEG, PNG e WebP; **o favicon aceita somente `image/png`** — restrição do
+  consumidor, decidida pelo `mime_type` gravado pela F2.7, que segue aceitando
+  os três formatos, sem `.ico`, sem SVG e sem conversão automática. Os
+  consumidores `Logo do site` e `Favicon do site` foram registrados no
+  `MediaUsageRegistry`, que permanece genérico: mídia em uso não pode ser
+  excluída, a mesma mídia pode acumular os dois usos, e trocar ou limpar a
+  referência libera a anterior. Validação: 365 testes / 1110 assertions na
+  suíte completa e 218 / 685 nas regressões focadas, contra o MySQL 8.4 real;
+  Pint, `composer validate`, `composer audit`, `npm run build` e
+  `git diff --check` verdes; mutation checks manuais de A a G, com destaque
+  para F (quebra da gravação conjunta) e G (remoção da restrição PNG). Nenhuma
+  migration criada. **A F2.3 está encerrada** com A, B e C concluídas; a Fase 2
+  segue ⏳ em desenvolvimento, e a próxima etapa operacional é a **F2.5 —
+  Banners**, seguida da F2.6 — nenhuma das duas iniciada.
 - *Próxima revisão: 2026-09-11*
 
 ---
