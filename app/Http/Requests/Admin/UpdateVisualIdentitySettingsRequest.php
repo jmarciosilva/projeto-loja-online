@@ -2,6 +2,9 @@
 
 namespace App\Http\Requests\Admin;
 
+use App\Models\Media;
+use App\Services\VisualIdentityService;
+use Closure;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateVisualIdentitySettingsRequest extends FormRequest
@@ -36,8 +39,41 @@ class UpdateVisualIdentitySettingsRequest extends FormRequest
     {
         return [
             'logo_media_id' => ['nullable', 'integer', 'exists:media,id'],
-            'favicon_media_id' => ['nullable', 'integer', 'exists:media,id'],
+            'favicon_media_id' => ['nullable', 'integer', 'exists:media,id', $this->faviconIsPng()],
         ];
+    }
+
+    /**
+     * Antecipa a regra de formato do favicon para dar erro no formulário.
+     *
+     * O contrato — favicon vem da biblioteca em PNG, porque `.ico` e `.svg`
+     * estão fora do escopo da F2.7 — é do domínio, e a invariante continua
+     * garantida pelo `VisualIdentityService`, inclusive fora do HTTP. Esta
+     * validação é conveniência de interface, não a fonte autoritativa.
+     *
+     * A decisão sai do `mime_type` gravado pela F2.7, nunca da extensão ou do
+     * nome original do arquivo.
+     */
+    private function faviconIsPng(): Closure
+    {
+        return function (string $attribute, mixed $value, Closure $fail): void {
+            if ($value === null || $value === '') {
+                return;
+            }
+
+            $media = Media::query()->find($value);
+
+            // Mídia inexistente já é reportada pela regra `exists`; repetir o
+            // erro aqui poluiria o formulário com duas mensagens para a mesma
+            // causa.
+            if ($media === null) {
+                return;
+            }
+
+            if (! app(VisualIdentityService::class)->isSupportedFavicon($media)) {
+                $fail('O favicon deve ser uma imagem PNG da biblioteca de mídia.');
+            }
+        };
     }
 
     /**

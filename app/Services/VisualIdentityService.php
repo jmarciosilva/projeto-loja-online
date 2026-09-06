@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Media;
 use Illuminate\Support\Collection;
+use InvalidArgumentException;
 
 /**
  * Camada autoritativa da identidade visual da loja — logo e favicon.
@@ -31,6 +32,15 @@ class VisualIdentityService
      * Chave da configuração que guarda o `Media.id` do favicon.
      */
     public const FAVICON_KEY = 'site.favicon_media_id';
+
+    /**
+     * Único MIME aceito como favicon.
+     *
+     * Contrato herdado do ROADMAP: o favicon vem da biblioteca em PNG, porque
+     * `.ico` e `.svg` estão fora do escopo da F2.7. É restrição desta subfase,
+     * a consumidora — a biblioteca continua aceitando JPEG, PNG e WebP.
+     */
+    public const FAVICON_MIME_TYPE = 'image/png';
 
     public function __construct(
         private readonly SiteSettingService $siteSettings,
@@ -86,9 +96,18 @@ class VisualIdentityService
      * existir com `type = null`, em vez de guardar `0` ou string vazia como
      * sentinela, que exigiriam de todo leitor saber qual valor "significa
      * nada".
+     *
+     * O favicon é conferido **antes** de qualquer escrita: o Form Request já
+     * barra o mesmo caso, mas esta checagem existe para a chamada direta ao
+     * serviço, fora do HTTP. A interface não pode ser a única barreira de uma
+     * regra de domínio.
+     *
+     * @throws InvalidArgumentException quando o favicon não é uma mídia PNG
      */
     public function save(?int $logoMediaId, ?int $faviconMediaId): void
     {
+        $this->guardFavicon($faviconMediaId);
+
         $this->siteSettings->setMany([
             self::LOGO_KEY => $this->settingPayload($logoMediaId),
             self::FAVICON_KEY => $this->settingPayload($faviconMediaId),
@@ -112,17 +131,52 @@ class VisualIdentityService
     }
 
     /**
-     * Mídias oferecidas ao administrador para escolher logo e favicon.
+     * Mídias oferecidas ao administrador para escolher a logo.
      *
      * A consulta vive aqui, e não na Blade: a tela apenas apresenta. A ordem é
      * `id DESC`, a mesma da biblioteca — a mídia recém-enviada aparece primeiro,
      * que é o caso de uso real de quem acabou de subir uma logo.
+     *
+     * A logo aceita qualquer formato que a biblioteca da F2.7 armazene.
      *
      * @return Collection<int, Media>
      */
     public function availableMedia(): Collection
     {
         return Media::query()->orderByDesc('id')->get();
+    }
+
+    /**
+     * Mídias que podem ser usadas como favicon.
+     *
+     * Restrito a PNG por contrato: `.ico` e `.svg` estão fora do escopo da
+     * F2.7, e o PNG é o único formato da biblioteca que todos os navegadores
+     * aceitam em `<link rel="icon">`. JPEG não tem transparência e o WebP
+     * ainda não é universal para favicon.
+     *
+     * A restrição é do **consumidor**, não da biblioteca: a F2.7 continua
+     * aceitando JPEG, PNG e WebP, e nada aqui altera o pipeline dela.
+     *
+     * @return Collection<int, Media>
+     */
+    public function availableFaviconMedia(): Collection
+    {
+        return Media::query()
+            ->where('mime_type', self::FAVICON_MIME_TYPE)
+            ->orderByDesc('id')
+            ->get();
+    }
+
+    /**
+     * A mídia pode ser usada como favicon?
+     *
+     * O MIME persistido pela F2.7 é a fonte autoritativa — nunca a extensão do
+     * arquivo, o `original_name` ou qualquer inspeção por substring, todos
+     * influenciáveis por quem fez o upload.
+     */
+    public function isSupportedFavicon(Media $media): bool
+    {
+        return $media->mime_type === self::FAVICON_MIME_TYPE;
     }
 
     /**
@@ -152,6 +206,29 @@ class VisualIdentityService
                 'mimeType' => $favicon->mime_type,
             ],
         ];
+    }
+
+    /**
+     * Recusa um favicon que não seja PNG antes de abrir a transação.
+     *
+     * Falhar aqui — e não no meio do lote — mantém o banco intocado: nem a
+     * logo nem o favicon chegam a ser gravados quando a seleção é inválida.
+     *
+     * @throws InvalidArgumentException
+     */
+    private function guardFavicon(?int $faviconMediaId): void
+    {
+        if ($faviconMediaId === null) {
+            return;
+        }
+
+        $media = $this->resolve($faviconMediaId);
+
+        if ($media === null || ! $this->isSupportedFavicon($media)) {
+            throw new InvalidArgumentException(
+                "The favicon media [{$faviconMediaId}] must be a PNG image from the media library.",
+            );
+        }
     }
 
     /**

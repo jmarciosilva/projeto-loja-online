@@ -25,7 +25,11 @@ class VisualIdentitySettingController extends Controller
             'favicon' => $identity->favicon(),
             'logoMediaId' => $identity->logoMediaId(),
             'faviconMediaId' => $identity->faviconMediaId(),
+            // Duas listas porque as regras diferem: a logo aceita qualquer
+            // formato da biblioteca; o favicon, só PNG. A filtragem é do
+            // Service — o Controller não consulta o banco.
             'availableMedia' => $identity->availableMedia(),
+            'availableFaviconMedia' => $identity->availableFaviconMedia(),
             'identity' => $identity,
         ]);
     }

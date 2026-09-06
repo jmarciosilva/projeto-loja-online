@@ -92,8 +92,20 @@
             <div class="mt-6 space-y-5">
                 @php
                     $campos = [
-                        'logo_media_id' => ['rotulo' => 'Logo', 'atual' => $logoMediaId, 'ajuda' => 'Exibida no topo da loja.'],
-                        'favicon_media_id' => ['rotulo' => 'Favicon', 'atual' => $faviconMediaId, 'ajuda' => 'Ícone da aba do navegador. Use um PNG pequeno e quadrado.'],
+                        'logo_media_id' => [
+                            'rotulo' => 'Logo',
+                            'atual' => $logoMediaId,
+                            'ajuda' => 'Exibida no topo da loja. Aceita JPEG, PNG ou WebP da biblioteca.',
+                            'opcoes' => $availableMedia,
+                            'vazio' => 'A biblioteca de mídia ainda está vazia.',
+                        ],
+                        'favicon_media_id' => [
+                            'rotulo' => 'Favicon',
+                            'atual' => $faviconMediaId,
+                            'ajuda' => 'Ícone da aba do navegador. Somente PNG, de preferência pequeno e quadrado.',
+                            'opcoes' => $availableFaviconMedia,
+                            'vazio' => 'Nenhum PNG na biblioteca. Envie um PNG para poder escolher o favicon.',
+                        ],
                     ];
                 @endphp
 
@@ -109,7 +121,7 @@
                             class="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2 focus-visible:outline-none @error($campo) border-red-400 @enderror"
                         >
                             <option value="">Nenhuma imagem</option>
-                            @foreach ($availableMedia as $media)
+                            @foreach ($config['opcoes'] as $media)
                                 {{-- O value é sempre Media.id: o path nunca é exposto como identidade. --}}
                                 <option value="{{ $media->id }}"
                                     @selected((int) old($campo, $config['atual']) === $media->id)>
@@ -118,6 +130,9 @@
                             @endforeach
                         </select>
                         <p class="mt-2 text-xs text-gray-500">{{ $config['ajuda'] }}</p>
+                        @if ($config['opcoes']->isEmpty())
+                            <p class="mt-1 text-xs text-gray-500">{{ $config['vazio'] }}</p>
+                        @endif
                         @error($campo)
                             <p id="{{ $campo }}-erro" class="mt-2 text-sm text-red-700">{{ $message }}</p>
                         @enderror

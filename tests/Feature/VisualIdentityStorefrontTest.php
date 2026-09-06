@@ -143,7 +143,7 @@ class VisualIdentityStorefrontTest extends TestCase
 
     public function test_a_dangling_favicon_reference_does_not_break_the_storefront(): void
     {
-        $favicon = Media::factory()->create();
+        $favicon = Media::factory()->create(['mime_type' => 'image/png']);
         $this->identity()->save(null, $favicon->id);
 
         $favicon->delete();

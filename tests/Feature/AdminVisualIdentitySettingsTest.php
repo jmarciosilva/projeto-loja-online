@@ -13,6 +13,8 @@ use App\Services\VisualIdentityService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
+use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use RuntimeException;
 use Tests\TestCase;
 
@@ -85,7 +87,7 @@ class AdminVisualIdentitySettingsTest extends TestCase
     public function test_it_saves_both_references_as_media_ids(): void
     {
         $logo = Media::factory()->create();
-        $favicon = Media::factory()->create();
+        $favicon = Media::factory()->create(['mime_type' => 'image/png']);
 
         $this->actingAsAdmin()
             ->put(self::URI, [
@@ -141,7 +143,7 @@ class AdminVisualIdentitySettingsTest extends TestCase
 
     public function test_an_empty_submission_clears_the_favicon(): void
     {
-        $favicon = Media::factory()->create();
+        $favicon = Media::factory()->create(['mime_type' => 'image/png']);
         $this->identity()->save(null, $favicon->id);
 
         $this->actingAsAdmin()
@@ -172,7 +174,7 @@ class AdminVisualIdentitySettingsTest extends TestCase
     public function test_both_settings_are_written_in_a_single_batch(): void
     {
         $logo = Media::factory()->create();
-        $favicon = Media::factory()->create();
+        $favicon = Media::factory()->create(['mime_type' => 'image/png']);
 
         $this->actingAsAdmin()->put(self::URI, [
             'logo_media_id' => $logo->id,
@@ -195,7 +197,7 @@ class AdminVisualIdentitySettingsTest extends TestCase
     public function test_the_service_sends_both_keys_in_a_single_set_many_call(): void
     {
         $logo = Media::factory()->create();
-        $favicon = Media::factory()->create();
+        $favicon = Media::factory()->create(['mime_type' => 'image/png']);
 
         $siteSettings = $this->mock(SiteSettingService::class);
         $siteSettings->shouldReceive('setMany')
@@ -244,9 +246,9 @@ class AdminVisualIdentitySettingsTest extends TestCase
     public function test_a_failure_persisting_the_second_setting_rolls_the_whole_batch_back(): void
     {
         $logoAntiga = Media::factory()->create();
-        $faviconAntigo = Media::factory()->create();
+        $faviconAntigo = Media::factory()->create(['mime_type' => 'image/png']);
         $novaLogo = Media::factory()->create();
-        $novoFavicon = Media::factory()->create();
+        $novoFavicon = Media::factory()->create(['mime_type' => 'image/png']);
 
         $this->identity()->save($logoAntiga->id, $faviconAntigo->id);
 
@@ -284,6 +286,147 @@ class AdminVisualIdentitySettingsTest extends TestCase
         Cache::flush();
         $this->assertSame($logoAntiga->id, $this->identity()->logoMediaId());
         $this->assertSame($faviconAntigo->id, $this->identity()->faviconMediaId());
+    }
+
+    // --- Formato: logo aceita tudo, favicon só PNG ------------------------
+
+    /**
+     * @return list<array{0: string}>
+     */
+    public static function logoMimeProvider(): array
+    {
+        return [
+            'jpeg' => ['image/jpeg'],
+            'png' => ['image/png'],
+            'webp' => ['image/webp'],
+        ];
+    }
+
+    #[DataProvider('logoMimeProvider')]
+    public function test_the_logo_accepts_every_format_the_library_stores(string $mimeType): void
+    {
+        $logo = Media::factory()->create(['mime_type' => $mimeType]);
+
+        $this->actingAsAdmin()
+            ->put(self::URI, ['logo_media_id' => $logo->id])
+            ->assertSessionHasNoErrors();
+
+        $this->assertSame($logo->id, $this->identity()->logoMediaId());
+    }
+
+    public function test_a_png_is_accepted_as_favicon(): void
+    {
+        $favicon = Media::factory()->create(['mime_type' => 'image/png']);
+
+        $this->actingAsAdmin()
+            ->put(self::URI, ['favicon_media_id' => $favicon->id])
+            ->assertSessionHasNoErrors();
+
+        $this->assertSame($favicon->id, $this->identity()->faviconMediaId());
+    }
+
+    /**
+     * @return list<array{0: string}>
+     */
+    public static function nonPngFaviconProvider(): array
+    {
+        return [
+            'jpeg' => ['image/jpeg'],
+            'webp' => ['image/webp'],
+        ];
+    }
+
+    /**
+     * Submissão manual: mesmo com a interface oferecendo apenas PNG, um POST
+     * forjado com o id de uma mídia JPEG ou WebP precisa ser recusado.
+     */
+    #[DataProvider('nonPngFaviconProvider')]
+    public function test_a_non_png_media_is_rejected_as_favicon(string $mimeType): void
+    {
+        $logoAtual = Media::factory()->create(['mime_type' => 'image/png']);
+        $faviconAtual = Media::factory()->create(['mime_type' => 'image/png']);
+        $this->identity()->save($logoAtual->id, $faviconAtual->id);
+
+        $novaLogo = Media::factory()->create(['mime_type' => 'image/png']);
+        $faviconInvalido = Media::factory()->create(['mime_type' => $mimeType]);
+
+        $response = $this->actingAsAdmin()->put(self::URI, [
+            'logo_media_id' => $novaLogo->id,
+            'favicon_media_id' => $faviconInvalido->id,
+        ]);
+
+        $response->assertSessionHasErrors('favicon_media_id');
+        $this->assertStringContainsString(
+            'PNG',
+            (string) session('errors')->first('favicon_media_id'),
+        );
+
+        // A logo válida enviada na mesma requisição também não é persistida:
+        // a validação falha antes de qualquer escrita.
+        Cache::flush();
+        $this->assertSame($logoAtual->id, $this->identity()->logoMediaId());
+        $this->assertSame($faviconAtual->id, $this->identity()->faviconMediaId());
+        $this->assertDatabaseCount('site_settings', 2);
+    }
+
+    public function test_the_service_itself_refuses_a_non_png_favicon(): void
+    {
+        // A interface não pode ser a única barreira: a chamada direta ao
+        // serviço, fora do HTTP, precisa recusar do mesmo jeito.
+        $favicon = Media::factory()->create(['mime_type' => 'image/webp']);
+
+        $this->expectException(InvalidArgumentException::class);
+
+        try {
+            $this->identity()->save(null, $favicon->id);
+        } finally {
+            $this->assertDatabaseCount('site_settings', 0);
+        }
+    }
+
+    public function test_clearing_the_favicon_remains_allowed(): void
+    {
+        $favicon = Media::factory()->create(['mime_type' => 'image/png']);
+        $this->identity()->save(null, $favicon->id);
+
+        $this->actingAsAdmin()
+            ->put(self::URI, ['logo_media_id' => null, 'favicon_media_id' => null])
+            ->assertSessionHasNoErrors();
+
+        $this->assertNull($this->identity()->faviconMediaId());
+    }
+
+    public function test_only_png_media_is_offered_as_favicon(): void
+    {
+        $png = Media::factory()->create(['mime_type' => 'image/png', 'original_name' => 'icone-png.png']);
+        $jpeg = Media::factory()->create(['mime_type' => 'image/jpeg', 'original_name' => 'foto-jpeg.jpg']);
+        $webp = Media::factory()->create(['mime_type' => 'image/webp', 'original_name' => 'arte-webp.webp']);
+
+        $html = (string) $this->actingAsAdmin()->get(self::URI)->assertOk()->getContent();
+
+        $seletorLogo = $this->selectOptions($html, 'logo_media_id');
+        $seletorFavicon = $this->selectOptions($html, 'favicon_media_id');
+
+        // A logo continua oferecendo tudo o que a biblioteca armazena.
+        foreach ([$png, $jpeg, $webp] as $media) {
+            $this->assertStringContainsString('value="'.$media->id.'"', $seletorLogo);
+        }
+
+        // O favicon oferece apenas PNG — a asserção olha o <select> do
+        // favicon, e não a página, porque as demais aparecem no seletor da logo.
+        $this->assertStringContainsString('value="'.$png->id.'"', $seletorFavicon);
+        $this->assertStringNotContainsString('value="'.$jpeg->id.'"', $seletorFavicon);
+        $this->assertStringNotContainsString('value="'.$webp->id.'"', $seletorFavicon);
+    }
+
+    public function test_available_favicon_media_only_contains_png(): void
+    {
+        $png = Media::factory()->create(['mime_type' => 'image/png']);
+        Media::factory()->create(['mime_type' => 'image/jpeg']);
+        Media::factory()->create(['mime_type' => 'image/webp']);
+
+        $this->assertSame([$png->id], $this->identity()->availableFaviconMedia()->pluck('id')->all());
+        $this->assertCount(3, $this->identity()->availableMedia());
     }
 
     // --- Validação --------------------------------------------------------
@@ -409,7 +552,7 @@ class AdminVisualIdentitySettingsTest extends TestCase
 
     public function test_the_favicon_consumer_is_registered_with_its_label(): void
     {
-        $favicon = Media::factory()->create();
+        $favicon = Media::factory()->create(['mime_type' => 'image/png']);
         $this->identity()->save(null, $favicon->id);
 
         $this->assertSame(['Favicon do site'], app(MediaUsageRegistry::class)->usages($favicon->fresh()));
@@ -417,7 +560,7 @@ class AdminVisualIdentitySettingsTest extends TestCase
 
     public function test_one_media_used_as_both_reports_both_labels(): void
     {
-        $media = Media::factory()->create();
+        $media = Media::factory()->create(['mime_type' => 'image/png']);
         $this->identity()->save($media->id, $media->id);
 
         $this->assertSame(
@@ -465,7 +608,7 @@ class AdminVisualIdentitySettingsTest extends TestCase
 
     public function test_media_used_as_favicon_cannot_be_deleted(): void
     {
-        $favicon = Media::factory()->create();
+        $favicon = Media::factory()->create(['mime_type' => 'image/png']);
         Storage::disk('public')->put($favicon->path, 'conteudo');
         $this->identity()->save(null, $favicon->id);
 
@@ -482,7 +625,7 @@ class AdminVisualIdentitySettingsTest extends TestCase
 
     public function test_media_used_as_both_reports_both_usages_when_blocked(): void
     {
-        $media = Media::factory()->create();
+        $media = Media::factory()->create(['mime_type' => 'image/png']);
         $this->identity()->save($media->id, $media->id);
 
         try {
@@ -515,7 +658,7 @@ class AdminVisualIdentitySettingsTest extends TestCase
 
     public function test_the_previous_favicon_is_released_after_the_configuration_is_cleared(): void
     {
-        $favicon = Media::factory()->create();
+        $favicon = Media::factory()->create(['mime_type' => 'image/png']);
         Storage::disk('public')->put($favicon->path, 'conteudo');
         $this->identity()->save(null, $favicon->id);
 
@@ -527,6 +670,26 @@ class AdminVisualIdentitySettingsTest extends TestCase
     }
 
     // --- Auxiliares -------------------------------------------------------
+
+    /**
+     * Recorta o conteúdo de um `<select>` pelo atributo `name`.
+     *
+     * As asserções de formato precisam olhar o seletor certo: uma mídia JPEG
+     * legitimamente aparece no seletor da logo, e procurá-la na página inteira
+     * daria falso positivo no do favicon.
+     */
+    private function selectOptions(string $html, string $name): string
+    {
+        $matched = preg_match(
+            '#<select[^>]*name="'.preg_quote($name, '#').'"[^>]*>(.*?)</select>#s',
+            $html,
+            $matches,
+        );
+
+        $this->assertSame(1, $matched, "O seletor [{$name}] não foi encontrado.");
+
+        return $matches[1];
+    }
 
     private function identity(): VisualIdentityService
     {
