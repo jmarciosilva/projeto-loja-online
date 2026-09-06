@@ -7,16 +7,19 @@
   - F2.2 — Fundação do Admin: ✅ concluída
   - F2.3-A — Configurações gerais: ✅ concluída
   - F2.3-B — Tema e cores: ✅ concluída
-  - F2.3 permanece parcialmente aberta: a F2.3-C aguarda a F2.7
+  - F2.3 permanece parcialmente aberta: a F2.3-C aguarda a F2.7 **completa**
   - **F2.4 — Páginas Estáticas: ✅ concluída em 2026-09-05**
     - F2.4-A — Fundação de domínio e persistência: ✅ concluída
     - F2.4-B — Administração e CRUD: ✅ concluída
     - F2.4-C — Publicação, Markdown, preview e SEO: ✅ concluída
-  - Próxima etapa planejada: **F2.7 — Biblioteca de Mídia** (📋 planejada, não
-    iniciada), com contrato arquitetural fechado em 2026-09-06 e dividida em
-    F2.7-A, F2.7-B e F2.7-C — todas 📋 planejadas. Pela ordem de execução ainda
-    vêm, depois dela, F2.3-C, F2.5 e só então F2.6 — cuja dependência da F2.4
-    está satisfeita, sem que isso a promova na fila
+  - **F2.7 — Biblioteca de Mídia: ⏳ em desenvolvimento**, com contrato
+    arquitetural fechado em 2026-09-06
+    - F2.7-A — Domínio, persistência e storage: ✅ concluída em 2026-09-06
+    - F2.7-B — Upload e processamento: 📋 planejada — **próxima etapa**
+    - F2.7-C — Biblioteca administrativa e exclusão protegida: 📋 planejada
+  - Pela ordem de execução ainda vêm, depois da F2.7 **completa**, F2.3-C, F2.5
+    e só então F2.6 — cuja dependência da F2.4 está satisfeita, sem que isso a
+    promova na fila
 - **Fase 1:** ✅ Concluída em 2026-09-04
 - **Data de Início:** 2026-09-04
 - **Data Estimada de MVP Completo:** 2026-09-30
@@ -169,15 +172,20 @@ trabalho que só possa ser validado no fim.
 F2.3-A → F2.3-B → F2.4 → F2.7 → F2.3-C → F2.5 → F2.6
 ```
 
-A F2.4 é executada internamente em três etapas, o que **não** altera a
-sequência global acima — a divisão é interna à subfase:
+A F2.4 e a F2.7 são executadas internamente em três etapas cada, o que **não**
+altera a sequência global acima — a divisão é interna a cada subfase:
 
 ```text
-F2.3-A → F2.3-B → [F2.4-A → F2.4-B → F2.4-C] → F2.7 → F2.3-C → F2.5 → F2.6
+F2.3-A → F2.3-B → [F2.4-A → F2.4-B → F2.4-C]
+       → [F2.7-A → F2.7-B → F2.7-C] → F2.3-C → F2.5 → F2.6
 ```
 
 Uma subfase posterior não começa automaticamente ao término da anterior. A F2.3
 aparece dividida porque suas três partes têm dependências distintas.
+
+> **Ponto atual da fila:** a F2.7-A está concluída; a próxima etapa é a
+> **F2.7-B**. A F2.3-C e a F2.5 só são liberadas pela F2.7 **completa**, isto é,
+> após a F2.7-C — concluir apenas a F2.7-A não as antecipa.
 
 Duas decisões arquiteturais explicam essa ordem, e ambas evitam duplicar o
 mesmo mecanismo:
@@ -214,7 +222,7 @@ no repositório e foi executado/validado com sucesso.**
 | F2.2 — Fundação do Admin | ✅ Concluída | Autenticação, rotas, layout e navegação de `/admin` | Fase 1 |
 | F2.3 — Configurações Globais | ⏳ Em desenvolvimento | Configurações gerais, tema e identidade visual integrada à F2.7 | F2.1, F2.2 (C também da F2.7) |
 | F2.4 — Páginas Estáticas | ✅ Concluída | CRUD de páginas com SEO e publicação | F2.2 |
-| F2.7 — Biblioteca de Mídia | 📋 Planejado | Upload, processamento e consulta de mídia, em F2.7-A/B/C | F2.2 |
+| F2.7 — Biblioteca de Mídia | ⏳ Em desenvolvimento | Upload, processamento e consulta de mídia, em F2.7-A/B/C (A concluída) | F2.2 |
 | F2.5 — Banners | 📋 Planejado | CRUD de banners com ordenação, sobre a mídia da F2.7 | F2.2, **F2.7** |
 | F2.6 — Menus | 📋 Planejado | Menus hierárquicos e itens | F2.2, F2.4 |
 
@@ -415,14 +423,20 @@ o teste falhar.
 
 **Dependências posteriores:** a conclusão da F2.2 satisfez a dependência que
 originalmente bloqueava F2.3, F2.4 e F2.7. Desde então, a F2.3-A e a F2.3-B
-foram executadas, a **F2.4 foi concluída** e a próxima etapa da ordem atual é a
-**F2.7**, ainda não iniciada.
+foram executadas, a **F2.4 foi concluída** e a **F2.7 está em desenvolvimento**:
+a F2.7-A foi concluída em 2026-09-06 e a próxima etapa interna é a **F2.7-B**,
+ainda não iniciada.
 
-As dependências adicionais continuam valendo: a **F2.5 depende da F2.7** (os
-banners consomem a biblioteca de mídia), a **F2.6 depende da F2.4** (itens de
-menu que apontam para páginas — dependência hoje satisfeita, o que não a
-antecipa na fila) e a **F2.3-C depende da F2.3-A + F2.7** (logo e favicon usam
-a biblioteca de mídia). A ordem de execução detalhada segue:
+As dependências adicionais continuam valendo: a **F2.5 depende da F2.7
+completa** (os banners consomem a biblioteca de mídia), a **F2.6 depende da
+F2.4** (itens de menu que apontam para páginas — dependência hoje satisfeita, o
+que não a antecipa na fila) e a **F2.3-C depende da F2.3-A + F2.7 completa**
+(logo e favicon usam a biblioteca de mídia).
+
+> Concluir apenas a F2.7-A **não** libera F2.3-C nem F2.5: as duas aguardam a
+> F2.7 encerrada, isto é, após a F2.7-C.
+
+A ordem de execução detalhada segue:
 
 ```text
 F2.3-A → F2.3-B → F2.4 → F2.7 → F2.3-C → F2.5 → F2.6
@@ -492,9 +506,10 @@ retomando quando a biblioteca de mídia existir. Isso é intencional: dividir a
 subfase é preferível a duplicar upload de arquivos só para fechá-la antes.
 
 Com a F2.3-A e a F2.3-B concluídas, a F2.3 está **parcialmente aberta**: falta
-apenas a F2.3-C, que aguarda a F2.7. Com a **F2.4 já concluída**, a ordem de
-execução segue agora para a **F2.7** e, depois de sua conclusão, retorna aqui
-para a F2.3-C.
+apenas a F2.3-C, que aguarda a **F2.7 completa**. Com a F2.4 concluída, a ordem
+de execução seguiu para a F2.7, hoje ⏳ em desenvolvimento — a F2.7-A já foi
+concluída, restam a F2.7-B e a F2.7-C. Só depois do encerramento da F2.7 a
+execução retorna aqui para a F2.3-C.
 
 **Dependências:** F2.1 (fundação e cache), F2.2 (layout e rotas admin) — ambas
 concluídas.
@@ -1733,8 +1748,9 @@ depende de F2.5, F2.6, F2.7, F2.3-C nem da Fase 3.
 Internamente: `F2.4-A → F2.4-B → F2.4-C`.
 
 **Bloqueadores / decisões pendentes:** nenhum. Com A, B e C concluídas, a
-**F2.4 está encerrada**. A próxima etapa da Fase 2 é a **F2.7 — Biblioteca de
-Mídia**, ainda não iniciada.
+**F2.4 está encerrada**. A Fase 2 seguiu para a **F2.7 — Biblioteca de Mídia**,
+hoje ⏳ em desenvolvimento: a F2.7-A está concluída e a próxima etapa interna é
+a **F2.7-B**, ainda não iniciada.
 
 ---
 
@@ -1825,10 +1841,13 @@ satisfeita.
 
 ---
 
-#### F2.7 — Biblioteca de Mídia 📋 Planejado
+#### F2.7 — Biblioteca de Mídia ⏳ Em desenvolvimento
 
-**Status:** 📋 **Planejada — não iniciada.** Nenhum código foi escrito, nenhuma
-migration criada e nenhum pacote instalado.
+**Status:** ⏳ **Em desenvolvimento.** A **F2.7-A está concluída** (commit
+`8811b75`, 2026-09-06); **F2.7-B e F2.7-C permanecem 📋 planejadas e não
+iniciadas**. A F2.7 só será encerrada após a F2.7-C — nem o upload, nem o
+processamento de imagem, nem a interface administrativa existem ainda, e nenhum
+pacote foi instalado.
 
 > **Contrato arquitetural definido antes da implementação**, no mesmo formato
 > adotado pela F2.4. As decisões desta seção foram fechadas em **2026-09-06**,
@@ -2910,7 +2929,7 @@ F2.7-A → F2.7-B → F2.7-C
 
 | Subfase | Status | Entrega principal | Depende de |
 | --- | --- | --- | --- |
-| F2.7-A — Domínio, persistência e storage | 📋 Planejada | Model `Media`, migration, identidade, política de disk/path, `MediaService` base e URL derivada | F2.2 |
+| F2.7-A — Domínio, persistência e storage | ✅ Concluída | Model `Media`, migration, identidade, política de disk/path, `MediaService` base e URL derivada | F2.2 |
 | F2.7-B — Upload e processamento | 📋 Planejada | Form Request, upload único, validação de MIME/tamanho/dimensões, pipeline do Intervention Image e persistência coordenada | F2.7-A |
 | F2.7-C — Biblioteca administrativa e exclusão protegida | 📋 Planejada | Controller, rotas, grid paginada, sidebar, exclusão e verificação de uso | F2.7-B |
 
@@ -2925,9 +2944,22 @@ schema.
 **A F2.7 só é encerrada após a F2.7-C.** Uma subfase posterior não começa
 automaticamente ao término da anterior.
 
+Estado atual da divisão interna: **F2.7-A concluída** em 2026-09-06 (commit
+`8811b75`); a próxima etapa interna é a **F2.7-B**, ainda não iniciada. A F2.7
+permanece ⏳ em desenvolvimento, e nem a F2.3-C nem a F2.5 são liberadas por
+isso — elas dependem da F2.7 **completa**.
+
 ---
 
-##### F2.7-A — Domínio, persistência e storage 📋 Planejada
+##### F2.7-A — Domínio, persistência e storage ✅ Concluída
+
+**Concluída e validada em 2026-09-06.**
+Commit: `8811b757c6b6f744854df5aedaaddc0a5cf46ba1`
+(`feat(fase-2): adiciona fundacao da biblioteca de midia`)
+
+Validação: 41 testes focados / 99 assertions; 264 testes / 759 assertions na
+suíte completa; Pint sem violações (67 arquivos); `composer validate` válido;
+`composer audit` sem vulnerabilidades conhecidas; `git diff --check` limpo.
 
 **Objetivo:** estabelecer a entidade `Media`, sua identidade e a política de
 armazenamento **antes** de existir upload. Se o schema, a identidade ou a
@@ -2935,71 +2967,186 @@ política de disk/path estiverem errados aqui, nenhuma tela corrige depois.
 
 **Dependências:** F2.2 (satisfeita).
 
-**Gate operacional desta subfase — `storage:link`**
+**Gate operacional desta subfase — `storage:link` ✅ cumprido**
 
 O disco `public` aponta para `storage/app/public`, a URL é derivada por
-`Storage::disk('public')->url(...)` e o link já está previsto em
-`config/filesystems.php` — mas `public/storage` **não existe fisicamente** no
-ambiente atual. Nada de filesystem é redesenhado e nenhuma rota própria de
-entrega de arquivos é criada; o que falta é executar:
+`Storage::disk('public')->url(...)` e o link já estava previsto em
+`config/filesystems.php` — mas `public/storage` **não existia fisicamente** no
+ambiente. Nada de filesystem foi redesenhado e nenhuma rota própria de entrega
+de arquivos foi criada; o que faltava era executar:
 
 ```bash
 php artisan storage:link
 ```
 
-ou o equivalente idempotente exigido pelo ambiente.
+Executado no container `app`, produziu o link
+`public/storage → /app/storage/app/public`. O comando é idempotente e o link
+permanece **fora do versionamento** (`.gitignore`), portanto cada instalação
+precisa repeti-lo.
 
-**Critério de aceite operacional, no Docker real:**
+**Critério de aceite operacional — cumprido no Docker real, nos quatro passos:**
 
 ```text
-1. escrever um arquivo de prova no disk public
-2. resolver a URL via Storage::disk('public')->url(...)
-3. confirmar acesso HTTP ao arquivo por /storage/...
-4. remover o arquivo de prova
+1. arquivo de prova (PNG 1×1) gravado no disk public          → ok
+2. URL resolvida: http://localhost/storage/f27a-gate-proof.png → ok
+3. GET pelo nginx: HTTP 200, Content-Type image/png, 70 bytes  → ok
+4. arquivo de prova removido; a mesma URL passou a devolver 404 → ok
+```
+
+Cadeia comprovada de ponta a ponta:
+
+```text
+storage/app/public  →  public/storage  →  nginx  →  HTTP 200
 ```
 
 > `Storage::fake('public')` serve aos testes de storage, mas **não comprova que
 > o symlink público existe em uma instalação real** — ele substitui o disco, e a
-> suíte fica verde com o link ausente. Este gate é verificação manual no
-> ambiente Docker durante a implementação da F2.7-A.
+> suíte fica verde com o link ausente. Por isso este gate é verificação de
+> ambiente, e não teste da suíte: nenhum dos 41 testes focados toca o disco
+> real.
 
 **Entregáveis planejados**
 
-- [ ] Model `Media` (sem `SoftDeletes`, conforme decidido)
-- [ ] Migration `media` conforme o schema contratado, com `UNIQUE (disk, path)`
-- [ ] Casts e configuração do model necessários ao contrato
-- [ ] Constante única do disco de mídia no `MediaService` — sem `config/media.php` e sem variável de ambiente nova
-- [ ] Política de geração de path `media/{YYYY}/{MM}/{nome-gerado}.{ext}` no `MediaService`
-- [ ] Geração do nome físico opaco, sem qualquer derivação do nome enviado
-- [ ] `MediaService::url()` derivando a URL de `disk` + `path`
-- [ ] `MediaService::paginate()` com ordenação `id DESC`
-- [ ] Factory de `Media`, se os testes exigirem
-- [ ] `php artisan storage:link` executado no ambiente e documentado no README/INSTALACAO_RAPIDA
+- [x] Model `Media` (sem `SoftDeletes`, conforme decidido)
+- [x] Migration `media` conforme o schema contratado, com `UNIQUE (disk, path)`
+- [x] Casts e configuração do model necessários ao contrato
+- [x] Constante única do disco de mídia no `MediaService` — sem `config/media.php` e sem variável de ambiente nova
+- [x] Política de geração de path `media/{YYYY}/{MM}/{nome-gerado}.{ext}` no `MediaService`
+- [x] Geração do nome físico opaco, sem qualquer derivação do nome enviado
+- [x] `MediaService::url()` derivando a URL de `disk` + `path`
+- [x] `MediaService::paginate()` com ordenação `id DESC`
+- [x] Factory de `Media`, se os testes exigirem
+- [x] `php artisan storage:link` executado no ambiente e documentado no README/INSTALACAO_RAPIDA
 
 **Testes / critério de aceite planejados**
 
-- [ ] `Media` é criada com `disk`, `path`, `original_name`, `mime_type`, `size`, `width` e `height` corretos
-- [ ] `Media.id` é a identidade e não depende de `path`, nome ou URL
-- [ ] Alterar `path` não altera `Media.id`
-- [ ] A URL é **derivada** de `disk` + `path`, e não existe coluna de URL
-- [ ] Trocar `APP_URL` muda a URL derivada sem migration de dados
-- [ ] `disk` e `path` são preservados exatamente como gravados
-- [ ] Dois registros com o mesmo `disk` + `path` são rejeitados pelo banco
-- [ ] O path gerado segue `media/{YYYY}/{MM}/…` e não contém nenhum fragmento do nome enviado
-- [ ] O nome físico gerado não contém `/`, `\`, `..` nem caractere fora do alfabeto previsto
-- [ ] O disco usado é explícito e **não** o padrão da aplicação (`local`)
-- [ ] `paginate()` respeita o tamanho de página e ordena por `id DESC` de forma determinística
-- [ ] `width` e `height` são obrigatórios — registro sem dimensões é rejeitado
-- [ ] Campos não suportados não são persistidos
-- [ ] Nenhuma rota, Controller, Form Request ou Blade é criado nesta subfase
-- [ ] **Gate operacional cumprido no Docker real, pelos quatro passos:** arquivo de prova escrito no disk `public`, URL resolvida por `Storage::disk('public')->url(...)`, acesso HTTP por `/storage/...` confirmado e arquivo de prova removido
-- [ ] Registrado que `Storage::fake('public')` não comprova o symlink — o gate é verificação de ambiente, não teste da suíte
-- [ ] Suíte completa permanece verde
-- [ ] Pint passa
-- [ ] `git diff --check` passa
+- [x] `Media` é criada com `disk`, `path`, `original_name`, `mime_type`, `size`, `width` e `height` corretos
+- [x] `Media.id` é a identidade e não depende de `path`, nome ou URL
+- [x] Alterar `path` não altera `Media.id`
+- [x] A URL é **derivada** de `disk` + `path`, e não existe coluna de URL
+- [x] Trocar `APP_URL` muda a URL derivada sem migration de dados
+- [x] `disk` e `path` são preservados exatamente como gravados
+- [x] Dois registros com o mesmo `disk` + `path` são rejeitados pelo banco
+- [x] O path gerado segue `media/{YYYY}/{MM}/…` e não contém nenhum fragmento do nome enviado
+- [x] O nome físico gerado não contém `/`, `\`, `..` nem caractere fora do alfabeto previsto
+- [x] O disco usado é explícito e **não** o padrão da aplicação (`local`)
+- [x] `paginate()` respeita o tamanho de página e ordena por `id DESC` de forma determinística
+- [x] `width` e `height` são obrigatórios — registro sem dimensões é rejeitado
+- [x] Campos não suportados não são persistidos
+- [x] Nenhuma rota, Controller, Form Request ou Blade é criado nesta subfase
+- [x] **Gate operacional cumprido no Docker real, pelos quatro passos:** arquivo de prova escrito no disk `public`, URL resolvida por `Storage::disk('public')->url(...)`, acesso HTTP por `/storage/...` confirmado e arquivo de prova removido
+- [x] Registrado que `Storage::fake('public')` não comprova o symlink — o gate é verificação de ambiente, não teste da suíte
+- [x] Suíte completa permanece verde
+- [x] Pint passa
+- [x] `git diff --check` passa
+
+**Resultado entregue**
+
+Oito arquivos no commit técnico — seis novos:
+
+```text
+app/Models/Media.php
+app/Services/MediaService.php
+database/factories/MediaFactory.php
+database/migrations/2026_09_06_120000_create_media_table.php
+tests/Feature/MediaTest.php
+tests/Feature/MediaServiceTest.php
+```
+
+e dois modificados:
+
+```text
+README.md
+docs/INSTALACAO_RAPIDA.md
+```
+
+Schema confirmado no MySQL 8.4 do ambiente Docker, com `up()`, rollback e
+reaplicação executados — a migration entrou como batch próprio, então o
+rollback removeu **apenas** a tabela `media`, sem tocar nas fases anteriores:
+
+```text
+id             BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY
+disk           VARCHAR(32) NOT NULL
+path           VARCHAR(255) NOT NULL
+original_name  VARCHAR(255) NOT NULL
+mime_type      VARCHAR(128) NOT NULL
+size           INT UNSIGNED NOT NULL
+width          INT UNSIGNED NOT NULL
+height         INT UNSIGNED NOT NULL
+created_at
+updated_at
+UNIQUE KEY media_disk_path_unique (disk, path)
+```
+
+Comportamento validado:
+
+- a tabela é `media`, não `medias` — o Eloquent a resolve sozinho, e nenhum
+  `$table` redundante foi declarado;
+- `Media.id` é `BIGINT` autoincremental e permanece estável quando o `path`
+  muda; a numeração **contígua não é exigida**, porque `AUTO_INCREMENT` abre
+  lacunas legítimas após rollback ou insert abortado;
+- `Media` **não** usa `SoftDeletes` e o schema não tem `deleted_at`,
+  `extension`, coluna de URL, `metadata`, `user_id` nem índice extra;
+- `size`, `width` e `height` são lidos como inteiros pelo cast do model;
+- `width` e `height` são recusados pelo banco quando ausentes;
+- `UNIQUE (disk, path)` é composto: o mesmo caminho em discos distintos é
+  aceito, o mesmo par não;
+- campos não suportados são descartados pelo `fill()` e não viram atributo;
+- o disco de gravação é `public`, explícito, e nunca o padrão da aplicação
+  (`local`, que aponta para `storage/app/private`);
+- `url()` resolve pelo disco **do registro**, não pela constante da classe, e
+  acompanha a configuração do ambiente sem que o registro seja tocado;
+- o path segue `media/{YYYY}/{MM}/{ULID}.{ext}`, com a data vinda do relógio da
+  aplicação — congelado nos testes, nunca dependente da data da máquina;
+- `paginate()` devolve 24 itens por padrão, ordenados por `id DESC`, de forma
+  determinística mesmo quando os timestamps coincidem.
+
+**Decisões da implementação**
+
+- **`MediaService::DISK`** é o nome concreto da constante do disco. O contrato
+  admitia `MEDIA_DISK` "ou equivalente coerente com o padrão real da classe", e
+  `MediaService::MEDIA_DISK` gaguejaria. É pública porque a F2.7-B precisará
+  dela e os testes a verificam diretamente. Não foram criados `config/media.php`
+  nem variável de ambiente.
+- **`generatePath(string $extension): string`** recebe apenas a extensão. A
+  allowlist `jpg`/`png`/`webp` é **defesa da API de path**, não política de
+  upload: ela impede que `../php`, `foo/bar` ou `jpg?x` alterem o diretório de
+  destino. Uma extensão canônica por formato — `jpeg` é recusado de propósito,
+  para que o mesmo formato não conviva sob dois nomes no armazenamento.
+- **WebP continua não aceito em upload.** A presença de `webp` na allowlist de
+  path não antecipa nada: a aceitação de `image/webp` pertence à F2.7-B e
+  depende do gate técnico do GD.
+- **ULID é apenas nome físico**, gerado por `Str::ulid()` — 26 caracteres do
+  alfabeto `[0-9A-HJKMNP-TV-Z]`. A identidade continua sendo `Media.id`.
+- **`MediaFactory` foi criada** porque os testes de paginação e identidade
+  ficam melhores com ela. Monta apenas a linha da tabela: não grava arquivo,
+  não executa upload, não chama Intervention Image e não toca o filesystem. O
+  path das fixtures é montado na própria factory, de propósito — o teste que
+  verifica a geração de path exercita o `MediaService`, não uma cópia sua.
+
+**Cobertura por mutation checks**
+
+As invariantes não foram apenas testadas: cada teste foi confrontado com o
+defeito que deveria pegar, e a produção restaurada byte a byte depois.
+
+| Mutação aplicada | Testes que falharam |
+| --- | --- |
+| `orderByDesc('id')` → `orderBy('id')` | ordenação e determinismo da paginação |
+| `Storage::disk($media->disk)` → disco fixo | URL segue o disco do registro |
+| `UNIQUE (disk, path)` removida da migration | unicidade composta |
+| Allowlist de extensão desativada | as 12 extensões inseguras |
+| `width`/`height` tornados *nullable* | dimensões obrigatórias |
+| Nome físico com fragmento do nome hostil | formato do path, opacidade e independência de `original_name` |
+| `Media` com `$keyType='string'`, `$incrementing=false` | identidade e estabilidade sob troca de path |
 
 **Fora do escopo da F2.7-A:** upload HTTP, Form Request, Controller, rotas,
-Blade, Intervention Image, exclusão e verificação de uso.
+Blade, Intervention Image, exclusão e verificação de uso. Nenhum deles foi
+criado — a busca por `UploadedFile`, `ImageManager`, `MediaController`,
+`MediaUsage` e `MediaInUseException` no commit não retorna implementação, apenas
+comentários que delimitam escopo.
+
+**Bloqueadores / decisões pendentes:** nenhum. A próxima etapa interna é a
+**F2.7-B — Upload e processamento**, ainda não iniciada.
 
 ---
 
@@ -3176,33 +3323,46 @@ CDN, REST API pública de mídia, auditoria persistente, *marketplace* e
    rejeitado pela validação e o formato mais eficiente do contrato fica
    indisponível. JPEG e PNG não são afetados. Registrado nos Bloqueadores da
    Fase 2.
-2. **`public/storage` é gate operacional da F2.7-A** e a suíte não o detecta,
-   porque `Storage::fake('public')` substitui o disco real. Exige verificação no
-   ambiente Docker real, pelo roteiro de quatro passos do critério de aceite
-   operacional.
-3. **A F2.3-C não terá barreira de banco** contra exclusão de mídia em uso: a
+2. **`public/storage` é estado de ambiente, não do repositório.** O gate da
+   F2.7-A foi cumprido em 2026-09-06, mas o link não é versionado: **cada nova
+   instalação precisa repetir `php artisan storage:link`**, e a suíte não
+   detecta a ausência porque `Storage::fake('public')` substitui o disco real.
+   Documentado no README e na instalação rápida.
+3. **A F2.7-B precisa normalizar a extensão** para a forma canônica que
+   `MediaService::generatePath()` aceita (`jpg`, `png`, `webp`): um `jpeg`
+   vindo do processamento seria recusado com `InvalidArgumentException`. O
+   comportamento é o desejado — uma extensão por formato —, mas exige a
+   normalização no chamador.
+4. **`MediaFactory` replica o formato do path** como fixture. Se o contrato de
+   path mudar, a factory precisa acompanhar. É deliberado: o teste da geração de
+   path exercita o `MediaService`, não uma cópia sua.
+5. **A F2.3-C não terá barreira de banco** contra exclusão de mídia em uso: a
    referência mora em `site_settings`, chave/valor, onde não cabe FK. Restam o
    registro de verificadores e uma janela de corrida estreita.
-4. **Favicon em `.ico` ou `.svg` não é suportado** por este contrato. Se a
+6. **Favicon em `.ico` ou `.svg` não é suportado** por este contrato. Se a
    F2.3-C exigir, será requisito novo dela.
-5. **O upload é irreversível:** o original não é preservado e não há
+7. **O upload é irreversível:** o original não é preservado e não há
    reprocessamento.
-6. **Arquivos órfãos podem se acumular** após falhas do Filesystem. Não há
+8. **Arquivos órfãos podem se acumular** após falhas do Filesystem. Não há
    varredura de reconciliação — decisão consciente.
-7. **Recodificação sempre acontece**, mesmo em imagens pequenas já otimizadas,
+9. **Recodificação sempre acontece**, mesmo em imagens pequenas já otimizadas,
    com variação possível de tamanho e qualidade em ambos os sentidos.
 
 ---
 
 **Bloqueadores / decisões pendentes:** nenhuma decisão arquitetural pendente. A
-dependência da F2.2 está satisfeita. Restam dois **gates de ambiente**, cada um
-com dono definido dentro da própria F2.7 e nenhum deles bloqueando o contrato:
+dependência da F2.2 está satisfeita. Dos dois **gates de ambiente**, cada um com
+dono dentro da própria F2.7, um já foi cumprido:
 
-- **gate operacional da F2.7-A** — `php artisan storage:link`, verificado no
-  Docker real pelo roteiro de quatro passos;
-- **gate técnico da F2.7-B** — suporte a WebP no GD, em quatro passos. Enquanto
-  não cumprido, `image/webp` é rejeitado pela validação; **JPEG e PNG não
-  dependem dele**.
+- **gate operacional da F2.7-A — ✅ cumprido em 2026-09-06.**
+  `php artisan storage:link` executado e a cadeia até HTTP 200 verificada no
+  Docker real pelo roteiro de quatro passos. Permanece como estado de ambiente
+  a repetir em cada instalação;
+- **gate técnico da F2.7-B — 📋 pendente.** Suporte a WebP no GD, em quatro
+  passos. Enquanto não cumprido, `image/webp` é rejeitado pela validação;
+  **JPEG e PNG não dependem dele**.
+
+**Estado da F2.7:** ⏳ em desenvolvimento — F2.7-A ✅, F2.7-B 📋, F2.7-C 📋.
 
 ---
 
@@ -3254,21 +3414,23 @@ verificadas no repositório e no ambiente Docker:
 
 - Nenhum bloqueador arquitetural pendente. A **F2.2 — Fundação do Admin** foi
   concluída (A, B e C) e liberou as subfases que dependiam dela. Estado atual:
-  a **F2.4 está concluída**; a **F2.7 é a próxima etapa planejada**; a F2.3-C
-  aguarda a F2.7; a F2.5 permanece planejada, também depois da F2.7; e a F2.6
-  permanece planejada para depois da F2.5 — sua dependência da F2.4 está
-  satisfeita, mas isso não a antecipa na ordem de execução. O contrato
-  arquitetural da F2.7 foi fechado pela auditoria de 2026-09-06 e a subfase
-  está pronta para implementação, dividida em F2.7-A, F2.7-B e F2.7-C — sem que
-  nada tenha sido iniciado.
+  a **F2.4 está concluída**; a **F2.7 está em desenvolvimento**, com a F2.7-A
+  concluída em 2026-09-06 e a **F2.7-B como próxima etapa**; a F2.3-C aguarda a
+  F2.7 **completa**; a F2.5 permanece planejada, também depois da F2.7
+  completa; e a F2.6 permanece planejada para depois da F2.5 — sua dependência
+  da F2.4 está satisfeita, mas isso não a antecipa na ordem de execução.
 - A autorização granular permanece na Fase 3. Durante toda a Fase 2, qualquer
   usuário autenticado acessa `/admin`.
 - **Gates de ambiente da F2.7 — não são bloqueadores arquiteturais, mas são
   tarefas das próprias subfases, com dono definido:**
-  - **Gate operacional da F2.7-A:** `php artisan storage:link` (ou equivalente
-    idempotente do ambiente) precisa ser executado para que as URLs de mídia
-    resolvam, e a verificação acontece no Docker real — a suíte usa
-    `Storage::fake('public')` e não comprova o symlink;
+  - **Gate operacional da F2.7-A: ✅ cumprido em 2026-09-06.**
+    `php artisan storage:link` foi executado no container e a cadeia
+    `storage/app/public → public/storage → nginx → HTTP 200` foi comprovada
+    pelos quatro passos, com o arquivo de prova removido ao final. Continua
+    sendo **estado de ambiente**: o link não é versionado, então cada nova
+    instalação precisa repetir o comando — e a suíte não detecta a ausência,
+    porque usa `Storage::fake('public')`. Documentado no README e na instalação
+    rápida;
   - **Gate técnico da F2.7-B:** o GD precisa ganhar suporte a WebP
     (bibliotecas no `docker/Dockerfile`, recompilação com `--with-webp`,
     `gd_info()['WebP Support'] === true` comprovado e uma codificação WebP real
@@ -3281,19 +3443,22 @@ verificadas no repositório e no ambiente Docker:
 - ✅ Fase 1 (concluída)
 
 #### Próximo Passo
-→ **F2.7 — Biblioteca de Mídia** — 📋 planejada, **não iniciada**. Com a F2.4
-concluída, a F2.7 é a próxima na ordem de execução, porque a F2.3-C e a F2.5
-consomem a biblioteca de mídia e não podem precedê-la. A Fase 3 permanece após
-a conclusão da Fase 2.
+→ **F2.7-B — Upload e processamento** — 📋 planejada, **não iniciada**. A F2.7
+está ⏳ em desenvolvimento: sua primeira etapa interna, a **F2.7-A**, foi
+concluída em 2026-09-06 (commit `8811b75`), entregando a entidade `Media`, a
+migration, a política de disk/path e o núcleo do `MediaService`. A Fase 3
+permanece após a conclusão da Fase 2.
 
-Seu contrato arquitetural está fechado desde a auditoria de **2026-09-06** e a
-subfase está dividida em **F2.7-A** (domínio, persistência e storage),
-**F2.7-B** (upload e processamento) e **F2.7-C** (biblioteca administrativa e
-exclusão protegida). A próxima etapa concreta é a **implementação da F2.7-A** —
-nenhum código foi escrito até aqui.
+A F2.7-B transforma um `UploadedFile` em `Media` válida: Form Request, upload
+único, validação de MIME real, limites de tamanho e dimensões, pipeline do
+Intervention Image e persistência coordenada de arquivo e registro. Ela é dona
+do **gate técnico do WebP** — enquanto os quatro passos não forem cumpridos,
+`image/webp` não é aceito pelo upload. Depois dela vem a **F2.7-C**, que fecha a
+F2.7.
 
-Depois da F2.7 seguem F2.3-C, F2.5 e, por último, F2.6. A dependência da F2.6
-em relação à F2.4 está satisfeita, mas ela continua sendo a última da fila.
+Somente com a **F2.7 completa** seguem F2.3-C, F2.5 e, por último, F2.6. A
+dependência da F2.6 em relação à F2.4 está satisfeita, mas ela continua sendo a
+última da fila.
 
 ---
 
@@ -4076,11 +4241,12 @@ Atualizado toda segunda-feira com progresso real.
 - ✅ **F2.1 — Fundação do CMS:** concluída.
 - ✅ **F2.2 — Fundação do Admin:** concluída (A, B e C).
 - Nenhum bloqueador arquitetural conhecido para a próxima etapa. A **F2.4 está
-  concluída** e a **F2.7 — Biblioteca de Mídia** é a próxima etapa planejada,
-  ainda não iniciada. A F2.3-C aguarda a F2.7; a F2.5 também depende da F2.7; e
-  a dependência da F2.6 em relação à F2.4 já está satisfeita, mas sua execução
-  permanece somente depois de F2.7 → F2.3-C → F2.5. A autorização granular
-  permanece na Fase 3.
+  concluída** e a **F2.7 — Biblioteca de Mídia está ⏳ em desenvolvimento**: a
+  F2.7-A foi concluída em 2026-09-06 e a próxima etapa é a **F2.7-B**, ainda não
+  iniciada, seguida da F2.7-C. A F2.3-C aguarda a **F2.7 completa**; a F2.5
+  também depende da **F2.7 completa**; e a dependência da F2.6 em relação à F2.4
+  já está satisfeita, mas sua execução permanece somente depois de
+  F2.7 → F2.3-C → F2.5. A autorização granular permanece na Fase 3.
 
 ---
 
@@ -4228,6 +4394,30 @@ Atualizado toda segunda-feira com progresso real.
   nenhum código foi escrito, nenhuma migration criada e nenhum pacote instalado;
   F2.7-A, F2.7-B e F2.7-C nascem 📋 planejadas, com todos os itens em `[ ]`. A
   ordem global da Fase 2 permanece inalterada.
+- **2026-09-06:** F2.7-A — Domínio, persistência e storage concluída. Commit
+  técnico: `8811b757c6b6f744854df5aedaaddc0a5cf46ba1`. Entrega o model `Media`
+  com identidade `BIGINT` estável e sem `SoftDeletes`, a migration `media` com
+  `UNIQUE (disk, path)` e dimensões obrigatórias, e o núcleo do `MediaService`:
+  disco `public` explícito numa constante única, geração de path
+  `media/{YYYY}/{MM}/{ULID}.{ext}` com nome físico opaco e allowlist de extensão
+  como defesa contra *path traversal*, URL derivada do disco gravado em cada
+  registro e paginação de 24 itens em `id DESC`. Acompanham uma `MediaFactory`
+  sem efeitos colaterais no filesystem e a documentação operacional do
+  `storage:link` no README e na instalação rápida. O **gate operacional da
+  F2.7-A foi cumprido no Docker real**: `storage:link` executado, arquivo de
+  prova gravado no disco `public`, URL resolvida, `HTTP 200` confirmado por
+  `/storage/...` e arquivo removido ao final — verificação de ambiente, já que
+  `Storage::fake('public')` não comprova o symlink. A migration foi validada
+  contra o MySQL 8.4 com `up()`, rollback e reaplicação, sem tocar nas fases
+  anteriores. Validação: 41 testes focados / 99 assertions e 264 testes / 759
+  assertions na suíte completa, com sete *mutation checks* confirmando que os
+  testes pegam os defeitos que deveriam; Pint sem violações, `composer validate`
+  válido e `composer audit` sem vulnerabilidades. **A F2.7 passa a ⏳ em
+  desenvolvimento**: F2.7-B e F2.7-C continuam 📋 planejadas, e a F2.3-C e a
+  F2.5 seguem aguardando a F2.7 **completa** — a conclusão da F2.7-A não as
+  libera. Nada de upload, processamento de imagem, interface administrativa ou
+  exclusão foi antecipado, e o gate técnico do WebP continua pendente na
+  F2.7-B. Próxima etapa: **F2.7-B — Upload e processamento**.
 - *Próxima revisão: 2026-09-11*
 
 ---
