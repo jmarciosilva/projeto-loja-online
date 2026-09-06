@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\SiteSettingController;
 use App\Http\Controllers\Admin\ThemeSettingController;
+use App\Http\Controllers\Admin\VisualIdentitySettingController;
 use App\Http\Controllers\PageController as PublicPageController;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -46,6 +47,13 @@ Route::middleware('auth')
             ->name('settings.theme.edit');
         Route::put('configuracoes/tema', [ThemeSettingController::class, 'update'])
             ->name('settings.theme.update');
+
+        // Logo e favicon referenciam mídia da biblioteca da F2.7 por `Media.id`;
+        // não há upload próprio nem caminho de arquivo nesta tela.
+        Route::get('configuracoes/identidade-visual', [VisualIdentitySettingController::class, 'edit'])
+            ->name('settings.identity.edit');
+        Route::put('configuracoes/identidade-visual', [VisualIdentitySettingController::class, 'update'])
+            ->name('settings.identity.update');
 
         // `{page}` resolve por `Page.id`: o slug é endereço público e mutável,
         // e amarrar a rota administrativa a ele faria a identidade mudar junto.

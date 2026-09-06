@@ -11,6 +11,13 @@
          @yield imprime sem escapar. --}}
     @yield('meta')
 
+    {{-- Favicon da biblioteca de mídia. O type vem do MIME da própria mídia;
+         sem favicon configurado, nenhuma tag é emitida. --}}
+    @if ($visualIdentity['favicon'] ?? null)
+        <link rel="icon" type="{{ $visualIdentity['favicon']['mimeType'] }}"
+              href="{{ $visualIdentity['favicon']['url'] }}">
+    @endif
+
     {{-- O Alpine vem embutido no Livewire 4 — não importe alpinejs separadamente,
          senão duas instâncias competem e o console acusa
          "Alpine has already been initialized". --}}
@@ -25,8 +32,19 @@
 
     <header class="theme-border-accent border-t-4 border-b border-b-gray-200 bg-white">
         <nav class="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
+            {{-- Com logo configurada, ela substitui o texto; sem ela, o nome da
+                 loja continua sendo o fallback. `h-10 w-auto` preserva a
+                 proporção qualquer que seja a imagem escolhida. --}}
             <a href="{{ route('home') }}" class="theme-text-primary text-lg font-semibold tracking-tight">
-                {{ config('app.name') }}
+                @if ($visualIdentity['logo'] ?? null)
+                    <img src="{{ $visualIdentity['logo']['url'] }}"
+                         alt="{{ $visualIdentity['logo']['alt'] }}"
+                         width="{{ $visualIdentity['logo']['width'] }}"
+                         height="{{ $visualIdentity['logo']['height'] }}"
+                         class="h-10 w-auto">
+                @else
+                    {{ config('app.name') }}
+                @endif
             </a>
             {{-- Menu, carrinho e área do cliente entram nas Fases 2 e 5. --}}
         </nav>

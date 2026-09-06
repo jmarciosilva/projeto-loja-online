@@ -287,11 +287,16 @@ class AdminThemeSettingsTest extends TestCase
     {
         $html = $this->actingAsAdmin()->get(self::URI)->getContent();
 
-        $this->assertStringContainsString('Gerais', $html);
-        $this->assertStringContainsString('Tema e cores', $html);
+        // "Identidade visual" entrou com a F2.3-C, quando a rota passou a
+        // existir. O guard continua o mesmo: a navegação só anuncia seção cuja
+        // rota exista — anunciar antes seria caminho quebrado.
+        foreach (['Gerais', 'Tema e cores', 'Identidade visual'] as $secao) {
+            $this->assertStringContainsString($secao, $html);
+        }
 
-        // A F2.3-C ainda não existe; anunciá-la seria caminho quebrado.
-        $this->assertStringNotContainsString('Identidade visual', $html);
+        foreach (['Banners', 'Menus'] as $secaoFutura) {
+            $this->assertStringNotContainsString($secaoFutura, $html);
+        }
     }
 
     public function test_theme_is_the_current_section_on_the_theme_page(): void
