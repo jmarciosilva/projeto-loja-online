@@ -122,6 +122,7 @@ docker compose up -d --build
 docker compose exec app composer install
 docker compose exec app php artisan key:generate
 docker compose exec app php artisan migrate
+docker compose exec app php artisan storage:link
 docker compose exec node npm install
 docker compose exec node npm run build
 ```
@@ -132,12 +133,20 @@ Acesse http://localhost.
 > host — por isso `composer install` e `npm install` precisam rodar **dentro**
 > dos containers. Rodar no host preenche pastas que os containers não usam.
 
+> `storage:link` cria o link `public/storage → storage/app/public`, que é o que
+> torna os arquivos públicos acessíveis por `/storage/...`. O link **não é
+> versionado** (está no `.gitignore`), então cada instalação precisa rodar o
+> comando — sem ele, arquivos gravados no disco `public` existem no servidor
+> mas respondem 404. O comando é idempotente: rodá-lo de novo apenas informa
+> que o link já existe.
+
 ### Verificar
 
 ```bash
 docker compose ps                       # serviços Up, os com healthcheck healthy
 curl http://localhost/health.php         # OK — responde mesmo sem o Laravel
 docker compose exec app composer test    # suíte de testes
+docker compose exec app ls -l public/storage   # deve apontar para storage/app/public
 ```
 
 ---

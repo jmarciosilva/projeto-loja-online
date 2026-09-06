@@ -86,6 +86,7 @@ Se `/` devolver 403, é porque o passo 4 ainda não foi executado.
 docker compose exec app composer install
 docker compose exec app php artisan key:generate
 docker compose exec app php artisan migrate
+docker compose exec app php artisan storage:link
 docker compose exec node npm install
 docker compose exec node npm run build
 ```
@@ -94,6 +95,29 @@ docker compose exec node npm run build
 por isso esses comandos precisam rodar **dentro** dos containers.
 
 Feito isso, http://localhost serve a aplicação.
+
+### Por que `storage:link`
+
+O disco público do Laravel grava em `storage/app/public`, que fica **fora** da
+raiz servida pelo nginx (`public/`). O comando cria o link simbólico:
+
+```text
+public/storage  →  storage/app/public
+```
+
+É ele que faz um arquivo gravado no disco `public` ser servido em
+`http://localhost/storage/<caminho>`. O link está no `.gitignore` e **não é
+versionado** — portanto cada instalação precisa rodar o comando. Sem ele, o
+arquivo existe no servidor e a URL é montada corretamente, mas a resposta é
+404. O comando é idempotente: executado de novo, apenas informa que o link já
+existe.
+
+Verificação mínima:
+
+```bash
+docker compose exec app ls -l public/storage
+# storage -> /app/storage/app/public
+```
 
 ---
 
