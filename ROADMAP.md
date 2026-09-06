@@ -7,20 +7,16 @@
   - F2.2 — Fundação do Admin: ✅ concluída
   - F2.3-A — Configurações gerais: ✅ concluída
   - F2.3-B — Tema e cores: ✅ concluída
-  - F2.3 permanece parcialmente aberta: a F2.3-C aguarda a F2.7 **completa**
+  - F2.3 permanece parcialmente aberta: a F2.3-C está planejada e sua dependência da F2.7 foi satisfeita
   - **F2.4 — Páginas Estáticas: ✅ concluída em 2026-09-05**
     - F2.4-A — Fundação de domínio e persistência: ✅ concluída
     - F2.4-B — Administração e CRUD: ✅ concluída
     - F2.4-C — Publicação, Markdown, preview e SEO: ✅ concluída
-  - **F2.7 — Biblioteca de Mídia: ⏳ em desenvolvimento**, com contrato
-    arquitetural fechado em 2026-09-06
+  - **F2.7 — Biblioteca de Mídia: ✅ concluída em 2026-09-06**
     - F2.7-A — Domínio, persistência e storage: ✅ concluída em 2026-09-06
     - F2.7-B — Upload e processamento: ✅ concluída em 2026-09-06
-    - F2.7-C — Biblioteca administrativa e exclusão protegida: 📋 planejada —
-      **próxima etapa**
-  - Pela ordem de execução ainda vêm, depois da F2.7 **completa**, F2.3-C, F2.5
-    e só então F2.6 — cuja dependência da F2.4 está satisfeita, sem que isso a
-    promova na fila
+    - F2.7-C — Biblioteca administrativa e exclusão protegida: ✅ concluída em 2026-09-06
+  - Próxima etapa operacional: F2.3-C, seguida de F2.5 e então F2.6.
 - **Fase 1:** ✅ Concluída em 2026-09-04
 - **Data de Início:** 2026-09-04
 - **Data Estimada de MVP Completo:** 2026-09-30
@@ -184,9 +180,10 @@ F2.3-A → F2.3-B → [F2.4-A → F2.4-B → F2.4-C]
 Uma subfase posterior não começa automaticamente ao término da anterior. A F2.3
 aparece dividida porque suas três partes têm dependências distintas.
 
-> **Ponto atual da fila:** a F2.7-A e a F2.7-B estão concluídas; a próxima
-> etapa é a **F2.7-C**. A F2.3-C e a F2.5 só são liberadas pela F2.7
-> **completa**, isto é, após a F2.7-C — concluir a F2.7-B não as antecipa.
+> **Ponto atual da fila:** F2.7-A, F2.7-B e F2.7-C estão concluídas; a F2.7
+> está completa e satisfez a dependência técnica da F2.3-C. A próxima etapa
+> operacional é a **F2.3-C**, ainda planejada e não iniciada; depois seguem
+> F2.5 e F2.6.
 
 Duas decisões arquiteturais explicam essa ordem, e ambas evitam duplicar o
 mesmo mecanismo:
@@ -223,7 +220,7 @@ no repositório e foi executado/validado com sucesso.**
 | F2.2 — Fundação do Admin | ✅ Concluída | Autenticação, rotas, layout e navegação de `/admin` | Fase 1 |
 | F2.3 — Configurações Globais | ⏳ Em desenvolvimento | Configurações gerais, tema e identidade visual integrada à F2.7 | F2.1, F2.2 (C também da F2.7) |
 | F2.4 — Páginas Estáticas | ✅ Concluída | CRUD de páginas com SEO e publicação | F2.2 |
-| F2.7 — Biblioteca de Mídia | ⏳ Em desenvolvimento | Upload, processamento e consulta de mídia, em F2.7-A/B/C (A e B concluídas) | F2.2 |
+| F2.7 — Biblioteca de Mídia | ✅ Concluída | Upload, processamento e consulta de mídia, em F2.7-A/B/C concluídas | F2.2 |
 | F2.5 — Banners | 📋 Planejado | CRUD de banners com ordenação, sobre a mídia da F2.7 | F2.2, **F2.7** |
 | F2.6 — Menus | 📋 Planejado | Menus hierárquicos e itens | F2.2, F2.4 |
 
@@ -424,9 +421,8 @@ o teste falhar.
 
 **Dependências posteriores:** a conclusão da F2.2 satisfez a dependência que
 originalmente bloqueava F2.3, F2.4 e F2.7. Desde então, a F2.3-A e a F2.3-B
-foram executadas, a **F2.4 foi concluída** e a **F2.7 está em desenvolvimento**:
-a F2.7-A e a F2.7-B foram concluídas em 2026-09-06, e a próxima etapa interna
-é a **F2.7-C**, ainda não iniciada.
+foram executadas, a **F2.4 foi concluída** e a **F2.7 foi concluída**: as
+F2.7-A, F2.7-B e F2.7-C foram concluídas em 2026-09-06.
 
 As dependências adicionais continuam valendo: a **F2.5 depende da F2.7
 completa** (os banners consomem a biblioteca de mídia), a **F2.6 depende da
@@ -434,8 +430,8 @@ F2.4** (itens de menu que apontam para páginas — dependência hoje satisfeita
 que não a antecipa na fila) e a **F2.3-C depende da F2.3-A + F2.7 completa**
 (logo e favicon usam a biblioteca de mídia).
 
-> Mesmo com F2.7-A e F2.7-B concluídas, F2.3-C e F2.5 continuam bloqueadas até
-> o encerramento da F2.7 após a F2.7-C.
+> A dependência técnica da F2.3-C e da F2.5 na F2.7 está satisfeita. A F2.3-C
+> continua planejada e é a próxima etapa operacional; F2.5 segue depois dela.
 
 A ordem de execução detalhada segue:
 
@@ -501,16 +497,14 @@ para acoplá-las: cores e arquivos de identidade são independentes entre si.
 
 **Encerramento da F2.3**
 
-A F2.3 só pode ser encerrada depois da F2.3-C, que por sua vez aguarda a F2.7.
-Na prática, a F2.3 fica **parcialmente executada** após a conclusão de A e B,
-retomando quando a biblioteca de mídia existir. Isso é intencional: dividir a
-subfase é preferível a duplicar upload de arquivos só para fechá-la antes.
+A F2.3 só pode ser encerrada depois da implementação e validação da F2.3-C. A
+dependência F2.3-A + F2.7 está satisfeita: a F2.7 foi concluída em 2026-09-06.
+Na prática, a F2.3 fica **parcialmente executada** após a conclusão de A e B.
+Isso é intencional: dividir a subfase é preferível a duplicar upload de arquivos.
 
 Com a F2.3-A e a F2.3-B concluídas, a F2.3 está **parcialmente aberta**: falta
-apenas a F2.3-C, que aguarda a **F2.7 completa**. Com a F2.4 concluída, a ordem
-de execução seguiu para a F2.7, hoje ⏳ em desenvolvimento — a F2.7-A e a
-F2.7-B já foram concluídas, resta a F2.7-C. Só depois do encerramento da F2.7 a
-execução retorna aqui para a F2.3-C.
+apenas a F2.3-C, planejada e não iniciada. Com F2.4 e F2.7 concluídas, a
+próxima etapa operacional é a F2.3-C.
 
 **Dependências:** F2.1 (fundação e cache), F2.2 (layout e rotas admin) — ambas
 concluídas.
@@ -1749,9 +1743,9 @@ depende de F2.5, F2.6, F2.7, F2.3-C nem da Fase 3.
 Internamente: `F2.4-A → F2.4-B → F2.4-C`.
 
 **Bloqueadores / decisões pendentes:** nenhum. Com A, B e C concluídas, a
-**F2.4 está encerrada**. A Fase 2 seguiu para a **F2.7 — Biblioteca de Mídia**,
-hoje ⏳ em desenvolvimento: a F2.7-A e a F2.7-B estão concluídas e a próxima
-etapa interna é a **F2.7-C**, ainda não iniciada.
+**F2.4 está encerrada**. Depois dela, a Fase 2 executou e concluiu a
+**F2.7 — Biblioteca de Mídia** em 2026-09-06; a próxima etapa operacional é a
+F2.3-C, ainda planejada e não iniciada.
 
 ---
 
@@ -1842,13 +1836,18 @@ satisfeita.
 
 ---
 
-#### F2.7 — Biblioteca de Mídia ⏳ Em desenvolvimento
+#### F2.7 — Biblioteca de Mídia ✅ Concluída
 
-**Status:** ⏳ **Em desenvolvimento.** A **F2.7-A** (commit `8811b75`) e a
-**F2.7-B** (commit `29fdacb`) estão concluídas, ambas em 2026-09-06; a
-**F2.7-C permanece 📋 planejada e não iniciada**. A F2.7 só será encerrada após
-a F2.7-C — a interface administrativa, a exclusão e a verificação de mídia em
-uso ainda não existem, e nenhum pacote Composer foi instalado.
+**Status:** ✅ **Concluída.** A F2.7 foi concluída integralmente em 2026-09-06:
+
+- F2.7-A — domínio, persistência e storage — commit `8811b75`;
+- F2.7-B — upload e processamento — commit `29fdacb`;
+- F2.7-C — biblioteca administrativa e exclusão protegida — commit `eec2d6c`.
+
+Com A, B e C implementadas e validadas, a F2.7 está encerrada. A dependência
+técnica da F2.3-C e da F2.5 na biblioteca de mídia está satisfeita; a próxima
+etapa operacional continua sendo a F2.3-C, ainda planejada e não iniciada.
+Nenhum pacote Composer adicional foi necessário.
 
 > **Contrato arquitetural definido antes da implementação**, no mesmo formato
 > adotado pela F2.4. As decisões desta seção foram fechadas em **2026-09-06**,
@@ -2942,7 +2941,7 @@ F2.7-A → F2.7-B → F2.7-C
 | --- | --- | --- | --- |
 | F2.7-A — Domínio, persistência e storage | ✅ Concluída | Model `Media`, migration, identidade, política de disk/path, `MediaService` base e URL derivada | F2.2 |
 | F2.7-B — Upload e processamento | ✅ Concluída | Form Request, upload único, validação de MIME/tamanho/dimensões, pipeline do Intervention Image e persistência coordenada | F2.7-A |
-| F2.7-C — Biblioteca administrativa e exclusão protegida | 📋 Planejada | Controller, rotas, grid paginada, sidebar, exclusão e verificação de uso | F2.7-B |
+| F2.7-C — Biblioteca administrativa e exclusão protegida | ✅ Concluída | Controller, rotas, grid paginada, sidebar, exclusão e verificação de uso | F2.7-B |
 
 **Por que dividir:** as três concentram riscos de natureza distinta — modelagem
 e política de armazenamento, processamento de arquivo binário vindo de fora, e
@@ -2955,10 +2954,10 @@ schema.
 **A F2.7 só é encerrada após a F2.7-C.** Uma subfase posterior não começa
 automaticamente ao término da anterior.
 
-Estado atual da divisão interna: **F2.7-A** (commit `8811b75`) e **F2.7-B**
-(commit `29fdacb`) concluídas em 2026-09-06; a próxima etapa interna é a
-**F2.7-C**, ainda não iniciada. A F2.7 permanece ⏳ em desenvolvimento, e nem a
-F2.3-C nem a F2.5 são liberadas por isso — elas dependem da F2.7 **completa**.
+Estado atual da divisão interna: **F2.7-A** (commit `8811b75`), **F2.7-B**
+(commit `29fdacb`) e **F2.7-C** (commit `eec2d6c`) concluídas em 2026-09-06.
+A F2.7 está ✅ concluída; a dependência técnica da F2.3-C foi satisfeita, mas
+ela continua planejada e não iniciada, seguida de F2.5 e F2.6.
 
 ---
 
@@ -3156,9 +3155,9 @@ criado — a busca por `UploadedFile`, `ImageManager`, `MediaController`,
 `MediaUsage` e `MediaInUseException` no commit não retorna implementação, apenas
 comentários que delimitam escopo.
 
-**Bloqueadores / decisões pendentes:** nenhum. A F2.7-B, que a sucedeu, também
-está concluída; a próxima etapa interna é a **F2.7-C — Biblioteca
-administrativa e exclusão protegida**, ainda não iniciada.
+**Bloqueadores / decisões pendentes:** nenhum. No encerramento da F2.7-A, as
+etapas seguintes eram F2.7-B e F2.7-C; ambas foram posteriormente concluídas
+em 2026-09-06.
 
 ---
 
@@ -3522,13 +3521,37 @@ upload múltiplo, *drag-and-drop*, *cropper*, edição de imagem, *thumbnails*,
 original, S3 e CDN operacionais, PDF, vídeo, áudio, SVG, GIF, AVIF, HEIC,
 documentos, seletor reutilizável, consumidores e papéis/policies.
 
-**Bloqueadores / decisões pendentes:** nenhum. A próxima etapa interna é a
-**F2.7-C — Biblioteca administrativa e exclusão protegida**, ainda não
-iniciada.
+**Bloqueadores / decisões pendentes:** nenhum. No fechamento da F2.7-B, a
+etapa seguinte era a F2.7-C; ela foi posteriormente concluída em 2026-09-06 no
+commit `eec2d6c44b2bc7310538d585207ee6869cf2dda3`.
 
 ---
 
-##### F2.7-C — Biblioteca administrativa e exclusão protegida 📋 Planejada
+##### F2.7-C — Biblioteca administrativa e exclusão protegida ✅ Concluída
+
+**Concluída e validada em 2026-09-06.** Commit técnico:
+`eec2d6c44b2bc7310538d585207ee6869cf2dda3`
+(`feat(fase-2): adiciona biblioteca administrativa e exclusao protegida de midia`).
+
+Entregou `MediaUsageRegistry` compartilhado por singleton, `MediaInUseException`,
+`MediaService::delete()` e `MediaController` com as rotas autenticadas
+`admin.media.index`, `admin.media.store` e `admin.media.destroy`. A biblioteca
+Blade usa paginação de 24 itens em `id DESC`, upload pelo `StoreMediaRequest`,
+URLs derivadas, escaping de `original_name`, sidebar Mídia e breadcrumb
+Dashboard / Mídia.
+
+Na exclusão, mídia em uso é bloqueada; mídia livre tem o registro removido em
+transação e commit antes da tentativa física. Arquivo ausente é sucesso; retorno
+`false` ou exception no Filesystem registra warning e mantém a Media excluída.
+Falha de banco propaga e não toca o Filesystem. O risco residual aceito é um
+arquivo órfão após falha física pós-commit.
+
+Validação: 12 testes / 51 assertions da F2.7-C; regressão A/B com 247
+assertions; conjunto A+B+C com 298 assertions; suíte completa 310 testes / 958
+assertions (exit 0), MySQL 8.4.11, Pint PASS (75 arquivos), `composer validate`
+PASS, `composer audit` sem advisories, `npm run build` PASS e `git diff --check`
+limpo. Mutations confirmaram a proteção de uso, ordem DB→Filesystem, remoção
+física, ausência de compensação pós-falha e singleton compartilhado.
 
 **Objetivo:** entregar a operação administrativa da biblioteca e a exclusão
 protegida — o critério que justifica a F2.7 existir como subfase própria.
@@ -3537,46 +3560,46 @@ protegida — o critério que justifica a F2.7 existir como subfase própria.
 
 **Entregáveis planejados**
 
-- [ ] Controller administrativo de mídia, fino, sobre o `MediaService`
-- [ ] Rotas `admin.media.index`, `admin.media.store` e `admin.media.destroy`, somente com `auth`
-- [ ] Blade de listagem com grid paginada, preview, metadados e estado vazio
-- [ ] Formulário de upload de arquivo único na própria `index`
-- [ ] Registro de verificadores de uso, com `register()`, `usages()` e `isInUse()`
-- [ ] Instância **compartilhada** do registro durante o ciclo da aplicação/requisição — quem chama `register()` e quem consulta `isInUse()` veem o mesmo estado lógico
-- [ ] `MediaService::delete()` na ordem contratada: verificar uso → registro → arquivo
-- [ ] Exceção dedicada para mídia em uso
-- [ ] Log de `warning` quando o Filesystem falhar ao remover o arquivo
-- [ ] Mensagens administrativas de sucesso e de bloqueio, citando quem usa a mídia
-- [ ] Item "Mídia" na sidebar e breadcrumb — somente agora, quando a rota existir
+- [x] Controller administrativo de mídia, fino, sobre o `MediaService`
+- [x] Rotas `admin.media.index`, `admin.media.store` e `admin.media.destroy`, somente com `auth`
+- [x] Blade de listagem com grid paginada, preview, metadados e estado vazio
+- [x] Formulário de upload de arquivo único na própria `index`
+- [x] Registro de verificadores de uso, com `register()`, `usages()` e `isInUse()`
+- [x] Instância **compartilhada** do registro durante o ciclo da aplicação/requisição — quem chama `register()` e quem consulta `isInUse()` veem o mesmo estado lógico
+- [x] `MediaService::delete()` na ordem contratada: verificar uso → registro → arquivo
+- [x] Exceção dedicada para mídia em uso
+- [x] Log de `warning` quando o Filesystem falhar ao remover o arquivo
+- [x] Mensagens administrativas de sucesso e de bloqueio, citando quem usa a mídia
+- [x] Item "Mídia" na sidebar e breadcrumb — somente agora, quando a rota existir
 
 **Testes / critério de aceite planejados**
 
-- [ ] Guest é redirecionado em `index`, `store` e `destroy`
-- [ ] Usuário autenticado acessa a biblioteca
-- [ ] A grid exibe os itens esperados
-- [ ] A paginação funciona e a ordenação padrão é determinística
-- [ ] Estado vazio é exibido quando não há mídia
-- [ ] Upload válido pela rota administrativa cria a mídia e dá feedback
-- [ ] Upload inválido retorna erro de validação, sem criar mídia
-- [ ] Mídia livre é excluída: registro e arquivo somem
-- [ ] **Mídia em uso não é excluída** — nem o registro, nem o arquivo
-- [ ] A mensagem de bloqueio informa o administrador e cita o rótulo do consumidor
-- [ ] Com **zero verificadores registrados**, toda mídia é excluível
-- [ ] Um verificador registrado **fora** do `MediaService`, como faria um consumidor no bootstrap, é enxergado por `isInUse()` — a instância é compartilhada, não transitória
-- [ ] Um verificador registrado devolvendo `true` impede a exclusão
-- [ ] Um verificador registrado devolvendo `false` não impede
-- [ ] Com dois verificadores, um positivo basta para impedir
-- [ ] Arquivo físico já ausente: a exclusão conclui com sucesso
-- [ ] Falha do Filesystem ao remover: o registro **já** foi removido e o sucesso reportado é verdadeiro
-- [ ] Falha ao remover o registro: nada é removido e o arquivo permanece intacto
-- [ ] Nenhum verificador de logo, favicon, banner, produto ou categoria é implementado
-- [ ] O `MediaService` não referencia nenhum model consumidor
-- [ ] Nenhuma autorização da Fase 3 é antecipada
-- [ ] Nenhuma funcionalidade da F2.3-C ou da F2.5 é antecipada
-- [ ] O comportamento entregue por F2.7-A e F2.7-B permanece inalterado
-- [ ] Suíte completa permanece verde
-- [ ] Pint passa
-- [ ] `git diff --check` passa
+- [x] Guest é redirecionado em `index`, `store` e `destroy`
+- [x] Usuário autenticado acessa a biblioteca
+- [x] A grid exibe os itens esperados
+- [x] A paginação funciona e a ordenação padrão é determinística
+- [x] Estado vazio é exibido quando não há mídia
+- [x] Upload válido pela rota administrativa cria a mídia e dá feedback
+- [x] Upload inválido retorna erro de validação, sem criar mídia
+- [x] Mídia livre é excluída: registro e arquivo somem
+- [x] **Mídia em uso não é excluída** — nem o registro, nem o arquivo
+- [x] A mensagem de bloqueio informa o administrador e cita o rótulo do consumidor
+- [x] Com **zero verificadores registrados**, toda mídia é excluível
+- [x] Um verificador registrado **fora** do `MediaService`, como faria um consumidor no bootstrap, é enxergado por `isInUse()` — a instância é compartilhada, não transitória
+- [x] Um verificador registrado devolvendo `true` impede a exclusão
+- [x] Um verificador registrado devolvendo `false` não impede
+- [x] Com dois verificadores, um positivo basta para impedir
+- [x] Arquivo físico já ausente: a exclusão conclui com sucesso
+- [x] Falha do Filesystem ao remover: o registro **já** foi removido e o sucesso reportado é verdadeiro
+- [x] Falha ao remover o registro: nada é removido e o arquivo permanece intacto
+- [x] Nenhum verificador de logo, favicon, banner, produto ou categoria é implementado
+- [x] O `MediaService` não referencia nenhum model consumidor
+- [x] Nenhuma autorização da Fase 3 é antecipada
+- [x] Nenhuma funcionalidade da F2.3-C ou da F2.5 é antecipada
+- [x] O comportamento entregue por F2.7-A e F2.7-B permanece inalterado
+- [x] Suíte completa permanece verde
+- [x] Pint passa
+- [x] `git diff --check` passa
 
 **Fora do escopo da F2.7-C:** seletor global de mídia, edição de metadados,
 *tags*, pastas, busca, autorização granular e qualquer consumidor concreto.
@@ -3658,8 +3681,9 @@ dono dentro da própria F2.7, **ambos já cumpridos**:
   codificação WebP real pelo Intervention. A aceitação continua derivando da
   capacidade do runtime, e **JPEG e PNG nunca dependeram dele**.
 
-**Estado da F2.7:** ⏳ em desenvolvimento — F2.7-A ✅, F2.7-B ✅, F2.7-C 📋. A
-próxima etapa interna é a **F2.7-C**.
+**Estado da F2.7:** ✅ concluída — F2.7-A ✅, F2.7-B ✅, F2.7-C ✅. A F2.3-C e a
+F2.5 permanecem não iniciadas e podem seguir somente após este fechamento
+documental; a F2.6 continua na ordem operacional existente.
 
 ---
 
@@ -3696,12 +3720,12 @@ verificadas no repositório e no ambiente Docker:
   responde 404 até que `php artisan storage:link` seja executado. A suíte não
   detecta a ausência, porque `Storage::fake('public')` substitui o disco —
   daí o gate operacional da F2.7-A ser verificação de ambiente, não teste.
-- O GD da imagem atual **não tem suporte a WebP** (`gd_info()` →
-  `WebP Support = false`): o `docker/Dockerfile` configura
-  `docker-php-ext-configure gd --with-freetype --with-jpeg`, sem `libwebp`, e
-  Imagick não está instalado. Codificar WebP hoje falha com
-  `Call to undefined function ...imagewebp()` — um `Error` do PHP, não uma
-  exceção do Intervention.
+- O GD da imagem atual **tem suporte a WebP**: `docker/Dockerfile` instala
+  `libwebp` e `libwebp-dev`, recompila GD com `--with-webp`,
+  `gd_info()['WebP Support'] === true` e uma codificação WebP real pelo
+  Intervention foram comprovados pela F2.7-B. A aceitação de `image/webp`
+  continua derivando da capability real do runtime; em outro ambiente sem esse
+  suporte, o formato é rejeitado pela validação.
 - `docker/php.ini` (`upload_max_filesize`/`post_max_size` de 100M,
   `memory_limit` de 512M) e `docker/nginx.conf` (`client_max_body_size 100M`)
   já acomodam upload com folga: limites menores são decisão de aplicação, não
@@ -3711,10 +3735,10 @@ verificadas no repositório e no ambiente Docker:
 
 - Nenhum bloqueador arquitetural pendente. A **F2.2 — Fundação do Admin** foi
   concluída (A, B e C) e liberou as subfases que dependiam dela. Estado atual:
-  a **F2.4 está concluída**; a **F2.7 está em desenvolvimento**, com a F2.7-A e
-  a F2.7-B concluídas em 2026-09-06 e a **F2.7-C como próxima etapa**; a F2.3-C
-  aguarda a F2.7 **completa**; a F2.5 permanece planejada, também depois da
-  F2.7 completa; e a F2.6 permanece planejada para depois da F2.5 — sua
+  a **F2.4 está concluída** e a **F2.7 está concluída** (A, B e C em
+  2026-09-06); a F2.3-C tem sua dependência técnica satisfeita, mas permanece
+  planejada e é a próxima etapa operacional. A F2.5 permanece planejada depois
+  da F2.3-C, e a F2.6 permanece planejada para depois da F2.5 — sua
   dependência da F2.4 está satisfeita, mas isso não a antecipa na ordem de
   execução.
 - A autorização granular permanece na Fase 3. Durante toda a Fase 2, qualquer
@@ -3742,8 +3766,8 @@ verificadas no repositório e no ambiente Docker:
 - ✅ Fase 1 (concluída)
 
 #### Próximo Passo
-→ **F2.7-C — Biblioteca administrativa e exclusão protegida** — 📋 planejada,
-**não iniciada**. A F2.7 está ⏳ em desenvolvimento: a **F2.7-A** foi concluída
+→ **F2.3-C — Logo e favicon** — 📋 planejada, **não iniciada**. A F2.7 está ✅
+concluída e satisfez a dependência técnica desta etapa. A **F2.7-A** foi concluída
 em 2026-09-06 (commit `8811b75`), entregando a entidade `Media`, a migration, a
 política de disk/path e o núcleo do `MediaService`; e a **F2.7-B** foi concluída
 no mesmo dia (commit `29fdacb`), entregando o upload único com validação de MIME
@@ -4540,13 +4564,12 @@ Atualizado toda segunda-feira com progresso real.
 
 - ✅ **F2.1 — Fundação do CMS:** concluída.
 - ✅ **F2.2 — Fundação do Admin:** concluída (A, B e C).
-- Nenhum bloqueador arquitetural conhecido para a próxima etapa. A **F2.4 está
-  concluída** e a **F2.7 — Biblioteca de Mídia está ⏳ em desenvolvimento**: a
-  F2.7-A e a F2.7-B foram concluídas em 2026-09-06 e a próxima etapa é a
-  **F2.7-C**, ainda não iniciada. A F2.3-C aguarda a **F2.7 completa**; a F2.5
-  também depende da **F2.7 completa**; e a dependência da F2.6 em relação à F2.4
-  já está satisfeita, mas sua execução permanece somente depois de
-  F2.7 → F2.3-C → F2.5. A autorização granular permanece na Fase 3.
+- ✅ **F2.4 — Páginas Estáticas:** concluída.
+- ✅ **F2.7 — Biblioteca de Mídia:** concluída integralmente em 2026-09-06
+  (F2.7-A, F2.7-B e F2.7-C). Nenhum bloqueador arquitetural conhecido para a
+  próxima etapa: a dependência técnica da F2.3-C está satisfeita, mas ela
+  permanece planejada e não iniciada, como próxima etapa operacional. Depois
+  seguem F2.5 e F2.6. A autorização granular permanece na Fase 3.
 
 ---
 
