@@ -36,6 +36,32 @@
             </li>
             <li aria-hidden="true" class="text-gray-300">/</li>
             <li class="font-medium text-gray-700" aria-current="page">Páginas</li>
+        @elseif (request()->routeIs('admin.banners.create'))
+            <li>
+                <a href="{{ route('admin') }}" class="hover:text-gray-700">Dashboard</a>
+            </li>
+            <li aria-hidden="true" class="text-gray-300">/</li>
+            <li>
+                <a href="{{ route('admin.banners.index') }}" class="hover:text-gray-700">Banners</a>
+            </li>
+            <li aria-hidden="true" class="text-gray-300">/</li>
+            <li class="font-medium text-gray-700" aria-current="page">Novo banner</li>
+        @elseif (request()->routeIs('admin.banners.edit'))
+            <li>
+                <a href="{{ route('admin') }}" class="hover:text-gray-700">Dashboard</a>
+            </li>
+            <li aria-hidden="true" class="text-gray-300">/</li>
+            <li>
+                <a href="{{ route('admin.banners.index') }}" class="hover:text-gray-700">Banners</a>
+            </li>
+            <li aria-hidden="true" class="text-gray-300">/</li>
+            <li class="font-medium text-gray-700" aria-current="page">Editar</li>
+        @elseif (request()->routeIs('admin.banners.*'))
+            <li>
+                <a href="{{ route('admin') }}" class="hover:text-gray-700">Dashboard</a>
+            </li>
+            <li aria-hidden="true" class="text-gray-300">/</li>
+            <li class="font-medium text-gray-700" aria-current="page">Banners</li>
         @elseif (request()->routeIs('admin.settings.theme.*'))
             <li>
                 <a href="{{ route('admin') }}" class="hover:text-gray-700">Dashboard</a>

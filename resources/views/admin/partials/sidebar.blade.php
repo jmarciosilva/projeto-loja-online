@@ -16,9 +16,10 @@
             navegação: com poucos itens, qualquer abstração custaria mais do que
             resolve. Cada novo módulo repete este mesmo padrão.
 
-            `admin` casa apenas o dashboard; `admin.pages.*` e `admin.settings.*`
-            casam as rotas de páginas e de configurações. Os padrões são
-            disjuntos, então nunca ficam ativos ao mesmo tempo.
+            `admin` casa apenas o dashboard; `admin.pages.*`, `admin.banners.*`
+            e `admin.settings.*` casam as rotas de páginas, banners e
+            configurações. Os padrões são disjuntos, então nunca ficam ativos ao
+            mesmo tempo.
         --}}
         <ul class="space-y-1">
             <li>
@@ -52,6 +53,17 @@
                        'text-gray-700 hover:bg-gray-100' => ! request()->routeIs('admin.pages.*'),
                    ])>
                     Páginas
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('admin.banners.index') }}"
+                   @if (request()->routeIs('admin.banners.*')) aria-current="page" @endif
+                   @class([
+                       'block rounded-lg px-3 py-2 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2 focus-visible:outline-none',
+                       'bg-gray-900 text-white' => request()->routeIs('admin.banners.*'),
+                       'text-gray-700 hover:bg-gray-100' => ! request()->routeIs('admin.banners.*'),
+                   ])>
+                    Banners
                 </a>
             </li>
             <li>

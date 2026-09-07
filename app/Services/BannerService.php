@@ -199,6 +199,137 @@ class BannerService
     }
 
     /**
+     * Sobe o banner uma posição dentro da sua própria posição.
+     *
+     * No topo da lista é **no-op**: nada é gravado e nenhuma exceção é lançada.
+     * Recusar o clique com erro não descreveria nada de errado — o
+     * administrador só pediu para subir algo que já está em primeiro.
+     */
+    public function moveUp(Banner $banner): void
+    {
+        $this->move($banner, -1);
+    }
+
+    /**
+     * Desce o banner uma posição dentro da sua própria posição.
+     *
+     * No fim da lista é no-op, pelo mesmo motivo de {@see self::moveUp()}.
+     */
+    public function moveDown(Banner $banner): void
+    {
+        $this->move($banner, 1);
+    }
+
+    /**
+     * Mídias oferecidas ao administrador na tela de banner.
+     *
+     * A consulta vive aqui, e não no Controller nem na Blade, no mesmo padrão
+     * de `VisualIdentityService::availableMedia()`. A ordem é `id DESC` — a
+     * mídia recém-enviada aparece primeiro, que é o caso de uso de quem acabou
+     * de subir a imagem do banner.
+     *
+     * O banner aceita **qualquer formato que a biblioteca da F2.7 armazene**:
+     * a restrição a PNG é do favicon da F2.3-C e não tem paralelo aqui.
+     *
+     * @return Collection<int, Media>
+     */
+    public function availableMedia(): Collection
+    {
+        return Media::query()->orderByDesc('id')->get();
+    }
+
+    /**
+     * O link cabe no contrato?
+     *
+     * Existe para o Form Request antecipar a rejeição no formulário sem
+     * reescrever a regra: quem responde é a mesma normalização usada na
+     * gravação, de modo que HTTP e domínio não podem divergir. É o mesmo
+     * arranjo de `VisualIdentityService::isSupportedFavicon()`.
+     *
+     * A invariante continua sendo garantida por {@see self::create()} e
+     * {@see self::update()} — esta checagem é conveniência de interface.
+     */
+    public function isSupportedLink(mixed $value): bool
+    {
+        try {
+            $this->linkUrl($value);
+
+            return true;
+        } catch (InvalidArgumentException) {
+            return false;
+        }
+    }
+
+    /**
+     * Troca o banner de lugar com o vizinho e renumera a posição inteira.
+     *
+     * A ordenação é **por posição**: cada `BannerPosition` é uma sequência
+     * independente, e uma operação de ordem nunca atravessa duas delas.
+     *
+     * Banners inativos participam normalmente — a lista administrativa é a
+     * lista completa, e filtrar por `is_active` aqui faria a ordem exibida
+     * divergir da ordem gravada. O filtro público é assunto da F2.5-C.
+     *
+     * A leitura usa `lockForUpdate()` para que a renumeração não parta de um
+     * retrato já vencido: sem isso, uma criação simultânea na mesma posição
+     * poderia entrar entre a leitura e a escrita. Como a posição sempre tem ao
+     * menos este banner, o bloqueio recai sobre registros reais — e não sobre
+     * o gap vazio que exige o retry da criação. Ainda assim a transação usa as
+     * mesmas três tentativas: a closure relê tudo do banco, então repetir é
+     * seguro, e o custo de não tratar um deadlock transitório seria uma tela de
+     * erro para o administrador.
+     *
+     * @param  int  $offset  -1 para subir, 1 para descer
+     */
+    private function move(Banner $banner, int $offset): void
+    {
+        $position = $banner->getOriginal('position');
+
+        DB::transaction(function () use ($banner, $offset, $position): void {
+            $ordered = Banner::query()
+                ->where('position', $position->value)
+                ->orderBy('sort_order')
+                ->orderBy('id')
+                ->lockForUpdate()
+                ->get();
+
+            $index = $ordered->search(fn (Banner $candidate): bool => $candidate->is($banner));
+
+            if ($index === false) {
+                throw new InvalidArgumentException("The banner [{$banner->getKey()}] is no longer in position [{$position->value}].");
+            }
+
+            $target = $index + $offset;
+
+            if ($target < 0 || $target >= $ordered->count()) {
+                return;
+            }
+
+            $ids = $ordered->pluck('id')->all();
+            [$ids[$index], $ids[$target]] = [$ids[$target], $ids[$index]];
+
+            $this->renumber($ids);
+        }, 3);
+    }
+
+    /**
+     * Grava a sequência como `1..N`, na ordem recebida.
+     *
+     * A ordenação explícita é o momento certo de compactar: o CRUD comum
+     * **não** fecha lacunas — excluir o banner do meio pode deixar `1, 3`, e
+     * isso continua válido porque a ordem é relativa, não uma contagem. Quem
+     * pediu para reordenar, porém, espera ver a lista renumerada.
+     *
+     * @param  list<int>  $orderedIds
+     */
+    private function renumber(array $orderedIds): void
+    {
+        foreach (array_values($orderedIds) as $index => $id) {
+            Banner::query()->whereKey($id)->update(['sort_order' => $index + 1]);
+        }
+    }
+
+    /**
      * Próxima ordem livre da posição, anexando ao fim.
      *
      * Posição vazia começa em `1`. O `lockForUpdate()` existe pela janela entre

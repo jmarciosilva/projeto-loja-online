@@ -285,17 +285,22 @@ class AdminThemeSettingsTest extends TestCase
 
     public function test_the_settings_navigation_lists_only_the_existing_sections(): void
     {
-        $html = $this->actingAsAdmin()->get(self::URI)->getContent();
+        // A asserção recai sobre a navegação local de Configurações, e não
+        // sobre a página inteira: desde a F2.5-B "Banners" existe na sidebar,
+        // como seção própria do painel. A intenção do guard é a mesma de antes
+        // — esta navegação lista somente as seções de configuração que existem,
+        // e nenhuma delas é Banners ou Menus.
+        $navegacao = $this->settingsNavigation($this->actingAsAdmin()->get(self::URI)->getContent());
 
         // "Identidade visual" entrou com a F2.3-C, quando a rota passou a
-        // existir. O guard continua o mesmo: a navegação só anuncia seção cuja
-        // rota exista — anunciar antes seria caminho quebrado.
+        // existir. A navegação só anuncia seção cuja rota exista — anunciar
+        // antes seria caminho quebrado.
         foreach (['Gerais', 'Tema e cores', 'Identidade visual'] as $secao) {
-            $this->assertStringContainsString($secao, $html);
+            $this->assertStringContainsString($secao, $navegacao);
         }
 
         foreach (['Banners', 'Menus'] as $secaoFutura) {
-            $this->assertStringNotContainsString($secaoFutura, $html);
+            $this->assertStringNotContainsString($secaoFutura, $navegacao);
         }
     }
 

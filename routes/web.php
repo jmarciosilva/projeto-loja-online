@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\SiteSettingController;
@@ -71,6 +72,28 @@ Route::middleware('auth')
             ->name('pages.update');
         Route::delete('paginas/{page}', [PageController::class, 'destroy'])
             ->name('pages.destroy');
+
+        // `banners` é a mesma palavra em português e inglês, então o segmento
+        // serve às duas. `{banner}` resolve por `Banner.id`: o banner não tem
+        // slug nem endereço público próprio.
+        Route::get('banners', [BannerController::class, 'index'])
+            ->name('banners.index');
+        Route::get('banners/criar', [BannerController::class, 'create'])
+            ->name('banners.create');
+        Route::post('banners', [BannerController::class, 'store'])
+            ->name('banners.store');
+        Route::get('banners/{banner}/editar', [BannerController::class, 'edit'])
+            ->name('banners.edit');
+        Route::put('banners/{banner}', [BannerController::class, 'update'])
+            ->name('banners.update');
+        Route::delete('banners/{banner}', [BannerController::class, 'destroy'])
+            ->name('banners.destroy');
+
+        // Ordenação explícita, decidida nesta subfase: um passo por vez, dentro
+        // da posição do próprio banner. POST porque mover não é idempotente —
+        // repetir o pedido move de novo.
+        Route::post('banners/{banner}/mover', [BannerController::class, 'move'])
+            ->name('banners.move');
     });
 
 /*
