@@ -17,9 +17,13 @@
     - F2.7-A — Domínio, persistência e storage: ✅ concluída em 2026-09-06
     - F2.7-B — Upload e processamento: ✅ concluída em 2026-09-06
     - F2.7-C — Biblioteca administrativa e exclusão protegida: ✅ concluída em 2026-09-06
-  - Próxima etapa operacional: **F2.5 — Banners**, seguida de F2.6 — Menus.
-    Ambas permanecem 📋 planejadas; a Fase 2 segue ⏳ em desenvolvimento
-    enquanto elas não forem concluídas.
+  - **F2.5 — Banners: ⏳ em desenvolvimento**
+    - F2.5-A — Domínio, persistência e Service Layer: ✅ concluída em 2026-09-06
+    - F2.5-B — Administração e ordenação: 📋 planejada
+    - F2.5-C — Consulta pública, integração e hardening: 📋 planejada
+  - Próxima etapa operacional: **F2.5-B**, e depois a **F2.6 — Menus**, ainda
+    📋 planejada. A Fase 2 segue ⏳ em desenvolvimento enquanto a F2.5 e a F2.6
+    não forem concluídas.
 - **Fase 1:** ✅ Concluída em 2026-09-04
 - **Data de Início:** 2026-09-04
 - **Data Estimada de MVP Completo:** 2026-09-30
@@ -184,8 +188,9 @@ Uma subfase posterior não começa automaticamente ao término da anterior. A F2
 aparece dividida porque suas três partes têm dependências distintas.
 
 > **Ponto atual da fila:** a F2.3-C está concluída e, com ela, a **F2.3 está
-> encerrada** — assim como F2.4 e F2.7. A próxima etapa operacional é a
-> **F2.5 — Banners**, ainda planejada e não iniciada; depois vem a F2.6.
+> encerrada** — assim como F2.4 e F2.7. A **F2.5 — Banners** está em execução:
+> a F2.5-A foi concluída em 2026-09-06 e a próxima etapa operacional é a
+> F2.5-B, com a F2.5-C em seguida; depois vem a F2.6.
 
 Duas decisões arquiteturais explicam essa ordem, e ambas evitam duplicar o
 mesmo mecanismo:
@@ -224,7 +229,7 @@ no repositório e foi executado/validado com sucesso.**
 | F2.3 — Configurações Globais | ✅ Concluída | Configurações gerais, tema e identidade visual integrada à F2.7 | F2.1, F2.2 (C também da F2.7) |
 | F2.4 — Páginas Estáticas | ✅ Concluída | CRUD de páginas com SEO e publicação | F2.2 |
 | F2.7 — Biblioteca de Mídia | ✅ Concluída | Upload, processamento e consulta de mídia, em F2.7-A/B/C concluídas | F2.2 |
-| F2.5 — Banners | 📋 Planejado | CRUD de banners com ordenação, sobre a mídia da F2.7 | F2.2, **F2.7** |
+| F2.5 — Banners | ⏳ Em desenvolvimento | CRUD de banners com ordenação, sobre a mídia da F2.7 — F2.5-A concluída, B e C planejadas | F2.2, **F2.7** |
 | F2.6 — Menus | 📋 Planejado | Menus hierárquicos e itens | F2.2, F2.4 |
 
 > A tabela segue a **ordem de execução**, não a numeração: a F2.7 precede a
@@ -510,8 +515,8 @@ contra exclusão de mídia em uso — em vez de criar um upload paralelo. Entre
 A/B e C a F2.3 ficou deliberadamente **parcialmente executada**; dividir a
 subfase foi preferível a duplicar upload de arquivos só para fechá-la antes.
 
-Com F2.3, F2.4 e F2.7 concluídas, a próxima etapa operacional é a **F2.5 —
-Banners**, ainda planejada.
+Com F2.3, F2.4 e F2.7 concluídas, a etapa operacional seguinte passou a ser a
+**F2.5 — Banners**, hoje em execução com a F2.5-A concluída.
 
 **Dependências:** F2.1 (fundação e cache), F2.2 (layout e rotas admin) — ambas
 concluídas.
@@ -1889,15 +1894,16 @@ Internamente: `F2.4-A → F2.4-B → F2.4-C`.
 **Bloqueadores / decisões pendentes:** nenhum. Com A, B e C concluídas, a
 **F2.4 está encerrada**. Depois dela, a Fase 2 executou e concluiu a
 **F2.7 — Biblioteca de Mídia** e a **F2.3-C**, ambas em 2026-09-06, encerrando
-também a F2.3; a próxima etapa operacional é a **F2.5**, ainda planejada e não
-iniciada.
+também a F2.3; a etapa operacional seguinte é a **F2.5**, já em execução com a
+F2.5-A concluída.
 
 ---
 
-#### F2.5 — Banners 📋 Planejado
+#### F2.5 — Banners ⏳ Em desenvolvimento
 
-**Status:** 📋 **Planejada — não iniciada.** Nenhum código foi escrito, nenhuma
-migration criada e nenhum pacote instalado.
+**Status:** ⏳ **Em desenvolvimento.** A **F2.5-A está concluída** desde
+2026-09-06; **F2.5-B e F2.5-C permanecem 📋 planejadas e não iniciadas.** Nenhum
+pacote foi instalado.
 
 > **Contrato arquitetural definido antes da implementação**, no mesmo formato
 > adotado por F2.4 e F2.7. As decisões desta seção foram fechadas em
@@ -1952,7 +1958,7 @@ F2.5-A → F2.5-B → F2.5-C
 
 | Subfase | Status | Entrega principal | Depende de |
 | --- | --- | --- | --- |
-| F2.5-A — Domínio, persistência e Service Layer | 📋 Planejada | Migration `banners`, model `Banner`, enum `BannerPosition`, FK para `media`, `BannerService` e registro do consumidor no `MediaUsageRegistry` | F2.2, F2.7 |
+| F2.5-A — Domínio, persistência e Service Layer | ✅ Concluída em 2026-09-06 | Migration `banners`, model `Banner`, enum `BannerPosition`, FK para `media`, `BannerService` e registro do consumidor no `MediaUsageRegistry` | F2.2, F2.7 |
 | F2.5-B — Administração e ordenação | 📋 Planejada | Controller, Form Requests, CRUD, seleção de mídia existente, ativo/inativo e ordenação por posição | F2.5-A |
 | F2.5-C — Consulta pública, integração com mídia e hardening | 📋 Planejada | Consulta pública por posição, integração mínima do `hero` na home e regressão de A e B | F2.5-B |
 
@@ -2527,24 +2533,98 @@ Autoria e autorização administrativa definitivas dependem da Fase 3 — não h
 
 ##### Entregáveis planejados
 
-###### F2.5-A — Domínio, persistência e Service Layer 📋 Planejada
+###### F2.5-A — Domínio, persistência e Service Layer ✅ Concluída
 
-- [ ] Migration `banners` conforme o schema contratado
-- [ ] FK `media_id` com `restrictOnDelete()`
-- [ ] Model `Banner`, sem `SoftDeletes`
-- [ ] Enum `BannerPosition` (`hero`, `sidebar`, `footer`), persistido em coluna string
-- [ ] Relacionamento `Banner → Media`
-- [ ] Índice composto `(position, is_active, sort_order)`
-- [ ] Default `is_active = false` no schema
-- [ ] `BannerService` com as invariantes da entidade
-- [ ] Atribuição do `sort_order` inicial no `BannerService`, anexando ao fim da posição
-- [ ] Normalização de `link_url` no `BannerService`
-- [ ] Consulta ordenada básica por `sort_order ASC, id ASC`
-- [ ] Registro do consumidor `Banner` no `MediaUsageRegistry`
-- [ ] Factory de `Banner`, se os testes exigirem
-- [ ] Testes de domínio e persistência
+**Concluída e validada em 2026-09-06.**
+
+| Commit | Papel |
+| --- | --- |
+| `f7fb5437776afb525ea1fa3b708feb4da086d4a3` | `feat(banners): implementa dominio e service da F2.5-A` |
+
+- [x] Migration `banners` conforme o schema contratado
+- [x] FK `media_id` com `restrictOnDelete()`
+- [x] Model `Banner`, sem `SoftDeletes`
+- [x] Enum `BannerPosition` (`hero`, `sidebar`, `footer`), persistido em coluna string
+- [x] Relacionamento `Banner → Media`
+- [x] Índice composto `(position, is_active, sort_order)`
+- [x] Default `is_active = false` no schema
+- [x] `BannerService` com as invariantes da entidade
+- [x] Atribuição do `sort_order` inicial no `BannerService`, anexando ao fim da posição
+- [x] Normalização de `link_url` no `BannerService`
+- [x] Consulta ordenada básica por `sort_order ASC, id ASC`
+- [x] Registro do consumidor `Banner` no `MediaUsageRegistry`
+- [x] Factory de `Banner`, se os testes exigirem
+- [x] Testes de domínio e persistência
 
 Sem interface administrativa, sem rota pública e sem alteração visual da home.
+
+**O que foi entregue**
+
+O schema saiu exatamente como contratado, confirmado contra o MySQL real:
+`sort_order INT UNSIGNED NOT NULL` **sem default**, `is_active BOOLEAN NOT NULL
+DEFAULT FALSE`, `media_id` com `ON DELETE RESTRICT`, o índice
+`(position, is_active, sort_order)` e **nenhum** `UNIQUE (position, sort_order)`.
+
+O `BannerService` é a camada autoritativa, com quatro métodos públicos:
+
+```text
+create()   update()   delete()   orderedForPosition()
+```
+
+`orderedForPosition()` é a consulta ordenada de domínio e devolve
+deliberadamente **todos** os banners da posição, ativos ou não — o filtro por
+`is_active` pertence à consulta pública da F2.5-C. `sort_order` nunca é lido do
+chamador: o serviço monta o payload a partir dos próprios campos suportados. O
+`DELETE` é físico e remove somente o banner; a mídia permanece na biblioteca.
+
+**Atomicidade e concorrência — mecanismo validado**
+
+```text
+MAX(sort_order da posição) + 1 lido como locking read
++
+DB::transaction($callback, 3)
++
+captura da posição persistida antes da transação, no update
+```
+
+O locking read serializa posições já populadas. Numa faixa ainda vazia os gap
+locks do InnoDB são compatíveis entre si, e o par gap/insert-intention forma
+deadlock — transitório, resolvido pelo retry nativo e **limitado** do Laravel,
+que reexecuta a operação inteira e recalcula o `MAX`. Esgotadas as três
+tentativas, a exceção volta a ser propagada: nada é engolido.
+
+No `update()`, a posição de origem é lida com `getOriginal('position')` **antes**
+da transação. O rollback desfaz o banco, mas não o objeto em memória; decidir
+pela posição já mutada faria a segunda tentativa pular o recálculo da ordem e
+regravar um `sort_order` obsoleto. Sem essa captura, o retry produzia duplicata
+silenciosa.
+
+> A estratégia concorrente foi validada no MySQL canônico em `REPEATABLE READ`.
+
+Nenhum isolamento é fixado pela aplicação, e nenhuma configuração de banco foi
+acrescentada: vale o padrão do servidor. Não foram usados `UNIQUE`, lock
+externo, advisory lock, tabela auxiliar nem retry escrito à mão.
+
+**Validação**
+
+```text
+foco             105 testes / 152 assertions
+suíte completa   470 testes / 1262 assertions
+```
+
+Ambas verdes no **MySQL 8.4.11** real do ambiente Docker e na suíte canônica.
+Pint PASS; `composer validate` válido; `composer audit` sem vulnerabilidades
+conhecidas; `git diff --check` limpo. A concorrência foi exercitada com sessões
+MySQL independentes e simultâneas — criação e mudança de posição, em faixa vazia
+e populada —, sem nenhuma duplicata de `sort_order` e com todas as operações
+concluindo. Os *mutation checks* manuais confirmaram que o desempate por `id`, a
+reatribuição de ordem na mudança de posição, o registro no `MediaUsageRegistry`
+e o próprio retry são load-bearing.
+
+**Fora desta subfase:** Controller, Form Requests, views, rotas, seleção
+administrativa de mídia, reordenação, `activeForPosition()`, consulta pública,
+integração do `hero` na home, upload, cache, roles e policies — tudo permanece
+com a F2.5-B e a F2.5-C.
 
 ###### F2.5-B — Administração e ordenação 📋 Planejada
 
@@ -2612,7 +2692,8 @@ Sem upload, sem Livewire, sem Alpine e sem AJAX.
 - [ ] `git diff --check` passa
 
 **Bloqueadores / decisões pendentes:** nenhum. As dependências F2.2 e F2.7 estão
-concluídas. A F2.5 aguarda apenas a autorização para iniciar a **F2.5-A**.
+concluídas, e a F2.5-A entregou o domínio sobre o qual B e C se apoiam. A F2.5
+aguarda apenas a autorização para iniciar a **F2.5-B**.
 
 ---
 
@@ -4589,19 +4670,19 @@ verificadas no repositório e no ambiente Docker:
 - ✅ Fase 1 (concluída)
 
 #### Próximo Passo
-→ **F2.5 — Banners** — 📋 planejada, **não iniciada**. Com a F2.3 encerrada em
-2026-09-06 — a F2.3-C concluiu logo e favicon sobre a biblioteca de mídia —, e
-com F2.4 e F2.7 também concluídas, a F2.5 passa a ser a próxima etapa
-operacional. Sua dependência da F2.7 está satisfeita: os banners consumirão a
-mesma biblioteca centralizada, sem upload próprio.
+→ **F2.5-B — Administração e ordenação** — 📋 planejada, **não iniciada**. A
+**F2.5 — Banners** está ⏳ em desenvolvimento: a **F2.5-A foi concluída em
+2026-09-06**, entregando migration, model, enum, `BannerService` e o registro do
+consumidor no `MediaUsageRegistry`. Sua dependência da F2.7 estava satisfeita, e
+os banners de fato consomem a biblioteca centralizada, sem upload próprio.
 
-Depois dela vem a **F2.6 — Menus**, última da fila. A dependência da F2.6 em
-relação à F2.4 está satisfeita, mas isso não a antecipa. A Fase 2 permanece
-⏳ em desenvolvimento enquanto F2.5 e F2.6 não forem concluídas, e a Fase 3
-permanece após o encerramento da Fase 2.
+Depois da F2.5-B vem a **F2.5-C**, e só então a **F2.6 — Menus**, última da
+fila. A dependência da F2.6 em relação à F2.4 está satisfeita, mas isso não a
+antecipa. A Fase 2 permanece ⏳ em desenvolvimento enquanto F2.5 e F2.6 não
+forem concluídas, e a Fase 3 permanece após o encerramento da Fase 2.
 
-A arquitetura da F2.5 não é definida aqui: ela receberá sua própria auditoria
-antes da implementação, como as subfases anteriores.
+A arquitetura da F2.5 foi fechada antes da implementação, em `d7937f3`, como nas
+subfases anteriores.
 
 ---
 
@@ -5387,9 +5468,10 @@ Atualizado toda segunda-feira com progresso real.
 - ✅ **F2.7 — Biblioteca de Mídia:** concluída integralmente em 2026-09-06
   (F2.7-A, F2.7-B e F2.7-C). Nenhum bloqueador arquitetural conhecido para a
   próxima etapa: a dependência técnica da F2.3-C foi satisfeita e ela já foi
-  concluída, encerrando a F2.3. A **F2.5 — Banners** é a próxima etapa
-  operacional, ainda planejada, seguida da F2.6. A autorização granular
-  permanece na Fase 3.
+  concluída, encerrando a F2.3. A autorização granular permanece na Fase 3.
+- ⏳ **F2.5 — Banners:** em desenvolvimento. A **F2.5-A está concluída** desde
+  2026-09-06; **F2.5-B e F2.5-C** seguem planejadas, e a F2.6 vem depois delas.
+  Nenhum bloqueador conhecido.
 
 ---
 
@@ -5623,6 +5705,35 @@ Atualizado toda segunda-feira com progresso real.
   migration criada. **A F2.3 está encerrada** com A, B e C concluídas; a Fase 2
   segue ⏳ em desenvolvimento, e a próxima etapa operacional é a **F2.5 —
   Banners**, seguida da F2.6 — nenhuma das duas iniciada.
+- **2026-09-06:** **F2.5-A — Domínio, persistência e Service Layer concluída**,
+  iniciando a F2.5. Commit técnico
+  `f7fb5437776afb525ea1fa3b708feb4da086d4a3`
+  (`feat(banners): implementa dominio e service da F2.5-A`), sobre o contrato
+  arquitetural congelado em `d7937f3`. Entrega a migration `banners` com o
+  schema contratado — `sort_order INT UNSIGNED NOT NULL` sem default,
+  `is_active BOOLEAN NOT NULL DEFAULT FALSE`, FK `media_id → media.id` com
+  `ON DELETE RESTRICT`, índice `(position, is_active, sort_order)` e **sem**
+  `UNIQUE (position, sort_order)` —, o enum `BannerPosition` com `hero`,
+  `sidebar` e `footer`, o model `Banner` sem `SoftDeletes` referenciando
+  `Media.id` (nunca `path` nem URL) e o `BannerService` como camada
+  autoritativa, com `create()`, `update()`, `delete()` e
+  `orderedForPosition()`. A ordem é contextual à posição: criação anexa ao fim
+  com `MAX(sort_order) + 1`, posição vazia começa em `1`, atualizar sem trocar
+  de posição preserva a ordem e trocar de posição move para o fim do destino;
+  a consulta usa `sort_order ASC, id ASC`. A atomicidade veio de
+  **`MAX` como locking read + `DB::transaction(..., 3)` + captura da posição
+  persistida no `update()`**, validada no MySQL canônico em `REPEATABLE READ`
+  com sessões concorrentes reais, sem nenhuma duplicata de `sort_order`. O
+  `link_url` é opcional e normalizado — vazio vira `null`, `trim` antes de
+  validar, sem inventar protocolo —, aceitando apenas caminho interno iniciado
+  por `/` ou URL `http`/`https` com host válido. O consumidor **`Banner`** foi
+  registrado no `MediaUsageRegistry`, que permanece genérico, com a FK como
+  segunda barreira; excluir um banner remove somente o banner. Validação: 105
+  testes / 152 assertions focados e 470 / 1262 na suíte completa, contra o
+  MySQL 8.4.11 real; Pint, `composer validate`, `composer audit` e
+  `git diff --check` verdes. **Sem interface administrativa, sem consulta
+  pública e sem alteração da home** — F2.5-B e F2.5-C seguem 📋 planejadas, a
+  F2.5 continua ⏳ em desenvolvimento e a Fase 2 também.
 - *Próxima revisão: 2026-09-11*
 
 ---
