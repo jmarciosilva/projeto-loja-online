@@ -662,9 +662,10 @@ class BannerServiceTest extends TestCase
         );
     }
 
-    public function test_the_ordered_query_of_the_current_subphase_still_includes_inactive_banners(): void
+    public function test_the_ordered_query_still_includes_inactive_banners(): void
     {
-        // A consulta pública, que filtra `is_active`, pertence à F2.5-C.
+        // A consulta administrativa mostra a lista completa; quem filtra
+        // `is_active` é `activeForPosition()`.
         $inactive = $this->create(BannerPosition::Hero);
         $active = $this->create(BannerPosition::Hero, ['is_active' => true]);
 
@@ -679,6 +680,153 @@ class BannerServiceTest extends TestCase
         $this->create(BannerPosition::Hero);
 
         $this->assertTrue($this->service()->orderedForPosition(BannerPosition::Sidebar)->isEmpty());
+    }
+
+    // --- Consulta pública -------------------------------------------------
+
+    public function test_the_public_query_returns_only_active_banners(): void
+    {
+        $inactive = $this->create(BannerPosition::Hero);
+        $active = $this->create(BannerPosition::Hero, ['is_active' => true]);
+
+        $public = $this->service()->activeForPosition(BannerPosition::Hero);
+
+        $this->assertSame([$active->id], $public->pluck('id')->all());
+        $this->assertNotContains($inactive->id, $public->pluck('id')->all());
+    }
+
+    public function test_the_public_query_is_scoped_to_the_requested_position(): void
+    {
+        $hero = $this->create(BannerPosition::Hero, ['is_active' => true]);
+        $this->create(BannerPosition::Sidebar, ['is_active' => true]);
+        $this->create(BannerPosition::Footer, ['is_active' => true]);
+
+        $this->assertSame(
+            [$hero->id],
+            $this->service()->activeForPosition(BannerPosition::Hero)->pluck('id')->all(),
+        );
+    }
+
+    public function test_every_position_of_the_enum_has_its_own_public_query(): void
+    {
+        // `sidebar` e `footer` não têm consumidor visual nesta subfase, mas a
+        // consulta do serviço vale para todo o enum — e é aqui que isso fica
+        // provado, sem inventar interface pública para elas.
+        $banners = [];
+
+        foreach (BannerPosition::cases() as $position) {
+            $banners[$position->value] = $this->create($position, ['is_active' => true]);
+        }
+
+        foreach (BannerPosition::cases() as $position) {
+            $this->assertSame(
+                [$banners[$position->value]->id],
+                $this->service()->activeForPosition($position)->pluck('id')->all(),
+            );
+        }
+    }
+
+    public function test_the_public_query_follows_sort_order_and_then_id(): void
+    {
+        $media = Media::factory()->create();
+
+        $third = $this->makeActive($media, 3);
+        // Os dois seguintes empatam em `sort_order`: sem o desempate por `id`,
+        // a ordem entre eles dependeria do plano escolhido pelo banco.
+        $firstTie = $this->makeActive($media, 1);
+        $secondTie = $this->makeActive($media, 1);
+
+        $this->assertSame(
+            [$firstTie->id, $secondTie->id, $third->id],
+            $this->service()->activeForPosition(BannerPosition::Hero)->pluck('id')->all(),
+        );
+    }
+
+    public function test_the_public_query_asks_the_database_for_the_whole_contract(): void
+    {
+        // O filtro precisa acontecer **no banco**: carregar a posição inteira
+        // para descartar os inativos em memória devolveria o mesmo resultado
+        // hoje e cresceria com o histórico de banners despublicados.
+        //
+        // O desempate por `id` também raramente é observável pelo resultado —
+        // no InnoDB a chave primária já compõe as entradas do índice
+        // secundário. Por isso a verificação é sobre a cláusula que chega ao
+        // banco, e não sobre a coincidência de um plano de execução.
+        $statements = [];
+        DB::listen(function (QueryExecuted $query) use (&$statements): void {
+            $statements[] = $query->sql;
+        });
+
+        $this->service()->activeForPosition(BannerPosition::Hero);
+
+        $this->assertNotEmpty($statements);
+
+        $sql = (string) $statements[0];
+
+        $this->assertMatchesRegularExpression('/where .?position.? = \?/i', $sql);
+        $this->assertMatchesRegularExpression('/.?is_active.? = \?/i', $sql);
+        $this->assertMatchesRegularExpression('/order by .?sort_order.? asc, .?id.? asc/i', $sql);
+    }
+
+    public function test_an_empty_position_returns_an_empty_public_collection(): void
+    {
+        $this->create(BannerPosition::Hero, ['is_active' => true]);
+
+        $this->assertTrue($this->service()->activeForPosition(BannerPosition::Sidebar)->isEmpty());
+    }
+
+    public function test_a_position_with_only_inactive_banners_returns_nothing_publicly(): void
+    {
+        $this->create(BannerPosition::Hero);
+        $this->create(BannerPosition::Hero);
+
+        $this->assertTrue($this->service()->activeForPosition(BannerPosition::Hero)->isEmpty());
+    }
+
+    public function test_the_public_query_delivers_the_media_ready_for_presentation(): void
+    {
+        $media = Media::factory()->create();
+        $banner = $this->create(BannerPosition::Hero, ['media_id' => $media->id, 'is_active' => true]);
+
+        $public = $this->service()->activeForPosition(BannerPosition::Hero)->firstOrFail();
+
+        $this->assertTrue($public->is($banner));
+        $this->assertNotNull($public->media);
+        $this->assertSame($media->id, $public->media->id);
+        $this->assertSame($media->path, $public->media->path);
+    }
+
+    public function test_the_public_query_eager_loads_the_media(): void
+    {
+        // Regressão de N+1: a vitrine percorre todos os banners devolvidos e lê
+        // a mídia de cada um. Sem o eager loading, cada item do laço abriria a
+        // sua própria consulta.
+        $media = Media::factory()->create();
+
+        foreach (range(1, 3) as $ignored) {
+            $this->create(BannerPosition::Hero, ['media_id' => $media->id, 'is_active' => true]);
+        }
+
+        $public = $this->service()->activeForPosition(BannerPosition::Hero);
+
+        $this->assertCount(3, $public);
+
+        foreach ($public as $banner) {
+            $this->assertTrue($banner->relationLoaded('media'));
+        }
+
+        // A contagem confirma o efeito, e não apenas a flag: percorrer a mídia
+        // de todos os banners não pode disparar consulta nenhuma.
+        $statements = 0;
+        DB::listen(function (QueryExecuted $query) use (&$statements): void {
+            $statements++;
+        });
+
+        foreach ($public as $banner) {
+            $this->assertNotNull($banner->media->path);
+        }
+
+        $this->assertSame(0, $statements);
     }
 
     // --- Exclusão ---------------------------------------------------------
@@ -803,6 +951,23 @@ class BannerServiceTest extends TestCase
             'position' => $position,
             'alt_text' => 'Campanha de verão.',
         ], $overrides));
+    }
+
+    /**
+     * Banner ativo de `hero` com a ordem fixada, sem passar pelo serviço.
+     *
+     * A ordem é explícita de propósito: os testes de ordenação precisam
+     * fixá-la para provar a regra, e deixá-la a cargo do próprio serviço
+     * tornaria o serviço a fixture do teste que deveria verificá-lo.
+     */
+    private function makeActive(Media $media, int $sortOrder): Banner
+    {
+        return Banner::factory()->create([
+            'media_id' => $media->id,
+            'position' => BannerPosition::Hero,
+            'sort_order' => $sortOrder,
+            'is_active' => true,
+        ]);
     }
 
     /**

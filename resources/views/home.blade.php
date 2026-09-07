@@ -3,6 +3,9 @@
 @section('title', config('app.name'))
 
 @section('content')
+    {{-- Destaques da posição `hero`, resolvidos pelo BannerService na rota. --}}
+    @include('partials.hero-banners')
+
     <div class="rounded-lg border border-gray-200 bg-white p-8">
         <p class="text-sm font-medium uppercase tracking-wide text-gray-500">
             Fase 1 concluída

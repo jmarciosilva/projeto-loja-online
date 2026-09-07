@@ -13,14 +13,21 @@ use InvalidArgumentException;
  * Service Layer dos banners.
  *
  * Concentra as invariantes da entidade para que valham em qualquer consumidor,
- * e não apenas no fluxo HTTP. Controller e Form Requests chegam na F2.5-B;
- * quando chegarem, a validação deles será uma barreira antecipada de entrada,
- * nunca a fonte autoritativa destas regras.
+ * e não apenas no fluxo HTTP. A validação do Controller e dos Form Requests da
+ * F2.5-B é uma barreira antecipada de entrada, nunca a fonte autoritativa
+ * destas regras.
  *
- * A F2.5-A funda o núcleo: criação, atualização, exclusão, atribuição da ordem,
- * normalização do link e consulta ordenada por posição. A consulta pública —
- * que também filtra `is_active` — pertence à F2.5-C, e a reordenação explícita
- * à F2.5-B.
+ * A F2.5-A fundou o núcleo: criação, atualização, exclusão, atribuição da
+ * ordem, normalização do link e consulta ordenada por posição. A F2.5-B
+ * acrescentou a reordenação explícita, e a F2.5-C a consulta pública — que
+ * também filtra `is_active`.
+ *
+ * As duas consultas por posição são deliberadamente distintas:
+ *
+ * ```text
+ * orderedForPosition()  →  domínio/administração: ativos e inativos
+ * activeForPosition()   →  vitrine pública: somente ativos
+ * ```
  */
 class BannerService
 {
@@ -184,8 +191,8 @@ class BannerService
      * poderiam alternar entre requisições.
      *
      * Devolve **todos** os banners da posição, ativos ou não. Esta é a consulta
-     * de domínio; a consulta pública, que também filtra `is_active`, pertence à
-     * F2.5-C.
+     * de domínio e da administração; quem filtra `is_active` é
+     * {@see self::activeForPosition()}, a consulta da vitrine.
      *
      * @return Collection<int, Banner>
      */
@@ -193,6 +200,40 @@ class BannerService
     {
         return Banner::query()
             ->where('position', $position->value)
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get();
+    }
+
+    /**
+     * Banners **públicos** de uma posição, na ordem contratada.
+     *
+     * É a consulta da vitrine, e a única diferença semântica em relação a
+     * {@see self::orderedForPosition()} é o filtro `is_active`: um banner
+     * inativo nunca aparece aqui. As duas convivem de propósito — a lista
+     * administrativa mostra o que existe, a pública mostra o que está no ar.
+     *
+     * O filtro acontece **no banco**, e não sobre uma coleção já carregada:
+     * trazer a posição inteira para depois descartar os inativos em memória
+     * cresceria com o histórico de banners despublicados, que é justamente o
+     * que a vitrine não precisa ler.
+     *
+     * A mídia vem por eager loading porque a renderização consome a imagem de
+     * **todos** os banners devolvidos — sem isso, cada banner do laço abriria
+     * a sua própria consulta. É otimização interna: o contrato externo continua
+     * sendo uma coleção de `Banner`.
+     *
+     * Nenhum cache: a decisão arquitetural da F2.5 é ir ao banco enquanto não
+     * houver necessidade medida.
+     *
+     * @return Collection<int, Banner>
+     */
+    public function activeForPosition(BannerPosition $position): Collection
+    {
+        return Banner::query()
+            ->with('media')
+            ->where('position', $position->value)
+            ->where('is_active', true)
             ->orderBy('sort_order')
             ->orderBy('id')
             ->get();
@@ -268,7 +309,8 @@ class BannerService
      *
      * Banners inativos participam normalmente — a lista administrativa é a
      * lista completa, e filtrar por `is_active` aqui faria a ordem exibida
-     * divergir da ordem gravada. O filtro público é assunto da F2.5-C.
+     * divergir da ordem gravada. O filtro público vive em
+     * {@see self::activeForPosition()}.
      *
      * A leitura usa `lockForUpdate()` para que a renumeração não parta de um
      * retrato já vencido: sem isso, uma criação simultânea na mesma posição

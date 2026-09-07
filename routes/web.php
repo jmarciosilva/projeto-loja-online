@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\BannerPosition;
 use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\PageController;
@@ -7,11 +8,26 @@ use App\Http\Controllers\Admin\SiteSettingController;
 use App\Http\Controllers\Admin\ThemeSettingController;
 use App\Http\Controllers\Admin\VisualIdentitySettingController;
 use App\Http\Controllers\PageController as PublicPageController;
+use App\Services\BannerService;
+use App\Services\MediaService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', fn () => view('home'))->name('home');
+/*
+ * Home comercial da loja. Ela continua sendo a página existente — a F2.5-C
+ * apenas acrescenta os banners de destaque no topo.
+ *
+ * A closure resolve o `BannerService` pelo container e entrega à Blade o que o
+ * serviço já ordenou e filtrou: a view não consulta `Banner`. O `MediaService`
+ * viaja junto porque é dele que sai a URL pública da imagem, no mesmo arranjo
+ * já usado pela listagem administrativa de banners — o banner nunca guarda
+ * caminho nem URL.
+ */
+Route::get('/', fn (BannerService $banners, MediaService $media) => view('home', [
+    'heroBanners' => $banners->activeForPosition(BannerPosition::Hero),
+    'media' => $media,
+]))->name('home');
 
 /*
  * Páginas estáticas públicas, sob o namespace `/paginas/` em vez de um
