@@ -21,8 +21,13 @@
     - F2.5-A — Domínio, persistência e Service Layer: ✅ concluída em 2026-09-06
     - F2.5-B — Administração e ordenação: ✅ concluída em 2026-09-06
     - F2.5-C — Consulta pública, integração e hardening: ✅ concluída em 2026-09-07
-  - Próxima etapa operacional: **F2.6 — Menus**, ainda 📋 planejada. A Fase 2
-    segue ⏳ em desenvolvimento enquanto a F2.6 não for concluída.
+  - **F2.6 — Menus: 📋 planejada** — contrato arquitetural fechado em 2026-09-07
+    - F2.6-A — Domínio, persistência, hierarquia e Service Layer: 📋 planejada
+    - F2.6-B — Administração, CRUD e ordenação: 📋 planejada
+    - F2.6-C — Consulta pública, integração e hardening: 📋 planejada
+  - Próxima etapa operacional: **F2.6-A — Domínio, persistência, hierarquia e
+    Service Layer**, ainda 📋 planejada e não iniciada. A Fase 2 segue ⏳ em
+    desenvolvimento enquanto a F2.6 não for concluída.
 - **Fase 1:** ✅ Concluída em 2026-09-04
 - **Data de Início:** 2026-09-04
 - **Data Estimada de MVP Completo:** 2026-09-30
@@ -1869,10 +1874,11 @@ persistente.
 > implementada, itens de menu internos deverão relacionar-se à página por sua
 > **identidade**, e a URL deverá ser resolvida a partir da `Page` atual.
 
-Não fica decidido agora se a F2.6 usará enum de destino, relacionamento
+A F2.4 **não** decidiu se a F2.6 usaria enum de destino, relacionamento
 polimórfico, `page_id` nullable, URL externa combinada com `page_id` ou outra
-modelagem — isso pertence à auditoria arquitetural da F2.6. O único contrato
-que a F2.4 fecha é:
+modelagem: isso pertencia à auditoria arquitetural da F2.6, fechada em
+2026-09-07 — que optou por **enum `MenuItemType` (`page`/`url`) com `page_id`
+nullable, sem polimorfismo**. O único contrato que a F2.4 fecha é:
 
 ```text
 slug != identidade
@@ -2911,44 +2917,836 @@ a próxima etapa operacional da Fase 2 é a **F2.6 — Menus**.
 
 #### F2.6 — Menus 📋 Planejado
 
-**Objetivo:** montar a navegação do site a partir de menus hierárquicos.
+**Status:** 📋 **Planejada.** O **contrato arquitetural foi fechado em
+2026-09-07**; a implementação **não foi iniciada**. Nenhum model, migration,
+serviço, rota, view ou teste de menu existe no repositório, e nenhum pacote foi
+instalado.
 
-**Entregáveis**
+> **Contrato arquitetural definido antes da implementação**, no mesmo formato
+> adotado por F2.4, F2.7 e F2.5. As decisões desta seção foram fechadas em
+> **2026-09-07**, sobre o HEAD `3770f35`, confrontando o contrato resumido
+> anterior com o repositório real — `Page`, `PageStatus`, `PageService`,
+> `routes/web.php`, `layouts.app`, o `AppServiceProvider` e o layout
+> administrativo existentes.
 
-- [ ] Model `Menu`
-- [ ] Model `MenuItem`
-- [ ] Migrations
-- [ ] Hierarquia parent/child
-- [ ] Ordenação
-- [ ] URLs customizadas
-- [ ] Relacionamento com páginas, quando aplicável
-- [ ] Drag-and-drop — **somente na camada de interface**; a ordenação em si é
-      persistida por um campo de ordem, não pelo componente visual
+**Objetivo:** montar a navegação do site a partir de menus hierárquicos
+administráveis, reutilizando as páginas da F2.4 como destino interno.
 
-**Testes / critério de aceite**
+Não é um construtor de páginas nem um sistema de segmentação: o escopo é a
+árvore de links com rótulo, destino, ordem e estado.
 
-- [ ] CRUD de menus e itens exercitado por testes
-- [ ] Hierarquia parent/child persiste e é lida corretamente
-- [ ] A ordenação é respeitada na renderização
-- [ ] Item apontando para uma página resolve a URL correta
+---
 
-**Dependências:** F2.2 (layout e rotas admin), F2.4 (para itens que apontam
-para páginas) — a **F2.4 completa**, isto é, após a F2.4-C, e não apenas a
-identidade entregue pela F2.4-A. **Ambas satisfeitas.**
+##### Direção de dependência
 
-> As dependências da F2.6 estão satisfeitas e as etapas que a precediam na fila
-> — F2.7, F2.3-C e F2.5 — já foram concluídas. A F2.6 é agora a próxima etapa
-> operacional da Fase 2, mas permanece 📋 planejada e não iniciada até
-> autorização específica para sua auditoria/implementação.
+```text
+F2.4  →  F2.6
+F2.2  →  F2.6
+```
 
-> **Contrato herdado da F2.4:** itens internos devem se relacionar à página por
-> `Page.id`, não pelo slug — o slug é endereço público e pode mudar. A URL é
-> resolvida a partir da `Page` atual. A modelagem dos destinos de menu (enum,
-> polimórfico, `page_id` nullable ou outra) fica para a auditoria arquitetural
-> desta subfase.
+**Dependências:** **F2.2** (layout e rotas administrativas) e **F2.4 completa**
+— isto é, após a F2.4-C, e não apenas a identidade entregue pela F2.4-A.
+**Ambas satisfeitas.**
 
-**Bloqueadores / decisões pendentes:** nenhum. A dependência da F2.2 está
-satisfeita.
+A F2.4 fornece, prontos: a entidade `Page`, a identidade `Page.id`, o `slug`
+como endereço público mutável, o `PageStatus` (`draft`/`published`), os
+SoftDeletes e a rota pública `pages.show`.
+
+> A F2.6 é **consumidora**. A F2.4 **não** passa a conhecer `MenuItem` — a
+> direção nunca se inverte, exatamente como já vale para a F2.3-C e a F2.5 em
+> relação à F2.7.
+
+---
+
+##### Divisão interna — F2.6-A → F2.6-B → F2.6-C
+
+A F2.6 é executada em três subfases internas, incrementais e testáveis
+isoladamente. A divisão é **documental e organizacional**: não altera o contrato
+abaixo, não antecipa implementação e não promove A/B/C a subfases independentes
+da Fase 2. A F2.6 continua sendo **uma** subfase da Fase 2, e é a última da fila.
+
+```text
+F2.6-A → F2.6-B → F2.6-C
+```
+
+| Subfase | Status | Entrega principal | Depende de |
+| --- | --- | --- | --- |
+| F2.6-A — Domínio, persistência, hierarquia e Service Layer | 📋 Planejada | Migrations `menus` e `menu_items`, models, enum `MenuItemType`, FKs, invariantes da árvore e `MenuService` | F2.2, F2.4 |
+| F2.6-B — Administração, CRUD e ordenação | 📋 Planejada | Controller, Form Requests, CRUD de menu e de item, hierarquia, estado e ordenação | F2.6-A |
+| F2.6-C — Consulta pública, integração e hardening | 📋 Planejada | Consulta pública por `code`, integração do menu `main` no header e regressão de A e B | F2.6-B |
+
+**Por que dividir:** as três concentram riscos distintos — integridade de uma
+árvore com ciclos possíveis; operação administrativa com reordenação dentro de
+grupos de irmãos; e exposição pública com resolução de destino e visibilidade
+herdada. É o mesmo critério que já justificou dividir F2.4, F2.7 e F2.5. Uma
+subfase posterior **não** começa automaticamente ao término da anterior.
+
+---
+
+##### Modelagem — `menus`
+
+```text
+menus
+
+id          BIGINT UNSIGNED AUTO_INCREMENT PK
+name        VARCHAR(120)  NOT NULL
+code        VARCHAR(64)   NOT NULL UNIQUE
+is_active   BOOLEAN       NOT NULL DEFAULT FALSE
+created_at  TIMESTAMP     NULL
+updated_at  TIMESTAMP     NULL
+```
+
+`name` é a **identificação administrativa humana** — o que o administrador lê na
+listagem: `Menu principal`, `Institucional`, `Rodapé`.
+
+`code` é a **identidade técnica estável** pela qual um consumidor público
+localiza o menu: `main`, `institutional`, `footer`.
+
+---
+
+##### Identidade técnica — `code`
+
+Formato canônico, validado pelo serviço:
+
+```text
+^[a-z0-9]+(?:-[a-z0-9]+)*$
+```
+
+Minúsculas, dígitos e hífen simples entre segmentos. Não é slug de endereço
+público — é chave de consumo interno, e por isso não passa por geração
+automática a partir do nome nem por resolução de colisão com sufixo numérico.
+
+**O `code` é imutável depois da criação.** A atualização normal de um menu pode
+alterar `name` e `is_active`, mas **nunca** `code`.
+
+*Motivo:* o consumidor público localiza o menu pelo código técnico. Renomear
+`main` para `principal` faria a navegação do storefront simplesmente sumir, sem
+erro, sem log e sem nada na tela que explicasse o porquê. Um identificador que
+outra camada usa como endereço não pode ser editável por engano num formulário.
+
+A unicidade é garantida pelo `UNIQUE` do banco **e** conferida pelo serviço, no
+mesmo arranjo já usado por `pages.slug`: a checagem antecipada devolve erro de
+domínio, e o índice fecha a corrida entre verificar e inserir.
+
+---
+
+##### Menu não é posição visual
+
+`Menu` é **container de navegação**, não localização na página. Nesta fase
+**não** existem `MenuLocation`, `position`, `header`, `footer` ou `sidebar` como
+enum ou coluna.
+
+Onde um menu aparece é decisão de **quem o consome**: o layout pede o menu pelo
+`code` que lhe interessa. Gravar a posição no próprio menu inverteria isso —
+passaria a ser o dado a decidir o layout, e cada tema novo exigiria migration.
+
+Na F2.6-C, apenas o menu técnico `code = main` recebe integração pública
+comprovada. Nenhum menu `footer` é criado automaticamente só porque o domínio
+aceita outros códigos.
+
+---
+
+##### Modelagem — `menu_items`
+
+```text
+menu_items
+
+id          BIGINT UNSIGNED AUTO_INCREMENT PK
+
+menu_id     BIGINT UNSIGNED NOT NULL
+parent_id   BIGINT UNSIGNED NULL
+
+label       VARCHAR(120)    NOT NULL
+type        VARCHAR(20)     NOT NULL
+
+page_id     BIGINT UNSIGNED NULL
+url         VARCHAR(2048)   NULL
+
+sort_order  INT UNSIGNED    NOT NULL
+is_active   BOOLEAN         NOT NULL DEFAULT FALSE
+
+created_at  TIMESTAMP       NULL
+updated_at  TIMESTAMP       NULL
+```
+
+`sort_order` **não** tem default no schema: quem atribui é o serviço, a partir
+do estado dos irmãos. Um default silencioso faria toda inserção fora do serviço
+nascer com a mesma ordem.
+
+**Não** entram sem requisito comprovado: `icon`, `image_id`, `css_class`,
+`target`, `rel`, `metadata`, `settings JSON`, `tenant_id`, `user_id`, `role_id`,
+`starts_at`, `ends_at`, `deleted_at`.
+
+---
+
+##### Relação Menu → itens
+
+```text
+menu_items.menu_id  →  menus.id  →  ON DELETE RESTRICT
+```
+
+O `MenuItem` **pertence estruturalmente** ao menu: fora dele não significa nada,
+não tem endereço próprio e não é compartilhável. Mesmo assim a FK é `RESTRICT`,
+e não `CASCADE` — e a razão é a hierarquia.
+
+*Por que não cascade:* `parent_id` é auto-referencial com `RESTRICT`, e o InnoDB
+verifica as constraints **imediatamente**, linha a linha. Um cascade do menu
+apagaria um item pai antes dos seus filhos e esbarraria no próprio `RESTRICT` da
+hierarquia — a exclusão falharia justamente nos menus que têm árvore, que são o
+caso normal. Manter as duas barreiras `RESTRICT` e remover a árvore
+explicitamente é o que faz as duas regras conviverem.
+
+O `RESTRICT` também impede a exclusão direta e acidental de um menu que ainda
+tenha itens — por linha de comando, por script ou por qualquer caminho que não
+passe pela Service Layer.
+
+**Excluir um menu inteiro é operação de domínio do `MenuService`**, não efeito
+implícito do banco:
+
+```text
+excluir Menu (Service Layer)
+→ abre transação
+→ carrega e valida a árvore do menu
+→ remove os MenuItems das folhas para as raízes
+→ remove o Menu
+→ commit
+```
+
+A ordem folhas → raízes é o que satisfaz o `RESTRICT` de `parent_id` a cada
+passo: nenhum item é removido enquanto ainda tiver filhos. Tudo acontece em
+**uma única transação** — se qualquer etapa falhar, o rollback devolve o menu e
+a árvore inteiros, sem estado parcial.
+
+Do ponto de vista de quem usa, o comportamento público não muda: excluir um menu
+pela Service Layer remove o menu e todos os seus itens. O que muda é que isso
+deixa de depender de um `ON DELETE CASCADE` incompatível com a hierarquia.
+
+É o oposto do vínculo com `Media` na F2.5 em outro sentido: lá o arquivo existe
+independentemente de quem o consome, e por isso nunca é removido junto; aqui o
+item não sobrevive ao menu — mas quem o remove é o serviço, não o banco.
+
+**`MenuItem.menu_id` é estruturalmente imutável depois da criação.** O CRUD
+normal não move item nem subárvore entre menus. Se algum dia houver requisito
+para isso, será operação explícita própria, com contrato próprio — mover uma
+subárvore inteira entre menus é outra operação, não um campo editável.
+
+---
+
+##### Hierarquia — adjacency list
+
+```text
+menu_items.parent_id  →  menu_items.id  →  ON DELETE RESTRICT
+```
+
+A escolha é **adjacency list**: uma coluna, uma FK, sem tabela de fechamento,
+sem `path` materializado e sem `lft`/`rgt` de nested set. Os menus são árvores
+curtas e rasas, lidas inteiras de uma vez — a estrutura mais simples que resolve
+o problema é a certa, e as alternativas existem para consultas de subárvore em
+árvores grandes, que aqui não acontecem.
+
+`RESTRICT`, e **não** `CASCADE`: excluir um item pai não pode apagar
+silenciosamente toda a sua subárvore. Quem remove "Produtos" precisa ver que
+existem três filhos e decidir o que fazer com eles.
+
+**Profundidade:** nenhum limite artificial de dois ou três níveis é introduzido.
+A estrutura permite profundidade arbitrária; a interface pode ser simples, mas o
+domínio não ganha um teto sem requisito que o justifique.
+
+---
+
+##### Integridade da árvore
+
+O `MenuService` é autoritativo e recusa:
+
+```text
+item como pai de si mesmo
+pai pertencente a outro Menu
+item transformado em filho de um descendente seu
+qualquer ciclo
+```
+
+O caso que a FK sozinha não pega:
+
+```text
+A
+└── B
+    └── C
+        └── A     ← recusado
+```
+
+Cada uma dessas linhas é referencialmente válida — o ciclo só aparece
+percorrendo a cadeia de ancestrais. Por isso a verificação é do serviço, e o
+Form Request **não** é a única barreira: uma chamada direta ao Service Layer,
+fora do HTTP, recebe exatamente a mesma proteção.
+
+---
+
+##### Destino do item
+
+Enum PHP, string-backed, persistido em `VARCHAR(20)` — nunca `ENUM` nativo do
+MySQL, pela mesma razão de `PageStatus`, `BannerPosition` e do restante do
+projeto: um tipo novo não deve exigir migration de alteração de schema.
+
+```php
+enum MenuItemType: string
+{
+    case Page = 'page';
+    case Url = 'url';
+}
+```
+
+**Sem polimorfismo.** Não existem `target_type`, `target_id` nem `morphTo()`
+nesta fase.
+
+*Motivo:* hoje a aplicação tem exatamente **dois** destinos comprovados — uma
+`Page` existente e uma URL customizada. `Product`, `Category`, `Brand`,
+`Collection`, `Campaign` e busca pertencem a fases futuras ou sequer têm
+contrato. Modelar a generalidade agora custaria o índice composto, a FK real
+para `pages` e a legibilidade da consulta, em troca de flexibilidade para
+entidades que ninguém sabe ainda como serão.
+
+*Fronteira:* se um terceiro destino aparecer com contrato, a migração de
+`page_id` para um alvo polimórfico é uma decisão própria, tomada com o caso real
+na mão.
+
+---
+
+##### Destino `page` — vínculo por `Page.id`
+
+```text
+type = page   →   page_id != null   E   url = null
+```
+
+```text
+menu_items.page_id  →  pages.id  →  ON DELETE RESTRICT
+```
+
+**Contrato herdado da F2.4**, agora resolvido:
+
+```text
+Page.id    = identidade estável
+Page.slug  = endereço público mutável
+```
+
+`MenuItem` guarda `page_id`. **Nunca** o slug, a URL pública nem o path. Na
+renderização:
+
+```text
+MenuItem.page_id  →  Page.id  →  slug atual  →  route('pages.show', [...])
+```
+
+Alterar o slug de uma página muda o endereço público **sem** exigir qualquer
+atualização em `menu_items`.
+
+> **Observação obrigatória sobre a FK:** `Page` usa `SoftDeletes`. A exclusão
+> lógica **não** remove a linha e **não** dispara o `RESTRICT` — o vínculo
+> continua existindo administrativamente. A FK protege apenas contra remoção
+> física; quem impede o item de aparecer publicamente é o critério de
+> publicabilidade, não o banco.
+
+**Página em rascunho:** um item que aponta para uma `Page` com `status = draft`
+**não aparece publicamente**, mas continua existindo no admin. O item não é
+excluído automaticamente — publicar a página de volta deve restaurar a
+navegação sem reconfiguração.
+
+**Página soft-deleted:** o `MenuItem` permanece persistido e não aparece
+publicamente. Seus filhos **não** são promovidos a outro nível: a configuração
+administrativa é preservada como está.
+
+---
+
+##### Destino `url`
+
+```text
+type = url   →   url != null   E   page_id = null
+```
+
+A combinação ambígua `page_id != null` **e** `url != null` é recusada pelo
+serviço. Dois destinos preenchidos significam que ninguém sabe para onde o link
+vai.
+
+O contrato da URL é o **mesmo já endurecido nos banners da F2.5**, e não uma
+política nova:
+
+```text
+aceito     /contato
+           /promocoes
+           https://example.com
+           http://example.com
+
+recusado   //example.com          (protocol-relative)
+           www.example.com        (sem esquema)
+           \contato               (barra invertida)
+           javascript:  data:  vbscript:  file:  ftp:
+```
+
+URL absoluta somente com esquema **HTTP/HTTPS** e host válido. A validação
+**não inventa protocolo**: `www.example.com` não vira `https://www.example.com`,
+porque adivinhar o esquema é escolher por quem digitou.
+
+A regra autoritativa vive no `MenuService`; o Form Request apenas a antecipa,
+como já fazem `BannerService::isSupportedLink()` e
+`VisualIdentityService::isSupportedFavicon()`.
+
+**Sem `target` e sem `rel` configuráveis** na F2.6: a renderização é um link
+simples, sem `target="_blank"`, sem `rel` automático, sem JavaScript e sem
+`onclick`.
+
+---
+
+##### Rótulo
+
+`label` é **texto simples**, obrigatório, normalizado com `trim` e recusado
+quando vazio ou só com espaços. HTML **não** é persistido.
+
+Renderização com escape normal do Blade:
+
+```blade
+{{ $item->label }}
+```
+
+Nunca `{!! $item->label !!}` — nem para o rótulo, nem para a URL.
+
+---
+
+##### Estado
+
+```text
+Menu.is_active       BOOLEAN NOT NULL DEFAULT FALSE
+MenuItem.is_active   BOOLEAN NOT NULL DEFAULT FALSE
+```
+
+Menu novo e item novo **nascem inativos**, salvo estado explicitamente
+informado. Criar um registro não é publicá-lo: montar uma árvore de navegação
+leva vários passos, e nenhum deles deve aparecer pela metade no site.
+
+---
+
+##### Ordenação
+
+`sort_order` pertence ao **grupo de irmãos**, identificado por:
+
+```text
+(menu_id, parent_id)
+```
+
+Não existe ordem global do menu: comparar a ordem de um item raiz com a de um
+neto não significa nada — é a mesma lógica de `sort_order` contextual à
+`position` na F2.5.
+
+```text
+raiz                          filhos de "Produtos"
+Produtos      1               Masculino   1
+Quem somos    2               Feminino    2
+Contato       3               Infantil    3
+```
+
+**Ordem determinística.** Toda consulta ordenada de irmãos usa:
+
+```text
+sort_order ASC, id ASC
+```
+
+`id` é o desempate: sem ele, dois irmãos de mesma ordem poderiam alternar entre
+requisições.
+
+**Sem `UNIQUE (menu_id, parent_id, sort_order)`.** A reordenação passa por
+estados intermediários com empate, e a restrição quebraria justamente a operação
+que ela pareceria proteger. Sua ausência **não** dispensa Service Layer nem
+locking — é o serviço que garante a invariante.
+
+**Novo item:** `MAX(sort_order dos irmãos) + 1`; grupo vazio começa em `1`. O
+chamador **não** controla `sort_order` no CRUD normal.
+
+**Atualização no mesmo pai:** alterar `label`, `type`, `page_id`, `url` ou
+`is_active` sem mudar `parent_id` **preserva** o `sort_order`. A ordem só muda
+por uma decisão sobre a ordem.
+
+**Mudança de pai:** quando `parent_id` muda — inclusive para `null`, movendo ao
+raiz — o item é **anexado ao fim do novo grupo de irmãos**. O número antigo
+descrevia o lugar dele entre outros irmãos e, no novo grupo, não descreve nada.
+A operação valida ciclo e pertencimento ao mesmo menu.
+
+**Exclusão:** um item **sem filhos** é removido fisicamente. Lacunas **não** são
+compactadas de imediato — `1, 2, 5, 8` continua válido, porque a ordem é
+relativa e não uma contagem. Uma reordenação efetiva normaliza depois para
+`1, 2, 3, 4`.
+
+**Exclusão de item com filhos:** **recusada**, com erro de domínio compreensível.
+A subárvore não é cascateada silenciosamente; o administrador remove ou
+reposiciona os filhos primeiro.
+
+**Sem `SoftDeletes`** em `Menu` e `MenuItem` nesta fase — e portanto sem
+lixeira, `restore` ou `forceDelete`. A razão que os justifica em `Page` — manter
+o slug reservado, porque é endereço público — não existe aqui: nem menu nem item
+têm endereço próprio.
+
+---
+
+##### Índices
+
+```text
+INDEX (menu_id, parent_id, sort_order)
+```
+
+Cobre a consulta predominante — irmãos de um grupo, na ordem contratada — e
+serve igualmente à leitura da árvore inteira de um menu pelo prefixo `menu_id`.
+
+O `UNIQUE (code)` de `menus` é o segundo índice relevante, e é o mesmo que
+sustenta a consulta pública por código.
+
+Nenhum índice é criado em `label`, `url`, `created_at` ou `updated_at` sem uma
+consulta que o justifique.
+
+---
+
+##### Concorrência
+
+Operações que calculam ordem ou reordenam irmãos reutilizam o padrão já
+comprovado na F2.5, sem inventar mecanismo novo:
+
+```php
+DB::transaction($callback, 3)
+```
+
+com `lockForUpdate()` sobre o conjunto relevante — o grupo de irmãos, não a
+tabela.
+
+Ambiente canônico de validação:
+
+```text
+MySQL 8.4 / REPEATABLE-READ
+```
+
+O isolamento **não** é fixado pela aplicação: vale o padrão do servidor. Ficam
+fora: `Redis lock`, `GET_LOCK()`, `LOCK TABLES`, semáforo e
+`UNIQUE (sort_order)`.
+
+---
+
+##### Camadas
+
+```text
+Controller  →  MenuService  →  Menu / MenuItem
+```
+
+O `MenuService` é a camada autoritativa: invariantes da árvore, atribuição de
+ordem, exclusividade `page`/`url`, contrato da URL, imutabilidade de `code` e de
+`menu_id`, e atomicidade. Controller e Form Requests antecipam a rejeição na
+interface, mas nunca são a fonte da regra.
+
+> **Repository não é necessário para a F2.6.** Não são criados `MenuRepository`,
+> `MenuRepositoryInterface` nem `EloquentMenuRepository` — é a mesma decisão já
+> tomada em F2.4, F2.7 e F2.5.
+
+Responsabilidades que o contrato exige do serviço, sem fixar aqui os nomes
+exatos dos métodos:
+
+```text
+criar / atualizar / excluir Menu
+criar / atualizar / excluir MenuItem
+mover item para cima / para baixo
+reordenar um grupo de irmãos
+resolver a árvore pública de um Menu por code
+resolver a URL pública de um item
+```
+
+---
+
+##### Consulta pública
+
+A consulta pública é **por `Menu.code`** — e não por `id`, que é interno, nem
+por `name`, que é editável. Para a integração comprovada desta fase, `main`.
+
+Ela considera:
+
+```text
+Menu ativo
+itens ativos e publicáveis
+Pages relacionadas, já carregadas
+ordem determinística em cada grupo de irmãos
+```
+
+**Critério de publicabilidade.** Um item é publicável quando:
+
+```text
+o Menu está ativo
+E o item está ativo
+E o destino é resolvível
+E todos os seus ancestrais também são publicáveis
+```
+
+Destino `page` resolvível: a `Page` existe, **não** está soft-deleted e tem
+`status = published`. A URL sai da página atual.
+
+Destino `url` resolvível: o valor atende ao contrato seguro — e a persistência
+de um valor inválido já é impedida pelo serviço.
+
+**Visibilidade herdada.** Se um ancestral não é publicável, seus descendentes
+também não são:
+
+```text
+pai inativo                        →  filhos ocultos
+pai aponta para draft              →  filhos ocultos
+pai aponta para Page soft-deleted  →  filhos ocultos
+```
+
+Os filhos **não** são promovidos para o nível superior. Promover mudaria a
+navegação que o administrador montou sem que ele tenha pedido nada.
+
+**Sem N+1 recursivo.** É proibido descer a árvore consultando o banco nível a
+nível:
+
+```text
+SELECT raízes
+SELECT filhos da raiz 1
+SELECT filhos da raiz 2
+SELECT netos...
+```
+
+A estratégia é carregar os itens do menu em um conjunto controlado de consultas,
+carregar as `Pages` relacionadas junto, e **montar a árvore em memória**. A
+recursão acontece sobre a `Collection` já carregada, não sobre o banco.
+
+---
+
+##### Cache
+
+**Decisão:** nenhum cache de menu na F2.6.
+
+A consulta pública vai ao banco pelo `MenuService`. Antes de cachear é preciso
+estabilizar hierarquia, publicabilidade herdada, invalidação implícita e
+resolução de destino — cachear uma árvore cuja visibilidade depende de `Page`,
+de ancestrais e de dois estados independentes custaria definir invalidação para
+cada um desses eixos, por um ganho que ninguém mediu.
+
+*Fronteira:* cache futuro precisará definir chave, TTL, invalidação e
+consistência após cada CRUD, cada reordenação e cada mudança de status de
+`Page`. Fora desta fase enquanto não houver necessidade comprovada.
+
+---
+
+##### Integração inicial no storefront
+
+A F2.6-C faz uma integração pública **mínima e real**, com um consumidor só:
+
+```text
+Menu.code = main  →  header do layouts.app
+```
+
+O layout público já reserva o espaço da navegação no cabeçalho, ao lado do link
+de marca. Não são integrados `footer`, sidebar pública ou mega menu sem
+requisito comprovado.
+
+**Ausência do `main`.** Se o menu `main` não existir, ou existir inativo, ou não
+tiver nenhum item publicável:
+
+```text
+o layout público continua respondendo normalmente
+logo, link de marca e rodapé continuam funcionando
+nenhum menu é renderizado — e nenhuma moldura vazia é emitida
+```
+
+Nenhum seeder cria o menu `main` só para satisfazer a view. Uma tela que
+depende de um registro semeado quebra na primeira instalação limpa que não o
+tiver.
+
+**Como o menu chega ao layout.** O `AppServiceProvider` já mantém um View
+Composer específico para `layouts.app` — é ele que hoje entrega `themeColors` e
+`visualIdentity`. A F2.6-C amplia **o mesmo composer** com o menu resolvido pelo
+`MenuService`.
+
+Ficam recusados: `Menu::query()` dentro da Blade, `View::share` global e
+middleware criado só para injetar o menu.
+
+**Renderização.** Partial público dedicado — conceitualmente
+`partials/main-navigation.blade.php` —, com um partial recursivo para os nós se
+a árvore exigir. Escape normal do Blade em rótulo e URL; nenhum HTML arbitrário
+persistido é impresso.
+
+---
+
+##### Administração
+
+CRUD *server-side* na F2.6-B, no padrão Controller + Form Requests + Blade +
+`MenuService`, sobre o layout administrativo da F2.2, sob o prefixo:
+
+```text
+/admin/menus
+```
+
+**Middleware:** somente `auth`, durante toda a Fase 2. Sem roles, permissions,
+policies ou `Gate` — isso permanece na Fase 3.
+
+A tela administra menu e item, hierarquia, estado ativo, destino `page`/`url` e
+ordenação. A seleção da página de destino é *server-side* sobre as páginas
+existentes, no mesmo padrão da seleção de mídia da F2.5 — sem modal genérico,
+sem seletor global e sem AJAX.
+
+O link **Menus** só entra na sidebar administrativa quando a rota existir de
+fato. O princípio vigente no projeto continua valendo: link para funcionalidade
+inexistente é caminho quebrado, e por isso ele **não** é antecipado neste
+fechamento arquitetural.
+
+---
+
+##### Ordenação na interface — drag-and-drop
+
+**Contrato preservado:** *drag-and-drop pertence somente à camada de interface*.
+A ordem real é persistida por `sort_order`, nunca pelo componente visual. A UI
+envia uma ordem; o `MenuService` valida e persiste.
+
+**Fallback acessível obrigatório.** Mesmo que o arrastar seja implementado,
+existe mecanismo equivalente e testável de **mover para cima** e **mover para
+baixo** — a funcionalidade não pode depender exclusivamente de gesto de
+arrastar, nem para quem usa teclado ou leitor de tela, nem para o teste
+automatizado.
+
+**Sem pacote novo.** O Alpine já vem embutido no Livewire 4 instalado no
+projeto; `alpinejs` **não** é instalado separadamente, sob pena de duas
+instâncias competirem. Se o arrastar exigir JavaScript, usa-se a infraestrutura
+existente ou uma solução mínima comprovada.
+
+---
+
+##### Fora do escopo
+
+Registrado explicitamente como **fora da F2.6**:
+
+```text
+menus por usuário, por role ou por tenant
+mega menu
+ícones, imagens ou mídia em item
+banners dentro do menu
+Product, Category, Brand ou Collection como destino
+polimorfismo de destino
+multilíngue
+agendamento de publicação
+analytics de clique
+cache
+API / mobile
+target="_blank" configurável
+rel configurável
+HTML customizado no rótulo
+CSS customizado por item
+publicação por período
+importação / exportação
+```
+
+---
+
+##### F2.6-A — Domínio, persistência, hierarquia e Service Layer 📋 Planejada
+
+- [ ] Migration `menus` conforme o schema contratado
+- [ ] Migration `menu_items` conforme o schema contratado
+- [ ] Model `Menu`, sem `SoftDeletes`
+- [ ] Model `MenuItem`, sem `SoftDeletes`
+- [ ] Enum `MenuItemType` (`page`, `url`), persistido em coluna string
+- [ ] Relacionamentos `Menu → MenuItem`, `MenuItem → parent/children` e `MenuItem → Page`
+- [ ] FK `menu_id` com `restrictOnDelete()`
+- [ ] FK `parent_id` com `restrictOnDelete()`
+- [ ] FK `page_id` com `restrictOnDelete()`
+- [ ] Índice composto `(menu_id, parent_id, sort_order)`
+- [ ] `Menu.code` único, no formato canônico e imutável após a criação
+- [ ] Invariantes de destino: `page` exige `page_id`, `url` exige `url`, nunca ambos
+- [ ] Contrato de URL segura reaproveitado, recusando esquemas inseguros
+- [ ] Proteção contra ciclos, self-parent e pai de outro menu no `MenuService`
+- [ ] `menu_id` imutável no item após a criação
+- [ ] Ordenação por grupo de irmãos `(menu_id, parent_id)`, com `sort_order ASC, id ASC`
+- [ ] Atribuição do `sort_order` inicial anexando ao fim do grupo
+- [ ] Mudança de `parent_id` anexando ao fim do novo grupo
+- [ ] Exclusão recusada quando o item tem filhos
+- [ ] Exclusão transacional de `Menu` removendo os `MenuItems` das folhas para as raízes
+- [ ] `MenuService` como camada autoritativa
+- [ ] `lockForUpdate()` e `DB::transaction(..., 3)` nas operações de ordem
+- [ ] Factories de `Menu` e `MenuItem`, se os testes exigirem
+- [ ] Testes de domínio, persistência e Service Layer
+
+Sem interface administrativa, sem consulta pública e sem alteração do layout.
+
+##### F2.6-B — Administração, CRUD e ordenação 📋 Planejada
+
+- [ ] Controller administrativo de menus e itens
+- [ ] Form Requests de criação e de atualização
+- [ ] Blades de listagem, criação e edição
+- [ ] Rotas administrativas sob `/admin/menus`, somente com `auth`
+- [ ] CRUD de `Menu`, com `code` imutável na edição
+- [ ] CRUD de `MenuItem`
+- [ ] Seleção *server-side* da `Page` de destino
+- [ ] Escolha do tipo de destino `page`/`url`, com validação antecipada
+- [ ] Gerenciamento da hierarquia, incluindo mover para o nível raiz
+- [ ] Alternância de `is_active` em menu e item
+- [ ] Mover para cima e mover para baixo dentro do grupo de irmãos
+- [ ] Reordenação persistida por `sort_order`, validada pelo `MenuService`
+- [ ] Drag-and-drop **somente na camada de interface**, se implementado
+- [ ] Sidebar e breadcrumbs, somente quando as rotas existirem
+- [ ] Feedback de sucesso e de erro
+- [ ] Testes administrativos
+
+Sem roles, sem policies e sem pacote novo.
+
+##### F2.6-C — Consulta pública, integração e hardening 📋 Planejada
+
+- [ ] Consulta pública da árvore por `Menu.code`
+- [ ] Somente menu ativo é exposto
+- [ ] Somente itens ativos e publicáveis são expostos
+- [ ] Destino `page` resolvido por `Page.id`, apenas quando publicada
+- [ ] URL derivada do slug atual da `Page`, nunca de valor persistido no item
+- [ ] `Page` em rascunho não é renderizada
+- [ ] `Page` soft-deleted não é renderizada
+- [ ] Ancestral não publicável oculta seus descendentes, sem promovê-los
+- [ ] Ordem determinística em cada grupo de irmãos
+- [ ] Árvore montada em memória, sem N+1 recursivo
+- [ ] Integração do menu `main` no header do `layouts.app`
+- [ ] Ausência ou inatividade do `main` não quebra o layout
+- [ ] Escape seguro de rótulo e URL na Blade
+- [ ] Regressão da administração da F2.6-B
+- [ ] Regressão da hierarquia e da ordenação
+- [ ] Suíte completa verde
+- [ ] Hardening final
+
+---
+
+##### Critérios arquiteturais de aceite da F2.6 completa
+
+- [ ] O menu tem identidade técnica própria em `code`
+- [ ] `code` é único e imutável após a criação
+- [ ] Um `MenuItem` pertence a exatamente um `Menu`
+- [ ] O pai de um item pertence ao mesmo `Menu`
+- [ ] Ciclos na hierarquia são recusados pelo Service Layer
+- [ ] O destino interno usa `page_id` e nunca um slug persistido
+- [ ] `page_id` e `url` são mutuamente exclusivos
+- [ ] URL insegura é rejeitada, incluindo esquemas não suportados
+- [ ] A ordenação é por grupo de irmãos `(menu_id, parent_id)`
+- [ ] O empate de `sort_order` é desempatado por `id ASC`
+- [ ] Novo item é anexado ao fim do seu grupo de irmãos
+- [ ] Mudar de pai move o item para o fim do grupo de destino
+- [ ] Excluir item com filhos é recusado
+- [ ] Excluir um `Menu` pelo Service Layer remove toda a árvore atomicamente
+- [ ] `Menu` e `MenuItem` nascem inativos por default
+- [ ] Menu inativo não aparece publicamente
+- [ ] Item inativo não aparece publicamente
+- [ ] Item apontando para página em rascunho não aparece
+- [ ] Item apontando para página soft-deleted não aparece
+- [ ] Alterar o slug da página muda a URL pública sem alterar `menu_items`
+- [ ] Ancestral oculto oculta seus descendentes, sem promovê-los
+- [ ] A árvore pública é montada sem N+1 recursivo
+- [ ] O menu `main` é integrado ao header do layout público
+- [ ] A ausência do `main` não quebra o layout
+- [ ] O Blade escapa rótulo e URL
+- [ ] Não existe destino polimórfico prematuro
+- [ ] Não existe cache prematuro
+- [ ] As rotas administrativas usam somente `auth`
+- [ ] Suíte completa permanece verde
+- [ ] Pint passa
+- [ ] `git diff --check` passa
+
+**Bloqueadores / decisões pendentes:** nenhum. As dependências **F2.2** e
+**F2.4** estão satisfeitas e o **contrato arquitetural foi fechado em
+2026-09-07** — modelagem, hierarquia, destinos, ordenação, concorrência,
+consulta pública e limites de escopo. A **implementação não foi iniciada**: a
+F2.6 permanece 📋 planejada, e a próxima etapa é a **F2.6-A — Domínio,
+persistência, hierarquia e Service Layer**, que aguarda autorização específica.
 
 ---
 
@@ -4860,8 +5658,9 @@ verificadas no repositório e no ambiente Docker:
   2026-09-06) e a **F2.3 está encerrada**, com a F2.3-C concluída na mesma
   data. A **F2.5 foi concluída em 2026-09-07** (F2.5-A, F2.5-B e F2.5-C), e a
   **F2.6 é agora a próxima etapa operacional** — sua dependência da F2.4
-  permanece satisfeita, e ela continua 📋 planejada e não iniciada. A Fase 2
-  segue ⏳ em desenvolvimento enquanto a F2.6 não for concluída.
+  permanece satisfeita e o **contrato arquitetural dela foi fechado em
+  2026-09-07**, mas a implementação continua 📋 planejada e não iniciada. A
+  Fase 2 segue ⏳ em desenvolvimento enquanto a F2.6 não for concluída.
 - A autorização granular permanece na Fase 3. Durante toda a Fase 2, qualquer
   usuário autenticado acessa `/admin`.
 - **Gates de ambiente da F2.7 — não são bloqueadores arquiteturais, mas são
@@ -4893,12 +5692,17 @@ persistência, CRUD administrativo e ordenação, e a F2.5-C em 2026-09-07, com 
 consulta pública e a integração do `hero` na home. Os banners consomem a
 biblioteca centralizada, sem upload próprio.
 
-A F2.6 é a última da fila da Fase 2. A dependência da F2.6 em relação à F2.4
-está satisfeita. A Fase 2 permanece ⏳ em desenvolvimento enquanto a F2.6 não
-for concluída, e a Fase 3 permanece após o encerramento da Fase 2.
+A F2.6 é a última da fila da Fase 2, e seu **contrato arquitetural foi fechado
+em 2026-09-07**, antes de qualquer código: modelagem de `menus` e `menu_items`,
+hierarquia em adjacency list, destinos `page`/`url`, ordenação por grupo de
+irmãos, consulta pública por `code` e integração do menu `main` no header. A
+próxima etapa é a **F2.6-A — Domínio, persistência, hierarquia e Service
+Layer**, ainda 📋 planejada e não iniciada. A Fase 2 permanece ⏳ em
+desenvolvimento enquanto a F2.6 não for concluída, e a Fase 3 permanece após o
+encerramento da Fase 2.
 
-A arquitetura da F2.5 foi fechada antes da implementação, em `d7937f3`, como nas
-subfases anteriores.
+A arquitetura da F2.5 foi fechada antes da implementação, em `d7937f3`, e a da
+F2.6 em 2026-09-07, como nas subfases anteriores.
 
 ---
 
@@ -5688,6 +6492,9 @@ Atualizado toda segunda-feira com progresso real.
 - ✅ **F2.5 — Banners:** concluída em 2026-09-07, com F2.5-A e F2.5-B em
   2026-09-06 e F2.5-C em 2026-09-07. A F2.6 vem depois dela. Nenhum bloqueador
   conhecido.
+- 📋 **F2.6 — Menus:** contrato arquitetural fechado em 2026-09-07, com as
+  dependências F2.2 e F2.4 satisfeitas. A implementação **não foi iniciada** e a
+  próxima etapa é a F2.6-A. Nenhum bloqueador arquitetural conhecido.
 
 ---
 
@@ -5977,6 +6784,25 @@ Atualizado toda segunda-feira com progresso real.
   `git diff --check` verdes. Com A, B e C concluídas, a **F2.5 está
   concluída**; a Fase 2 permanece ⏳ em desenvolvimento e a próxima etapa é a
   **F2.6 — Menus**.
+- **2026-09-07:** **F2.6 — auditoria arquitetural documental concluída**, antes
+  de qualquer código. A F2.6 foi dividida em **F2.6-A → F2.6-B → F2.6-C** e o
+  contrato fechou: `Menu` com identidade técnica em `code` — único, no formato
+  canônico e **imutável** — e `MenuItem` com rótulo, tipo, ordem e estado;
+  destino por **enum `MenuItemType` (`page`/`url`)**, sem polimorfismo, com
+  `page_id` e `url` mutuamente exclusivos; vínculo interno por **`Page.id`**,
+  nunca pelo slug, com a URL resolvida da página atual; hierarquia em
+  **adjacency list** (`parent_id`), com `RESTRICT` no pai, `RESTRICT` do menu
+  para seus itens — e exclusão transacional explícita da árvore pelo
+  `MenuService`, das folhas para as raízes, em vez de cascade — e proteção
+  contra ciclos no `MenuService`; ordenação por
+  **grupo de irmãos `(menu_id, parent_id)`** com `sort_order ASC, id ASC`, sem
+  `UNIQUE`, reaproveitando `lockForUpdate()` e `DB::transaction(..., 3)`;
+  consulta pública por `code` com publicabilidade herdada dos ancestrais e
+  árvore montada em memória, **sem N+1 recursivo**; integração mínima
+  **`main` → header do `layouts.app`** pelo View Composer já existente, com
+  ausência do `main` degradando sem quebrar; **sem cache**, sem polimorfismo,
+  sem `MenuLocation`, sem `SoftDeletes` e sem pacote novo. A F2.6 permanece
+  📋 planejada e **não iniciada**; a próxima etapa é a **F2.6-A**.
 - *Próxima revisão: 2026-09-11*
 
 ---
