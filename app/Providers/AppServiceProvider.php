@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\Banner;
 use App\Models\Media;
 use App\Services\MediaUsageRegistry;
 use App\Services\ThemeService;
@@ -43,10 +44,10 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Declara quem consome a biblioteca de mídia.
      *
-     * A direção é sempre consumidor → registro: a F2.7 não conhece logo nem
-     * favicon, e é a F2.3-C que se apresenta aqui. Os rótulos são humanos e
-     * estáveis porque chegam ao administrador na mensagem que explica por que a
-     * exclusão foi bloqueada.
+     * A direção é sempre consumidor → registro: a F2.7 não conhece logo,
+     * favicon nem banner — são a F2.3-C e a F2.5 que se apresentam aqui. Os
+     * rótulos são humanos e estáveis porque chegam ao administrador na mensagem
+     * que explica por que a exclusão foi bloqueada.
      *
      * O serviço é resolvido dentro do closure, e não no boot: a verificação só
      * acontece quando alguém tenta excluir uma mídia, e ler a configuração a
@@ -64,6 +65,14 @@ class AppServiceProvider extends ServiceProvider
         $registry->register(
             'Favicon do site',
             fn (Media $media): bool => $this->app->make(VisualIdentityService::class)->isFavicon($media),
+        );
+
+        // Um único checker cobre todos os banners. Registrar um por posição
+        // multiplicaria consultas sem acrescentar informação acionável: o
+        // rótulo identifica o tipo de consumidor, não onde ele aparece.
+        $registry->register(
+            'Banner',
+            fn (Media $media): bool => Banner::query()->where('media_id', $media->getKey())->exists(),
         );
     }
 }
