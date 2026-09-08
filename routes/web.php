@@ -3,6 +3,7 @@
 use App\Enums\BannerPosition;
 use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\MediaController;
+use App\Http\Controllers\Admin\MenuController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\SiteSettingController;
 use App\Http\Controllers\Admin\ThemeSettingController;
@@ -110,6 +111,56 @@ Route::middleware('auth')
         // repetir o pedido move de novo.
         Route::post('banners/{banner}/mover', [BannerController::class, 'move'])
             ->name('banners.move');
+
+        // `menus` é a mesma palavra em português e inglês, então o segmento
+        // serve às duas. `{menu}` resolve por `Menu.id`: o `code` é a identidade
+        // técnica pela qual o consumidor público encontrará o menu, e amarrar a
+        // rota administrativa a ele misturaria os dois papéis.
+        Route::get('menus', [MenuController::class, 'index'])
+            ->name('menus.index');
+        Route::get('menus/criar', [MenuController::class, 'create'])
+            ->name('menus.create');
+        Route::post('menus', [MenuController::class, 'store'])
+            ->name('menus.store');
+        Route::get('menus/{menu}/editar', [MenuController::class, 'edit'])
+            ->name('menus.edit');
+        Route::put('menus/{menu}', [MenuController::class, 'update'])
+            ->name('menus.update');
+        Route::delete('menus/{menu}', [MenuController::class, 'destroy'])
+            ->name('menus.destroy');
+        Route::post('menus/{menu}/alternar', [MenuController::class, 'toggle'])
+            ->name('menus.toggle');
+
+        /*
+         * Itens aninhados sob o próprio menu. Não existe `/admin/itens/{item}`:
+         * o item não tem endereço próprio e não significa nada fora do menu.
+         *
+         * O binding dos dois parâmetros é **independente** — um id de item de
+         * outro menu chegaria intacto à ação —, e por isso o `MenuController`
+         * confere o pertencimento explicitamente antes de qualquer operação.
+         *
+         * Não há rota `items.create`: o formulário de novo item vive na própria
+         * tela de edição do menu, ao lado da árvore que ele altera.
+         */
+        Route::post('menus/{menu}/itens', [MenuController::class, 'storeItem'])
+            ->name('menus.items.store');
+        Route::get('menus/{menu}/itens/{item}/editar', [MenuController::class, 'editItem'])
+            ->name('menus.items.edit');
+        Route::put('menus/{menu}/itens/{item}', [MenuController::class, 'updateItem'])
+            ->name('menus.items.update');
+        Route::delete('menus/{menu}/itens/{item}', [MenuController::class, 'destroyItem'])
+            ->name('menus.items.destroy');
+        Route::post('menus/{menu}/itens/{item}/alternar', [MenuController::class, 'toggleItem'])
+            ->name('menus.items.toggle');
+
+        // Ordenação um passo por vez, dentro do grupo de irmãos do item. Duas
+        // rotas em vez de uma com direção no corpo: não sobra payload para
+        // validar, e a URL já diz o que faz. POST porque mover não é
+        // idempotente — repetir o pedido move de novo.
+        Route::post('menus/{menu}/itens/{item}/subir', [MenuController::class, 'moveItemUp'])
+            ->name('menus.items.move-up');
+        Route::post('menus/{menu}/itens/{item}/descer', [MenuController::class, 'moveItemDown'])
+            ->name('menus.items.move-down');
     });
 
 /*

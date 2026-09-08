@@ -372,6 +372,72 @@ class MenuService
     }
 
     /**
+     * Regrava a ordem de um grupo de irmãos a partir da sequência recebida.
+     *
+     * Esta é a **operação autoritativa de ordenação** da F2.6-B: nenhum outro
+     * ponto do sistema grava `sort_order`. A administração — subir, descer ou,
+     * mais tarde, arrastar — sempre termina aqui, com a sequência inteira do
+     * grupo, e nunca com um número que alguém digitou.
+     *
+     * O grupo é `(menu_id, parent_id)`, o mesmo de {@see self::orderedSiblings()}:
+     * a ordem é relativa **dentro** do grupo, e uma reordenação jamais atravessa
+     * dois grupos. `$orderedItemIds` precisa corresponder **exatamente** aos
+     * irmãos daquele grupo — sem repetição, sem ausência, sem sobra e sem item
+     * de outro menu ou de outro pai. Um conjunto parcial seria ambíguo: os
+     * ausentes ficariam onde estão, atrás ou à frente dos reposicionados, e o
+     * resultado dependeria de números que o chamador não enxergava.
+     *
+     * Só `sort_order` muda. `menu_id`, `parent_id`, destino e estado ficam como
+     * estão: mover um item entre grupos é `updateItem()`, com o seu próprio
+     * contrato de anexar ao fim do novo grupo.
+     *
+     * A gravação **normaliza** para `1..N`. É deliberadamente diferente da
+     * exclusão simples, que pode deixar `1, 3`: lacuna é resíduo válido de uma
+     * remoção, mas quem acabou de ordenar a lista espera vê-la renumerada.
+     *
+     * O bloqueio segue a ordem determinística de todo o serviço — primeiro a
+     * linha do menu, depois os irmãos —, e a validação acontece **inteira**
+     * antes da primeira escrita: uma sequência recusada não deixa metade do
+     * grupo renumerado.
+     *
+     * @param  list<int>  $orderedItemIds  irmãos do grupo, na ordem desejada
+     *
+     * @throws InvalidArgumentException quando a sequência não descreve o grupo
+     */
+    public function reorderSiblings(Menu $menu, ?int $parentId, array $orderedItemIds): void
+    {
+        DB::transaction(function () use ($menu, $parentId, $orderedItemIds): void {
+            $locked = $this->lockMenu($menu->getKey());
+            $siblings = $this->lockedSiblings($locked->getKey(), $parentId);
+
+            $this->applyOrder($locked, $parentId, $siblings, $orderedItemIds);
+        }, 3);
+    }
+
+    /**
+     * Sobe o item uma posição dentro do seu próprio grupo de irmãos.
+     *
+     * No topo da lista é **no-op**: subir o primeiro não tem para onde ir, e
+     * recusar com erro transformaria um clique inofensivo — num botão que a
+     * interface já desabilita — em tela de erro. A interface esconde o
+     * impossível; o serviço apenas não faz nada.
+     */
+    public function moveItemUp(MenuItem $item): void
+    {
+        $this->moveItem($item, -1);
+    }
+
+    /**
+     * Desce o item uma posição dentro do seu próprio grupo de irmãos.
+     *
+     * No fim da lista é no-op, pelo mesmo motivo de {@see self::moveItemUp()}.
+     */
+    public function moveItemDown(MenuItem $item): void
+    {
+        $this->moveItem($item, 1);
+    }
+
+    /**
      * O código cabe no contrato?
      *
      * Existe para o Form Request da F2.6-B antecipar a rejeição no formulário
@@ -501,6 +567,180 @@ class MenuService
         return $parentId === null
             ? $query->whereNull('parent_id')
             : $query->where('parent_id', $parentId);
+    }
+
+    /**
+     * Irmãos do grupo, na ordem contratada e com as linhas bloqueadas.
+     *
+     * É a leitura de {@see self::orderedSiblings()} sob `lockForUpdate()`: uma
+     * reordenação precisa partir do estado corrente já commitado, e não do
+     * retrato do início da transação. Sem o bloqueio, uma criação simultânea
+     * poderia entrar no grupo entre a leitura e a renumeração, e o item novo
+     * ficaria com uma ordem que já não descreve o grupo.
+     *
+     * O bloqueio recai sobre as linhas dos próprios irmãos. Um grupo vazio não
+     * tem nenhuma para travar, mas isso não é problema aqui: quem chama já
+     * segurou a âncora em `menus` — e reordenar um grupo vazio não é operação
+     * que exista.
+     *
+     * @return Collection<int, MenuItem>
+     */
+    private function lockedSiblings(int $menuId, ?int $parentId): Collection
+    {
+        return $this->siblingsQuery($menuId, $parentId)
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->lockForUpdate()
+            ->get();
+    }
+
+    /**
+     * Valida a sequência inteira e só então renumera o grupo.
+     *
+     * Ponto único de escrita de `sort_order` fora da criação: tanto a
+     * reordenação explícita quanto subir/descer terminam aqui, de modo que a
+     * regra não pode divergir entre as duas entradas.
+     *
+     * A validação vem **antes da primeira escrita**. Renumerar enquanto
+     * confere deixaria um grupo meio ordenado quando o último id fosse
+     * inválido — e, embora a transação desfaça isso, depender do rollback para
+     * uma checagem que cabe em memória é trocar clareza por sorte.
+     *
+     * @param  Collection<int, MenuItem>  $siblings  irmãos do grupo, bloqueados
+     * @param  list<int>  $orderedItemIds
+     *
+     * @throws InvalidArgumentException
+     */
+    private function applyOrder(Menu $menu, ?int $parentId, Collection $siblings, array $orderedItemIds): void
+    {
+        $sequence = $this->orderedSequence($menu, $parentId, $siblings, $orderedItemIds);
+
+        foreach ($sequence as $index => $id) {
+            MenuItem::query()->whereKey($id)->update(['sort_order' => $index + 1]);
+        }
+    }
+
+    /**
+     * Confere que a sequência descreve **exatamente** o grupo de irmãos.
+     *
+     * As quatro recusas são o mesmo contrato visto de ângulos diferentes:
+     *
+     * ```text
+     * id repetido      → a lista não é uma permutação
+     * id desconhecido  → item inexistente, de outro menu ou de outro pai
+     * id faltando      → conjunto incompleto: os ausentes ficariam à deriva
+     * ```
+     *
+     * O "id desconhecido" cobre de uma vez o item de outro menu e o irmão de
+     * outro `parent_id`, porque a pergunta é sempre a mesma: ele pertence a
+     * **este** grupo? A mensagem distingue os dois casos para que o
+     * administrador saiba se pediu algo inexistente ou algo que está noutro
+     * lugar da árvore.
+     *
+     * @param  Collection<int, MenuItem>  $siblings
+     * @param  list<int>  $orderedItemIds
+     * @return list<int>
+     *
+     * @throws InvalidArgumentException
+     */
+    private function orderedSequence(Menu $menu, ?int $parentId, Collection $siblings, array $orderedItemIds): array
+    {
+        $group = $parentId === null ? 'root' : (string) $parentId;
+
+        $sequence = [];
+
+        foreach ($orderedItemIds as $value) {
+            $id = filter_var($value, FILTER_VALIDATE_INT);
+
+            if ($id === false || $id < 1) {
+                throw new InvalidArgumentException('The menu item order must contain valid identifiers.');
+            }
+
+            if (in_array($id, $sequence, true)) {
+                throw new InvalidArgumentException("The menu item [{$id}] appears more than once in the order.");
+            }
+
+            $sequence[] = $id;
+        }
+
+        $siblingIds = array_map('intval', $siblings->modelKeys());
+
+        foreach ($sequence as $id) {
+            if (in_array($id, $siblingIds, true)) {
+                continue;
+            }
+
+            $item = MenuItem::query()->whereKey($id)->first();
+
+            throw new InvalidArgumentException($item === null
+                ? "The menu item [{$id}] does not exist."
+                : "The menu item [{$id}] does not belong to the group [{$menu->getKey()}:{$group}].");
+        }
+
+        $missing = array_diff($siblingIds, $sequence);
+
+        if ($missing !== []) {
+            $list = implode(', ', $missing);
+
+            throw new InvalidArgumentException(
+                "The order of the group [{$menu->getKey()}:{$group}] is missing the menu item(s) [{$list}]."
+            );
+        }
+
+        return $sequence;
+    }
+
+    /**
+     * Troca o item de lugar com o vizinho e renumera o grupo inteiro.
+     *
+     * Um passo por vez, sempre **dentro do próprio grupo de irmãos**: o item
+     * não muda de menu nem de pai, e por isso a operação nunca atravessa dois
+     * grupos. Trocar de pai é `updateItem()`.
+     *
+     * O menu e o pai vêm de `getOriginal()`, e não dos atributos em
+     * memória: o retry da transação reexecuta a closure inteira, e um model já
+     * modificado pela tentativa anterior faria a segunda volta procurar o item
+     * no grupo errado. É o mesmo cuidado que `updateItem()` tem com o pai
+     * persistido.
+     *
+     * Itens inativos participam normalmente — a árvore administrativa é a
+     * árvore completa, e filtrar por `is_active` aqui faria a ordem exibida
+     * divergir da ordem gravada. O filtro de publicabilidade é da F2.6-C.
+     *
+     * Chegar à borda é no-op: a closure retorna sem escrever nada, e a
+     * transação fecha sem alteração.
+     *
+     * @param  int  $offset  -1 para subir, 1 para descer
+     */
+    private function moveItem(MenuItem $item, int $offset): void
+    {
+        $menuId = (int) $item->getOriginal('menu_id');
+        $originalParentId = $item->getOriginal('parent_id');
+        $parentId = $originalParentId === null ? null : (int) $originalParentId;
+
+        DB::transaction(function () use ($item, $offset, $menuId, $parentId): void {
+            $locked = $this->lockMenu($menuId);
+            $siblings = $this->lockedSiblings($menuId, $parentId);
+
+            $ids = array_map('intval', $siblings->modelKeys());
+            $index = array_search((int) $item->getKey(), $ids, true);
+
+            if ($index === false) {
+                throw new InvalidArgumentException(
+                    "The menu item [{$item->getKey()}] is no longer in its sibling group."
+                );
+            }
+
+            $target = $index + $offset;
+
+            if ($target < 0 || $target >= count($ids)) {
+                return;
+            }
+
+            [$ids[$index], $ids[$target]] = [$ids[$target], $ids[$index]];
+
+            $this->applyOrder($locked, $parentId, $siblings, $ids);
+        }, 3);
     }
 
     /**

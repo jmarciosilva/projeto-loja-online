@@ -62,6 +62,51 @@
             </li>
             <li aria-hidden="true" class="text-gray-300">/</li>
             <li class="font-medium text-gray-700" aria-current="page">Banners</li>
+        @elseif (request()->routeIs('admin.menus.create'))
+            <li>
+                <a href="{{ route('admin') }}" class="hover:text-gray-700">Dashboard</a>
+            </li>
+            <li aria-hidden="true" class="text-gray-300">/</li>
+            <li>
+                <a href="{{ route('admin.menus.index') }}" class="hover:text-gray-700">Menus</a>
+            </li>
+            <li aria-hidden="true" class="text-gray-300">/</li>
+            <li class="font-medium text-gray-700" aria-current="page">Novo menu</li>
+        @elseif (request()->routeIs('admin.menus.items.*'))
+            {{-- O item não tem nível próprio na trilha até o menu, porque não
+                 existe fora dele: o penúltimo degrau é o menu que o contém, e
+                 o nome sai do próprio parâmetro da rota. --}}
+            <li>
+                <a href="{{ route('admin') }}" class="hover:text-gray-700">Dashboard</a>
+            </li>
+            <li aria-hidden="true" class="text-gray-300">/</li>
+            <li>
+                <a href="{{ route('admin.menus.index') }}" class="hover:text-gray-700">Menus</a>
+            </li>
+            <li aria-hidden="true" class="text-gray-300">/</li>
+            <li>
+                <a href="{{ route('admin.menus.edit', request()->route('menu')) }}" class="hover:text-gray-700">
+                    {{ request()->route('menu')->name }}
+                </a>
+            </li>
+            <li aria-hidden="true" class="text-gray-300">/</li>
+            <li class="font-medium text-gray-700" aria-current="page">Editar item</li>
+        @elseif (request()->routeIs('admin.menus.edit'))
+            <li>
+                <a href="{{ route('admin') }}" class="hover:text-gray-700">Dashboard</a>
+            </li>
+            <li aria-hidden="true" class="text-gray-300">/</li>
+            <li>
+                <a href="{{ route('admin.menus.index') }}" class="hover:text-gray-700">Menus</a>
+            </li>
+            <li aria-hidden="true" class="text-gray-300">/</li>
+            <li class="font-medium text-gray-700" aria-current="page">{{ request()->route('menu')->name }}</li>
+        @elseif (request()->routeIs('admin.menus.*'))
+            <li>
+                <a href="{{ route('admin') }}" class="hover:text-gray-700">Dashboard</a>
+            </li>
+            <li aria-hidden="true" class="text-gray-300">/</li>
+            <li class="font-medium text-gray-700" aria-current="page">Menus</li>
         @elseif (request()->routeIs('admin.settings.theme.*'))
             <li>
                 <a href="{{ route('admin') }}" class="hover:text-gray-700">Dashboard</a>
