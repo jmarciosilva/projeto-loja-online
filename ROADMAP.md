@@ -23,11 +23,11 @@
     - F2.5-C — Consulta pública, integração e hardening: ✅ concluída em 2026-09-07
   - **F2.6 — Menus: ⏳ em desenvolvimento** — contrato arquitetural fechado em 2026-09-07
     - F2.6-A — Domínio, persistência, hierarquia e Service Layer: ✅ concluída em 2026-09-07
-    - F2.6-B — Administração, CRUD e ordenação: 📋 planejada
+    - F2.6-B — Administração, CRUD e ordenação: ✅ concluída em 2026-09-08
     - F2.6-C — Consulta pública, integração e hardening: 📋 planejada
-  - Próxima etapa operacional: **F2.6-B — Administração, CRUD e ordenação**,
-    ainda 📋 planejada e não iniciada. A Fase 2 segue ⏳ em desenvolvimento
-    enquanto a F2.6 não for concluída.
+  - Próxima etapa operacional: **F2.6-C — Consulta pública, integração e
+    hardening**, ainda 📋 planejada e não iniciada. A Fase 2 segue ⏳ em
+    desenvolvimento enquanto a F2.6 não for concluída.
 - **Fase 1:** ✅ Concluída em 2026-09-04
 - **Data de Início:** 2026-09-04
 - **Data Estimada de MVP Completo:** 2026-09-30
@@ -195,8 +195,9 @@ aparece dividida porque suas três partes têm dependências distintas.
 > encerrada** — assim como F2.4 e F2.7. A **F2.5 — Banners** foi concluída em
 > 2026-09-07, com as três subfases internas encerradas: F2.5-A e F2.5-B em
 > 2026-09-06, F2.5-C em 2026-09-07. A **F2.6 — Menus** está ⏳ em
-> desenvolvimento, com a F2.6-A concluída em 2026-09-07; a próxima etapa
-> operacional é a **F2.6-B — Administração, CRUD e ordenação**.
+> desenvolvimento, com a F2.6-A concluída em 2026-09-07 e a F2.6-B em
+> 2026-09-08; a próxima etapa operacional é a **F2.6-C — Consulta pública,
+> integração e hardening**.
 
 Duas decisões arquiteturais explicam essa ordem, e ambas evitam duplicar o
 mesmo mecanismo:
@@ -446,7 +447,7 @@ que não a antecipa na fila) e a **F2.3-C depende da F2.3-A + F2.7 completa**
 > A dependência técnica da F2.3-C na F2.7 foi satisfeita e **a F2.3-C já foi
 > concluída**, encerrando a F2.3. A F2.5 também dependia da F2.7 completa e foi
 > concluída em 2026-09-07. A **F2.6** está ⏳ em desenvolvimento, com a
-> F2.6-A concluída; a próxima etapa operacional é a **F2.6-B**.
+> F2.6-A e a F2.6-B concluídas; a próxima etapa operacional é a **F2.6-C**.
 
 A ordem de execução detalhada segue:
 
@@ -524,8 +525,8 @@ subfase foi preferível a duplicar upload de arquivos só para fechá-la antes.
 
 Com F2.3, F2.4 e F2.7 concluídas, a etapa operacional seguinte passou a ser a
 **F2.5 — Banners**, concluída em 2026-09-07 com as subfases A, B e C. A **F2.6**
-está ⏳ em desenvolvimento, com a F2.6-A concluída; a próxima etapa operacional
-é a **F2.6-B — Administração, CRUD e ordenação**.
+está ⏳ em desenvolvimento, com a F2.6-A e a F2.6-B concluídas; a próxima etapa
+operacional é a **F2.6-C — Consulta pública, integração e hardening**.
 
 **Dependências:** F2.1 (fundação e cache), F2.2 (layout e rotas admin) — ambas
 concluídas.
@@ -1892,8 +1893,9 @@ Page.id = identidade estável
 A F2.6 depende da **F2.4 concluída** — isto é, após a F2.4-C — e não apenas da
 identidade entregue pela F2.4-A. Com a F2.4 encerrada, essa dependência está
 **satisfeita**, e a F2.6 chegou à sua posição na ordem de execução, depois de
-F2.7, F2.3-C e F2.5. Ela está ⏳ em desenvolvimento, com a **F2.6-A concluída**;
-a próxima etapa é a **F2.6-B — Administração, CRUD e ordenação**.
+F2.7, F2.3-C e F2.5. Ela está ⏳ em desenvolvimento, com a **F2.6-A e a F2.6-B
+concluídas**; a próxima etapa é a **F2.6-C — Consulta pública, integração e
+hardening**.
 
 ---
 
@@ -1906,8 +1908,8 @@ Internamente: `F2.4-A → F2.4-B → F2.4-C`.
 **F2.4 está encerrada**. Depois dela, a Fase 2 executou e concluiu a
 **F2.7 — Biblioteca de Mídia** e a **F2.3-C**, ambas em 2026-09-06, encerrando
 também a F2.3; em seguida executou e concluiu a **F2.5 — Banners**, em
-2026-09-07. A **F2.6** está ⏳ em desenvolvimento, com a F2.6-A concluída; a
-etapa operacional seguinte é a **F2.6-B**.
+2026-09-07. A **F2.6** está ⏳ em desenvolvimento, com a F2.6-A e a F2.6-B
+concluídas; a etapa operacional seguinte é a **F2.6-C**.
 
 ---
 
@@ -2917,18 +2919,18 @@ da Fase 2 é a **F2.6 — Menus**.
 **Bloqueadores / decisões pendentes:** nenhum. As dependências F2.2 e F2.7
 estão concluídas, a F2.5-A entregou o domínio sobre o qual B e C se apoiaram e
 as três subfases foram encerradas. A **F2.5 está concluída** desde 2026-09-07;
-a **F2.6 — Menus** está ⏳ em desenvolvimento, com a F2.6-A concluída, e a
-próxima etapa operacional da Fase 2 é a **F2.6-B**.
+a **F2.6 — Menus** está ⏳ em desenvolvimento, com a F2.6-A e a F2.6-B
+concluídas, e a próxima etapa operacional da Fase 2 é a **F2.6-C**.
 
 ---
 
 #### F2.6 — Menus ⏳ Em desenvolvimento
 
 **Status:** ⏳ **Em desenvolvimento.** O contrato arquitetural foi fechado em
-2026-09-07 e a **F2.6-A foi concluída em 2026-09-07**, entregando domínio,
-persistência, hierarquia e Service Layer. A **F2.6-B** é a próxima etapa e a
-**F2.6-C** vem depois dela — as duas permanecem 📋 planejadas e não iniciadas.
-Nenhum pacote foi instalado.
+2026-09-07; a **F2.6-A foi concluída em 2026-09-07**, entregando domínio,
+persistência, hierarquia e Service Layer, e a **F2.6-B em 2026-09-08**,
+entregando a administração, o CRUD e a ordenação. A **F2.6-C** é a próxima
+etapa e permanece 📋 planejada e não iniciada. Nenhum pacote foi instalado.
 
 > **Contrato arquitetural definido antes da implementação**, no mesmo formato
 > adotado por F2.4, F2.7 e F2.5. As decisões desta seção foram fechadas em
@@ -2980,7 +2982,7 @@ F2.6-A → F2.6-B → F2.6-C
 | Subfase | Status | Entrega principal | Depende de |
 | --- | --- | --- | --- |
 | F2.6-A — Domínio, persistência, hierarquia e Service Layer | ✅ Concluída em 2026-09-07 | Migrations `menus` e `menu_items`, models, enum `MenuItemType`, FKs, invariantes da árvore e `MenuService` | F2.2, F2.4 |
-| F2.6-B — Administração, CRUD e ordenação | 📋 Planejada | Controller, Form Requests, CRUD de menu e de item, hierarquia, estado e ordenação | F2.6-A |
+| F2.6-B — Administração, CRUD e ordenação | ✅ Concluída em 2026-09-08 | Controller, Form Requests, CRUD de menu e de item, hierarquia, estado e ordenação | F2.6-A |
 | F2.6-C — Consulta pública, integração e hardening | 📋 Planejada | Consulta pública por `code`, integração do menu `main` no header e regressão de A e B | F2.6-B |
 
 **Por que dividir:** as três concentram riscos distintos — integridade de uma
@@ -3734,26 +3736,111 @@ reordenação administrativa, drag-and-drop, consulta pública, integração no
 header, View Composer, cache, Repository, roles e policies — tudo permanece
 com a F2.6-B e a F2.6-C.
 
-##### F2.6-B — Administração, CRUD e ordenação 📋 Planejada
+##### F2.6-B — Administração, CRUD e ordenação ✅ Concluída
 
-- [ ] Controller administrativo de menus e itens
-- [ ] Form Requests de criação e de atualização
-- [ ] Blades de listagem, criação e edição
-- [ ] Rotas administrativas sob `/admin/menus`, somente com `auth`
-- [ ] CRUD de `Menu`, com `code` imutável na edição
-- [ ] CRUD de `MenuItem`
-- [ ] Seleção *server-side* da `Page` de destino
-- [ ] Escolha do tipo de destino `page`/`url`, com validação antecipada
-- [ ] Gerenciamento da hierarquia, incluindo mover para o nível raiz
-- [ ] Alternância de `is_active` em menu e item
-- [ ] Mover para cima e mover para baixo dentro do grupo de irmãos
-- [ ] Reordenação persistida por `sort_order`, validada pelo `MenuService`
-- [ ] Drag-and-drop **somente na camada de interface**, se implementado
-- [ ] Sidebar e breadcrumbs, somente quando as rotas existirem
-- [ ] Feedback de sucesso e de erro
-- [ ] Testes administrativos
+**Concluída e validada em 2026-09-08.**
+
+| Commit | Papel |
+| --- | --- |
+| `503b7f14c4fe282bcde1a9d982f834464de906b1` | `feat(menus): implementa administracao e ordenacao da F2.6-B` |
+
+- [x] Controller administrativo de menus e itens
+- [x] Form Requests de criação e de atualização
+- [x] Blades de listagem, criação e edição
+- [x] Rotas administrativas sob `/admin/menus`, somente com `auth`
+- [x] CRUD de `Menu`, com `code` imutável na edição
+- [x] CRUD de `MenuItem`
+- [x] Seleção *server-side* da `Page` de destino
+- [x] Escolha do tipo de destino `page`/`url`, com validação antecipada
+- [x] Gerenciamento da hierarquia, incluindo mover para o nível raiz
+- [x] Alternância de `is_active` em menu e item
+- [x] Mover para cima e mover para baixo dentro do grupo de irmãos
+- [x] Reordenação persistida por `sort_order`, validada pelo `MenuService`
+- [x] Drag-and-drop **não implementado** — requisito condicional dispensado; a
+      ordenação oficial é por mover para cima/baixo (ver abaixo)
+- [x] Sidebar e breadcrumbs, somente quando as rotas existirem
+- [x] Feedback de sucesso e de erro
+- [x] Testes administrativos
 
 Sem roles, sem policies e sem pacote novo.
+
+**Drag-and-drop: deliberadamente ausente**
+
+O contrato pedia drag-and-drop **somente na camada de interface, se
+implementado** — um requisito condicional, não uma entrega obrigatória. Ele
+**não foi implementado**, e o item acima está marcado porque a condição foi
+resolvida por decisão explícita, não porque exista arrastar e soltar na tela.
+
+A interface oficial de ordenação desta subfase é **mover para cima / mover para
+baixo**: dois botões por linha, sem JavaScript, no mesmo padrão já adotado pelos
+banners na F2.5-B. Nas bordas do grupo o botão impossível vem desabilitado, e o
+backend trata a operação como *no-op* caso a requisição chegue assim mesmo — a
+interface esconde o impossível, mas não é ela a barreira. É a alternativa
+acessível por teclado e sem script; drag-and-drop, se um dia entrar, será
+acréscimo visual sobre esta mesma operação de domínio, nunca um caminho de
+escrita paralelo.
+
+**O que foi entregue**
+
+Um único `MenuController` cobre menus e itens: o item não tem listagem própria,
+não tem endereço público e não existe fora do menu, então a árvore, o formulário
+de novo item e os controles de ordem moram todos na tela de edição do menu.
+Toda escrita passa pelo `MenuService` — não há `Menu::create()`, cálculo de
+ordem nem `update()` de `sort_order` na camada HTTP.
+
+O serviço foi estendido **somente para a ordenação administrativa**, com três
+métodos públicos novos:
+
+```text
+reorderSiblings()   moveItemUp()   moveItemDown()
+```
+
+`reorderSiblings()` é a operação autoritativa: bloqueia primeiro a linha do
+menu, depois os irmãos, e **valida a sequência inteira antes da primeira
+escrita**. O conjunto recebido precisa descrever exatamente o grupo
+`(menu_id, parent_id)` — id repetido, inexistente, de outro menu, de outro pai,
+conjunto incompleto ou com sobra são recusados. Só `sort_order` muda, e a
+gravação **normaliza para `1..N`**, diferente da exclusão simples da F2.6-A, que
+pode deixar lacunas. Subir e descer montam a nova sequência e terminam no mesmo
+ponto de escrita, de modo que a regra não pode divergir entre as duas entradas.
+
+**Rotas aninhadas e pertencimento**
+
+`/admin/menus/{menu}/itens/{item}` resolve os dois parâmetros de forma
+independente: um id de item válido de outro menu chegaria intacto à ação. O
+pertencimento é conferido **explicitamente** no Controller, com `404`, e não por
+`scopeBindings()` — a regra fica no código que a testa, e removê-la quebra
+testes em vez de passar despercebida.
+
+**Exceções de domínio viram feedback**
+
+`InvalidArgumentException` e, na edição de item, `RuntimeException` — que
+`guardNoCycle()` lança quando a cadeia de ancestrais já está corrompida no banco
+— são convertidas em mensagens PT-BR com input preservado. Nenhuma exceção crua
+chega à tela e nenhuma falha é silenciada; uma árvore inconsistente produz
+recusa explicada, não erro 500.
+
+**Validação**
+
+```text
+foco F2.6 (MySQL)                    242 testes /  695 assertions
+foco F2.6 (SQLite)                   236 verdes + 6 MySQL-only ignorados
+suíte completa (MySQL)               811 testes / 2277 assertions
+suíte completa (SQLite)              805 verdes + 6 MySQL-only ignorados
+mutations dirigidas                  7 aplicadas, 7 detectadas, 7 revertidas
+qualidade                            Pint PASS; composer validate --strict PASS
+                                     composer audit sem vulnerabilidades
+                                     npm build PASS; git diff --check limpo
+```
+
+As mutations cobriram pertencimento cross-menu, `code` editável, `sort_order`
+vindo do request, validação do conjunto em `reorderSiblings()`, pai de outro
+menu, `auth` nas rotas e o tratamento do `RuntimeException` de árvore
+inconsistente — cada uma derrubou o teste correspondente.
+
+**Fora desta subfase:** consulta pública por `code`, integração do menu `main`
+no header, View Composer público, filtro de publicabilidade, resolução pública
+de `Page`, cache, Repository, roles e policies — tudo permanece com a F2.6-C.
 
 ##### F2.6-C — Consulta pública, integração e hardening 📋 Planejada
 
@@ -3812,11 +3899,12 @@ Sem roles, sem policies e sem pacote novo.
 - [ ] `git diff --check` passa
 
 **Bloqueadores / decisões pendentes:** nenhum. As dependências **F2.2** e
-**F2.4** estão satisfeitas, o contrato arquitetural foi fechado em 2026-09-07 e
+**F2.4** estão satisfeitas, o contrato arquitetural foi fechado em 2026-09-07,
 a **F2.6-A foi concluída** na mesma data, entregando o domínio sobre o qual B e
-C se apoiam. A F2.6 permanece ⏳ em desenvolvimento, e a próxima etapa é a
-**F2.6-B — Administração, CRUD e ordenação**, que aguarda autorização
-específica.
+C se apoiam, e a **F2.6-B foi concluída em 2026-09-08**, entregando a
+administração sobre esse domínio. A F2.6 permanece ⏳ em desenvolvimento, e a
+próxima etapa é a **F2.6-C — Consulta pública, integração e hardening**, que
+aguarda autorização específica.
 
 ---
 
@@ -4945,8 +5033,8 @@ Estado atual da divisão interna: **F2.7-A** (commit `8811b75`), **F2.7-B**
 (commit `29fdacb`) e **F2.7-C** (commit `eec2d6c`) concluídas em 2026-09-06.
 A F2.7 está ✅ concluída; a dependência técnica da F2.3-C foi satisfeita e ela
 foi concluída em 2026-09-06, seguida pela F2.5, concluída em 2026-09-07. A
-F2.6 está ⏳ em desenvolvimento, com a F2.6-A concluída; a próxima etapa
-operacional é a **F2.6-B**.
+F2.6 está ⏳ em desenvolvimento, com a F2.6-A e a F2.6-B concluídas; a próxima
+etapa operacional é a **F2.6-C**.
 
 ---
 
@@ -5729,9 +5817,9 @@ verificadas no repositório e no ambiente Docker:
   2026-09-06) e a **F2.3 está encerrada**, com a F2.3-C concluída na mesma
   data. A **F2.5 foi concluída em 2026-09-07** (F2.5-A, F2.5-B e F2.5-C), e a
   **F2.6 está ⏳ em desenvolvimento**: o contrato arquitetural foi fechado em
-  2026-09-07 e a **F2.6-A foi concluída** na mesma data; a **F2.6-B** é a
-  próxima etapa e a **F2.6-C** vem depois, ambas ainda 📋 planejadas. A Fase 2
-  segue ⏳ em desenvolvimento enquanto a F2.6 não for concluída.
+  2026-09-07, a **F2.6-A foi concluída** na mesma data e a **F2.6-B em
+  2026-09-08**; a **F2.6-C** é a próxima etapa e permanece 📋 planejada. A
+  Fase 2 segue ⏳ em desenvolvimento enquanto a F2.6 não for concluída.
 - A autorização granular permanece na Fase 3. Durante toda a Fase 2, qualquer
   usuário autenticado acessa `/admin`.
 - **Gates de ambiente da F2.7 — não são bloqueadores arquiteturais, mas são
@@ -5757,12 +5845,14 @@ verificadas no repositório e no ambiente Docker:
 - ✅ Fase 1 (concluída)
 
 #### Próximo Passo
-→ **F2.6-B — Administração, CRUD e ordenação** — 📋 planejada, **não
+→ **F2.6-C — Consulta pública, integração e hardening** — 📋 planejada, **não
 iniciada**. A **F2.6 — Menus** está ⏳ em desenvolvimento: o contrato
 arquitetural foi fechado em 2026-09-07 e a **F2.6-A** foi concluída na mesma
 data, no commit `30df68e`, entregando migrations, models, enum, FKs em
 `RESTRICT`, hierarquia sem ciclos, ordenação por grupo de irmãos e
-`MenuService`. A **F2.5 — Banners** foi
+`MenuService`; a **F2.6-B** foi concluída em 2026-09-08, no commit `503b7f1`,
+entregando a administração de menus e itens, a hierarquia editável e a
+ordenação entre irmãos pelo Service Layer. A **F2.5 — Banners** foi
 concluída em 2026-09-07: a F2.5-A e a F2.5-B em 2026-09-06, cobrindo domínio,
 persistência, CRUD administrativo e ordenação, e a F2.5-C em 2026-09-07, com a
 consulta pública e a integração do `hero` na home. Os banners consomem a
@@ -5772,8 +5862,9 @@ A F2.6 é a última da fila da Fase 2, e seu **contrato arquitetural foi fechado
 em 2026-09-07**, antes de qualquer código: modelagem de `menus` e `menu_items`,
 hierarquia em adjacency list, destinos `page`/`url`, ordenação por grupo de
 irmãos, consulta pública por `code` e integração do menu `main` no header. A
-**F2.6-A** foi concluída em 2026-09-07 e a próxima etapa é a **F2.6-B —
-Administração, CRUD e ordenação**, ainda 📋 planejada e não iniciada. A Fase 2
+**F2.6-A** foi concluída em 2026-09-07, a **F2.6-B** em 2026-09-08, e a próxima
+etapa é a **F2.6-C — Consulta pública, integração e hardening**, ainda
+📋 planejada e não iniciada. A Fase 2
 permanece ⏳ em desenvolvimento enquanto a F2.6 não for concluída, e a Fase 3
 permanece após o encerramento da Fase 2.
 
@@ -6569,9 +6660,9 @@ Atualizado toda segunda-feira com progresso real.
   2026-09-06 e F2.5-C em 2026-09-07. A F2.6 vem depois dela. Nenhum bloqueador
   conhecido.
 - ⏳ **F2.6 — Menus:** em desenvolvimento. Contrato arquitetural fechado em
-  2026-09-07 e **F2.6-A concluída** na mesma data, com as dependências F2.2 e
-  F2.4 satisfeitas. A próxima etapa é a F2.6-B, seguida da F2.6-C. Nenhum
-  bloqueador conhecido.
+  2026-09-07, **F2.6-A concluída** na mesma data e **F2.6-B concluída** em
+  2026-09-08, com as dependências F2.2 e F2.4 satisfeitas. A próxima etapa é a
+  F2.6-C. Nenhum bloqueador conhecido.
 
 ---
 
@@ -6899,6 +6990,30 @@ Atualizado toda segunda-feira com progresso real.
   `git diff --check` verdes. **Sem interface administrativa, sem consulta
   pública e sem alteração do layout** — F2.6-B e F2.6-C seguem 📋 planejadas, a
   F2.6 passa a ⏳ em desenvolvimento e a Fase 2 também.
+- **2026-09-08:** **F2.6-B — Administração, CRUD e ordenação concluída.** Commit
+  técnico `503b7f14c4fe282bcde1a9d982f834464de906b1`
+  (`feat(menus): implementa administracao e ordenacao da F2.6-B`), sobre o
+  `63c7baa`. Entrega um `MenuController` único para menus e itens, quatro Form
+  Requests, sete Blades e catorze rotas sob `/admin/menus`, todas protegidas
+  somente por `auth`. Toda escrita passa pelo `MenuService`, estendido apenas
+  para a ordenação administrativa com `reorderSiblings()`, `moveItemUp()` e
+  `moveItemDown()`: a reordenação bloqueia primeiro a linha do menu, valida a
+  sequência inteira do grupo `(menu_id, parent_id)` **antes da primeira
+  escrita** — recusando id repetido, inexistente, de outro menu, de outro pai,
+  conjunto incompleto ou com sobra — e normaliza para `1..N`. `code` continua
+  imutável na edição, `menu_id` e `sort_order` não vêm do formulário, o destino
+  `page`/`url` é validado condicionalmente com a `Page` selecionada
+  *server-side* por `Page.id`, e as rotas aninhadas conferem explicitamente o
+  pertencimento do item ao menu, com `404`. Exceções de domínio —
+  `InvalidArgumentException` e o `RuntimeException` de árvore inconsistente —
+  viram feedback PT-BR com input preservado, nunca erro 500. **Drag-and-drop
+  não foi implementado**: o requisito era condicional e a ordenação oficial é
+  mover para cima/baixo, sem JavaScript. Validação: 242 testes / 695 assertions
+  no foco em MySQL e 811 / 2277 na suíte completa; 805 verdes + 6 MySQL-only
+  ignorados em SQLite; sete mutations dirigidas, todas detectadas e revertidas;
+  Pint e `git diff --check` verdes. **Sem consulta pública, sem integração no
+  header, sem cache e sem alteração do `layouts.app`** — a F2.6-C segue
+  📋 planejada, a F2.6 permanece ⏳ em desenvolvimento e a Fase 2 também.
 - *Próxima revisão: 2026-09-11*
 
 ---
@@ -6912,9 +7027,9 @@ R: Aproximadamente 30 dias (4 semanas) até Fase 8 concluída.
 R: Não. O ambiente de desenvolvimento já roda a aplicação e as fundações do
 CMS (F2.1) e do painel administrativo (F2.2) estão concluídas, mas a Fase 2
 segue em desenvolvimento. A **F2.6 — Menus** está ⏳ em desenvolvimento, com a
-F2.6-A concluída; a próxima etapa operacional é a **F2.6-B — Administração,
-CRUD e ordenação**. As funcionalidades de e-commerce e a preparação para
-produção continuam previstas para as próximas fases.
+F2.6-A e a F2.6-B concluídas; a próxima etapa operacional é a **F2.6-C —
+Consulta pública, integração e hardening**. As funcionalidades de e-commerce e a
+preparação para produção continuam previstas para as próximas fases.
 
 **P: Preciso implementar tudo?**  
 R: Não. Priorize as fases 1-6 para MVP. Fases 7-9 são para release.
