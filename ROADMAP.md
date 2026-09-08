@@ -21,13 +21,13 @@
     - F2.5-A — Domínio, persistência e Service Layer: ✅ concluída em 2026-09-06
     - F2.5-B — Administração e ordenação: ✅ concluída em 2026-09-06
     - F2.5-C — Consulta pública, integração e hardening: ✅ concluída em 2026-09-07
-  - **F2.6 — Menus: 📋 planejada** — contrato arquitetural fechado em 2026-09-07
-    - F2.6-A — Domínio, persistência, hierarquia e Service Layer: 📋 planejada
+  - **F2.6 — Menus: ⏳ em desenvolvimento** — contrato arquitetural fechado em 2026-09-07
+    - F2.6-A — Domínio, persistência, hierarquia e Service Layer: ✅ concluída em 2026-09-07
     - F2.6-B — Administração, CRUD e ordenação: 📋 planejada
     - F2.6-C — Consulta pública, integração e hardening: 📋 planejada
-  - Próxima etapa operacional: **F2.6-A — Domínio, persistência, hierarquia e
-    Service Layer**, ainda 📋 planejada e não iniciada. A Fase 2 segue ⏳ em
-    desenvolvimento enquanto a F2.6 não for concluída.
+  - Próxima etapa operacional: **F2.6-B — Administração, CRUD e ordenação**,
+    ainda 📋 planejada e não iniciada. A Fase 2 segue ⏳ em desenvolvimento
+    enquanto a F2.6 não for concluída.
 - **Fase 1:** ✅ Concluída em 2026-09-04
 - **Data de Início:** 2026-09-04
 - **Data Estimada de MVP Completo:** 2026-09-30
@@ -194,7 +194,9 @@ aparece dividida porque suas três partes têm dependências distintas.
 > **Ponto atual da fila:** a F2.3-C está concluída e, com ela, a **F2.3 está
 > encerrada** — assim como F2.4 e F2.7. A **F2.5 — Banners** foi concluída em
 > 2026-09-07, com as três subfases internas encerradas: F2.5-A e F2.5-B em
-> 2026-09-06, F2.5-C em 2026-09-07. A próxima etapa operacional é a F2.6.
+> 2026-09-06, F2.5-C em 2026-09-07. A **F2.6 — Menus** está ⏳ em
+> desenvolvimento, com a F2.6-A concluída em 2026-09-07; a próxima etapa
+> operacional é a **F2.6-B — Administração, CRUD e ordenação**.
 
 Duas decisões arquiteturais explicam essa ordem, e ambas evitam duplicar o
 mesmo mecanismo:
@@ -234,7 +236,7 @@ no repositório e foi executado/validado com sucesso.**
 | F2.4 — Páginas Estáticas | ✅ Concluída | CRUD de páginas com SEO e publicação | F2.2 |
 | F2.7 — Biblioteca de Mídia | ✅ Concluída | Upload, processamento e consulta de mídia, em F2.7-A/B/C concluídas | F2.2 |
 | F2.5 — Banners | ✅ Concluída | CRUD de banners com ordenação e consulta pública, sobre a mídia da F2.7 — F2.5-A, B e C concluídas | F2.2, **F2.7** |
-| F2.6 — Menus | 📋 Planejado | Menus hierárquicos e itens | F2.2, F2.4 |
+| F2.6 — Menus | ⏳ Em desenvolvimento | Menus hierárquicos e itens | F2.2, F2.4 |
 
 > A tabela segue a **ordem de execução**, não a numeração: a F2.7 precede a
 > F2.5 porque os banners dependem da biblioteca de mídia.
@@ -443,7 +445,8 @@ que não a antecipa na fila) e a **F2.3-C depende da F2.3-A + F2.7 completa**
 
 > A dependência técnica da F2.3-C na F2.7 foi satisfeita e **a F2.3-C já foi
 > concluída**, encerrando a F2.3. A F2.5 também dependia da F2.7 completa e foi
-> concluída em 2026-09-07; a próxima etapa operacional é a F2.6.
+> concluída em 2026-09-07. A **F2.6** está ⏳ em desenvolvimento, com a
+> F2.6-A concluída; a próxima etapa operacional é a **F2.6-B**.
 
 A ordem de execução detalhada segue:
 
@@ -520,8 +523,9 @@ A/B e C a F2.3 ficou deliberadamente **parcialmente executada**; dividir a
 subfase foi preferível a duplicar upload de arquivos só para fechá-la antes.
 
 Com F2.3, F2.4 e F2.7 concluídas, a etapa operacional seguinte passou a ser a
-**F2.5 — Banners**, concluída em 2026-09-07 com as subfases A, B e C. A etapa
-operacional seguinte é a F2.6.
+**F2.5 — Banners**, concluída em 2026-09-07 com as subfases A, B e C. A **F2.6**
+está ⏳ em desenvolvimento, com a F2.6-A concluída; a próxima etapa operacional
+é a **F2.6-B — Administração, CRUD e ordenação**.
 
 **Dependências:** F2.1 (fundação e cache), F2.2 (layout e rotas admin) — ambas
 concluídas.
@@ -1887,8 +1891,9 @@ Page.id = identidade estável
 
 A F2.6 depende da **F2.4 concluída** — isto é, após a F2.4-C — e não apenas da
 identidade entregue pela F2.4-A. Com a F2.4 encerrada, essa dependência está
-**satisfeita**; a F2.6 permanece 📋 planejada e continua na sua posição da
-ordem de execução, após F2.7, F2.3-C e F2.5.
+**satisfeita**, e a F2.6 chegou à sua posição na ordem de execução, depois de
+F2.7, F2.3-C e F2.5. Ela está ⏳ em desenvolvimento, com a **F2.6-A concluída**;
+a próxima etapa é a **F2.6-B — Administração, CRUD e ordenação**.
 
 ---
 
@@ -1901,7 +1906,8 @@ Internamente: `F2.4-A → F2.4-B → F2.4-C`.
 **F2.4 está encerrada**. Depois dela, a Fase 2 executou e concluiu a
 **F2.7 — Biblioteca de Mídia** e a **F2.3-C**, ambas em 2026-09-06, encerrando
 também a F2.3; em seguida executou e concluiu a **F2.5 — Banners**, em
-2026-09-07. A etapa operacional seguinte é a **F2.6**.
+2026-09-07. A **F2.6** está ⏳ em desenvolvimento, com a F2.6-A concluída; a
+etapa operacional seguinte é a **F2.6-B**.
 
 ---
 
@@ -2911,16 +2917,18 @@ da Fase 2 é a **F2.6 — Menus**.
 **Bloqueadores / decisões pendentes:** nenhum. As dependências F2.2 e F2.7
 estão concluídas, a F2.5-A entregou o domínio sobre o qual B e C se apoiaram e
 as três subfases foram encerradas. A **F2.5 está concluída** desde 2026-09-07;
-a próxima etapa operacional da Fase 2 é a **F2.6 — Menus**.
+a **F2.6 — Menus** está ⏳ em desenvolvimento, com a F2.6-A concluída, e a
+próxima etapa operacional da Fase 2 é a **F2.6-B**.
 
 ---
 
-#### F2.6 — Menus 📋 Planejado
+#### F2.6 — Menus ⏳ Em desenvolvimento
 
-**Status:** 📋 **Planejada.** O **contrato arquitetural foi fechado em
-2026-09-07**; a implementação **não foi iniciada**. Nenhum model, migration,
-serviço, rota, view ou teste de menu existe no repositório, e nenhum pacote foi
-instalado.
+**Status:** ⏳ **Em desenvolvimento.** O contrato arquitetural foi fechado em
+2026-09-07 e a **F2.6-A foi concluída em 2026-09-07**, entregando domínio,
+persistência, hierarquia e Service Layer. A **F2.6-B** é a próxima etapa e a
+**F2.6-C** vem depois dela — as duas permanecem 📋 planejadas e não iniciadas.
+Nenhum pacote foi instalado.
 
 > **Contrato arquitetural definido antes da implementação**, no mesmo formato
 > adotado por F2.4, F2.7 e F2.5. As decisões desta seção foram fechadas em
@@ -2971,7 +2979,7 @@ F2.6-A → F2.6-B → F2.6-C
 
 | Subfase | Status | Entrega principal | Depende de |
 | --- | --- | --- | --- |
-| F2.6-A — Domínio, persistência, hierarquia e Service Layer | 📋 Planejada | Migrations `menus` e `menu_items`, models, enum `MenuItemType`, FKs, invariantes da árvore e `MenuService` | F2.2, F2.4 |
+| F2.6-A — Domínio, persistência, hierarquia e Service Layer | ✅ Concluída em 2026-09-07 | Migrations `menus` e `menu_items`, models, enum `MenuItemType`, FKs, invariantes da árvore e `MenuService` | F2.2, F2.4 |
 | F2.6-B — Administração, CRUD e ordenação | 📋 Planejada | Controller, Form Requests, CRUD de menu e de item, hierarquia, estado e ordenação | F2.6-A |
 | F2.6-C — Consulta pública, integração e hardening | 📋 Planejada | Consulta pública por `code`, integração do menu `main` no header e regressão de A e B | F2.6-B |
 
@@ -3635,34 +3643,96 @@ importação / exportação
 
 ---
 
-##### F2.6-A — Domínio, persistência, hierarquia e Service Layer 📋 Planejada
+##### F2.6-A — Domínio, persistência, hierarquia e Service Layer ✅ Concluída
 
-- [ ] Migration `menus` conforme o schema contratado
-- [ ] Migration `menu_items` conforme o schema contratado
-- [ ] Model `Menu`, sem `SoftDeletes`
-- [ ] Model `MenuItem`, sem `SoftDeletes`
-- [ ] Enum `MenuItemType` (`page`, `url`), persistido em coluna string
-- [ ] Relacionamentos `Menu → MenuItem`, `MenuItem → parent/children` e `MenuItem → Page`
-- [ ] FK `menu_id` com `restrictOnDelete()`
-- [ ] FK `parent_id` com `restrictOnDelete()`
-- [ ] FK `page_id` com `restrictOnDelete()`
-- [ ] Índice composto `(menu_id, parent_id, sort_order)`
-- [ ] `Menu.code` único, no formato canônico e imutável após a criação
-- [ ] Invariantes de destino: `page` exige `page_id`, `url` exige `url`, nunca ambos
-- [ ] Contrato de URL segura reaproveitado, recusando esquemas inseguros
-- [ ] Proteção contra ciclos, self-parent e pai de outro menu no `MenuService`
-- [ ] `menu_id` imutável no item após a criação
-- [ ] Ordenação por grupo de irmãos `(menu_id, parent_id)`, com `sort_order ASC, id ASC`
-- [ ] Atribuição do `sort_order` inicial anexando ao fim do grupo
-- [ ] Mudança de `parent_id` anexando ao fim do novo grupo
-- [ ] Exclusão recusada quando o item tem filhos
-- [ ] Exclusão transacional de `Menu` removendo os `MenuItems` das folhas para as raízes
-- [ ] `MenuService` como camada autoritativa
-- [ ] `lockForUpdate()` e `DB::transaction(..., 3)` nas operações de ordem
-- [ ] Factories de `Menu` e `MenuItem`, se os testes exigirem
-- [ ] Testes de domínio, persistência e Service Layer
+**Concluída e validada em 2026-09-07.**
+
+| Commit | Papel |
+| --- | --- |
+| `30df68e6ad90ef10997812df6d402b192fd17ff9` | `feat(menus): implementa dominio e persistencia da F2.6-A` |
+
+- [x] Migration `menus` conforme o schema contratado
+- [x] Migration `menu_items` conforme o schema contratado
+- [x] Model `Menu`, sem `SoftDeletes`
+- [x] Model `MenuItem`, sem `SoftDeletes`
+- [x] Enum `MenuItemType` (`page`, `url`), persistido em coluna string
+- [x] Relacionamentos `Menu → MenuItem`, `MenuItem → parent/children` e `MenuItem → Page`
+- [x] FK `menu_id` com `restrictOnDelete()`
+- [x] FK `parent_id` com `restrictOnDelete()`
+- [x] FK `page_id` com `restrictOnDelete()`
+- [x] Índice composto `(menu_id, parent_id, sort_order)`
+- [x] `Menu.code` único, no formato canônico e imutável após a criação
+- [x] Invariantes de destino: `page` exige `page_id`, `url` exige `url`, nunca ambos
+- [x] Contrato de URL segura reaproveitado, recusando esquemas inseguros
+- [x] Proteção contra ciclos, self-parent e pai de outro menu no `MenuService`
+- [x] `menu_id` imutável no item após a criação
+- [x] Ordenação por grupo de irmãos `(menu_id, parent_id)`, com `sort_order ASC, id ASC`
+- [x] Atribuição do `sort_order` inicial anexando ao fim do grupo
+- [x] Mudança de `parent_id` anexando ao fim do novo grupo
+- [x] Exclusão recusada quando o item tem filhos
+- [x] Exclusão transacional de `Menu` removendo os `MenuItems` das folhas para as raízes
+- [x] `MenuService` como camada autoritativa
+- [x] `lockForUpdate()` e `DB::transaction(..., 3)` nas operações de ordem
+- [x] Factories de `Menu` e `MenuItem`, se os testes exigirem
+- [x] Testes de domínio, persistência e Service Layer
 
 Sem interface administrativa, sem consulta pública e sem alteração do layout.
+
+**O que foi entregue**
+
+O schema saiu como contratado, confirmado contra o MySQL real: as **três FKs
+em `RESTRICT`**, o índice `(menu_id, parent_id, sort_order)`, `sort_order`
+**sem default** e **nenhum** `UNIQUE` de ordem. O `MenuService` é a camada
+autoritativa, com nove métodos públicos:
+
+```text
+createMenu()   updateMenu()   deleteMenu()
+createItem()   updateItem()   deleteItem()
+orderedSiblings()   isSupportedCode()   isSupportedUrl()
+```
+
+A exclusão de um menu remove a árvore **das folhas para as raízes**, em uma
+transação, validando antes que ela seja fechada em si mesma; um ciclo gravado
+direto no banco faz a operação falhar em vez de girar para sempre, e
+`FOREIGN_KEY_CHECKS` nunca é desligado.
+
+**Concorrência — medida com processos reais**
+
+A ordem é atribuída sob uma **âncora de bloqueio na linha de `menus`**, tomada
+antes de tudo, mais `lockForUpdate()` na leitura do `MAX`, dentro de
+`DB::transaction(..., 3)`. A âncora existe porque um grupo de irmãos ainda
+vazio não tem linha alguma para travar.
+
+Quatro cenários — raiz vazio, raiz populado, grupo de filhos vazio e populado —
+foram exercitados com **dois processos simultâneos de verdade**, 20 iterações
+cada, em MySQL 8.4.11 sob `REPEATABLE READ`: sequência exata `1..N` nas 80
+rodadas, sem nenhuma ordem duplicada. Os controles negativos mostraram que
+**cada barreira sozinha já basta**, e que sem as duas a ordem duplica nos
+quatro cenários — as duas são mantidas de propósito, e o registro dessa medição
+está no docblock do serviço.
+
+A atomicidade da exclusão foi provada com uma escrita parcial real: a primeira
+folha é removida dentro da transação, uma falha é injetada logo em seguida e o
+rollback do InnoDB devolve menu e árvore inteiros. Sem o `DB::transaction`, o
+teste falha — a prova não é decorativa.
+
+**Validação**
+
+```text
+foco F2.6-A                          153 testes /  389 assertions
+regressões Page e Banner             331 testes /  828 assertions
+suíte completa                       722 testes / 1972 assertions
+suíte padrão (SQLite)                716 verdes + 6 MySQL-only ignorados
+MySQL                                8.4.11 / REPEATABLE READ
+qualidade                            Pint PASS; composer validate --strict PASS
+                                     composer audit sem vulnerabilidades
+                                     npm build PASS; git diff --check limpo
+```
+
+**Fora desta subfase:** Controller, Form Requests, views, rotas, sidebar,
+reordenação administrativa, drag-and-drop, consulta pública, integração no
+header, View Composer, cache, Repository, roles e policies — tudo permanece
+com a F2.6-B e a F2.6-C.
 
 ##### F2.6-B — Administração, CRUD e ordenação 📋 Planejada
 
@@ -3742,11 +3812,11 @@ Sem roles, sem policies e sem pacote novo.
 - [ ] `git diff --check` passa
 
 **Bloqueadores / decisões pendentes:** nenhum. As dependências **F2.2** e
-**F2.4** estão satisfeitas e o **contrato arquitetural foi fechado em
-2026-09-07** — modelagem, hierarquia, destinos, ordenação, concorrência,
-consulta pública e limites de escopo. A **implementação não foi iniciada**: a
-F2.6 permanece 📋 planejada, e a próxima etapa é a **F2.6-A — Domínio,
-persistência, hierarquia e Service Layer**, que aguarda autorização específica.
+**F2.4** estão satisfeitas, o contrato arquitetural foi fechado em 2026-09-07 e
+a **F2.6-A foi concluída** na mesma data, entregando o domínio sobre o qual B e
+C se apoiam. A F2.6 permanece ⏳ em desenvolvimento, e a próxima etapa é a
+**F2.6-B — Administração, CRUD e ordenação**, que aguarda autorização
+específica.
 
 ---
 
@@ -3762,9 +3832,9 @@ Com A, B e C implementadas e validadas, a F2.7 está encerrada. A dependência
 técnica da F2.3-C e da F2.5 na biblioteca de mídia foi satisfeita, e a F2.3-C já
 a consumiu: ela foi concluída em 2026-09-06, registrando `Logo do site` e
 `Favicon do site` no `MediaUsageRegistry` sem que a F2.7 precisasse conhecê-los.
-A F2.5 consumiu a biblioteca e foi concluída em 2026-09-07; a próxima etapa
-operacional da Fase 2 é a **F2.6**, ainda planejada e não iniciada. Nenhum
-pacote Composer adicional foi necessário.
+A F2.5 consumiu a biblioteca e foi concluída em 2026-09-07; a **F2.6** está ⏳
+em desenvolvimento desde a mesma data, com a F2.6-A concluída. Nenhum pacote
+Composer adicional foi necessário.
 
 > **Contrato arquitetural definido antes da implementação**, no mesmo formato
 > adotado pela F2.4. As decisões desta seção foram fechadas em **2026-09-06**,
@@ -4874,8 +4944,9 @@ automaticamente ao término da anterior.
 Estado atual da divisão interna: **F2.7-A** (commit `8811b75`), **F2.7-B**
 (commit `29fdacb`) e **F2.7-C** (commit `eec2d6c`) concluídas em 2026-09-06.
 A F2.7 está ✅ concluída; a dependência técnica da F2.3-C foi satisfeita e ela
-foi concluída em 2026-09-06, seguida pela F2.5, concluída em 2026-09-07.
-A próxima etapa operacional é a F2.6.
+foi concluída em 2026-09-06, seguida pela F2.5, concluída em 2026-09-07. A
+F2.6 está ⏳ em desenvolvimento, com a F2.6-A concluída; a próxima etapa
+operacional é a **F2.6-B**.
 
 ---
 
@@ -5657,10 +5728,10 @@ verificadas no repositório e no ambiente Docker:
   a **F2.4 está concluída**, a **F2.7 está concluída** (A, B e C em
   2026-09-06) e a **F2.3 está encerrada**, com a F2.3-C concluída na mesma
   data. A **F2.5 foi concluída em 2026-09-07** (F2.5-A, F2.5-B e F2.5-C), e a
-  **F2.6 é agora a próxima etapa operacional** — sua dependência da F2.4
-  permanece satisfeita e o **contrato arquitetural dela foi fechado em
-  2026-09-07**, mas a implementação continua 📋 planejada e não iniciada. A
-  Fase 2 segue ⏳ em desenvolvimento enquanto a F2.6 não for concluída.
+  **F2.6 está ⏳ em desenvolvimento**: o contrato arquitetural foi fechado em
+  2026-09-07 e a **F2.6-A foi concluída** na mesma data; a **F2.6-B** é a
+  próxima etapa e a **F2.6-C** vem depois, ambas ainda 📋 planejadas. A Fase 2
+  segue ⏳ em desenvolvimento enquanto a F2.6 não for concluída.
 - A autorização granular permanece na Fase 3. Durante toda a Fase 2, qualquer
   usuário autenticado acessa `/admin`.
 - **Gates de ambiente da F2.7 — não são bloqueadores arquiteturais, mas são
@@ -5686,7 +5757,12 @@ verificadas no repositório e no ambiente Docker:
 - ✅ Fase 1 (concluída)
 
 #### Próximo Passo
-→ **F2.6 — Menus** — 📋 planejada, **não iniciada**. A **F2.5 — Banners** foi
+→ **F2.6-B — Administração, CRUD e ordenação** — 📋 planejada, **não
+iniciada**. A **F2.6 — Menus** está ⏳ em desenvolvimento: o contrato
+arquitetural foi fechado em 2026-09-07 e a **F2.6-A** foi concluída na mesma
+data, no commit `30df68e`, entregando migrations, models, enum, FKs em
+`RESTRICT`, hierarquia sem ciclos, ordenação por grupo de irmãos e
+`MenuService`. A **F2.5 — Banners** foi
 concluída em 2026-09-07: a F2.5-A e a F2.5-B em 2026-09-06, cobrindo domínio,
 persistência, CRUD administrativo e ordenação, e a F2.5-C em 2026-09-07, com a
 consulta pública e a integração do `hero` na home. Os banners consomem a
@@ -5696,10 +5772,10 @@ A F2.6 é a última da fila da Fase 2, e seu **contrato arquitetural foi fechado
 em 2026-09-07**, antes de qualquer código: modelagem de `menus` e `menu_items`,
 hierarquia em adjacency list, destinos `page`/`url`, ordenação por grupo de
 irmãos, consulta pública por `code` e integração do menu `main` no header. A
-próxima etapa é a **F2.6-A — Domínio, persistência, hierarquia e Service
-Layer**, ainda 📋 planejada e não iniciada. A Fase 2 permanece ⏳ em
-desenvolvimento enquanto a F2.6 não for concluída, e a Fase 3 permanece após o
-encerramento da Fase 2.
+**F2.6-A** foi concluída em 2026-09-07 e a próxima etapa é a **F2.6-B —
+Administração, CRUD e ordenação**, ainda 📋 planejada e não iniciada. A Fase 2
+permanece ⏳ em desenvolvimento enquanto a F2.6 não for concluída, e a Fase 3
+permanece após o encerramento da Fase 2.
 
 A arquitetura da F2.5 foi fechada antes da implementação, em `d7937f3`, e a da
 F2.6 em 2026-09-07, como nas subfases anteriores.
@@ -6492,9 +6568,10 @@ Atualizado toda segunda-feira com progresso real.
 - ✅ **F2.5 — Banners:** concluída em 2026-09-07, com F2.5-A e F2.5-B em
   2026-09-06 e F2.5-C em 2026-09-07. A F2.6 vem depois dela. Nenhum bloqueador
   conhecido.
-- 📋 **F2.6 — Menus:** contrato arquitetural fechado em 2026-09-07, com as
-  dependências F2.2 e F2.4 satisfeitas. A implementação **não foi iniciada** e a
-  próxima etapa é a F2.6-A. Nenhum bloqueador arquitetural conhecido.
+- ⏳ **F2.6 — Menus:** em desenvolvimento. Contrato arquitetural fechado em
+  2026-09-07 e **F2.6-A concluída** na mesma data, com as dependências F2.2 e
+  F2.4 satisfeitas. A próxima etapa é a F2.6-B, seguida da F2.6-C. Nenhum
+  bloqueador conhecido.
 
 ---
 
@@ -6803,6 +6880,25 @@ Atualizado toda segunda-feira com progresso real.
   ausência do `main` degradando sem quebrar; **sem cache**, sem polimorfismo,
   sem `MenuLocation`, sem `SoftDeletes` e sem pacote novo. A F2.6 permanece
   📋 planejada e **não iniciada**; a próxima etapa é a **F2.6-A**.
+- **2026-09-07:** **F2.6-A — Domínio, persistência, hierarquia e Service Layer
+  concluída.** Commit técnico `30df68e6ad90ef10997812df6d402b192fd17ff9`
+  (`feat(menus): implementa dominio e persistencia da F2.6-A`). Entrega as
+  migrations `menus` e `menu_items` — três FKs em `RESTRICT`, índice
+  `(menu_id, parent_id, sort_order)`, `sort_order` sem default e sem `UNIQUE` de
+  ordem —, os models `Menu` e `MenuItem` sem `SoftDeletes`, o enum
+  `MenuItemType` (`page`/`url`) e o `MenuService` como camada autoritativa:
+  `code` único, canônico e imutável, destinos mutuamente exclusivos, contrato de
+  URL segura, proteção contra ciclos e pai de outro menu, ordenação por grupo de
+  irmãos e exclusão do menu das folhas para as raízes em uma transação. A
+  concorrência foi validada com **dois processos reais e simultâneos**, 20
+  iterações em cada um dos quatro cenários, no MySQL 8.4.11 em
+  `REPEATABLE READ`, sem nenhuma ordem duplicada; a atomicidade, por escrita
+  parcial real desfeita pelo rollback do InnoDB. Validação: 153 testes / 389
+  assertions no foco e 722 / 1972 na suíte completa; Pint,
+  `composer validate --strict`, `composer audit`, `npm run build` e
+  `git diff --check` verdes. **Sem interface administrativa, sem consulta
+  pública e sem alteração do layout** — F2.6-B e F2.6-C seguem 📋 planejadas, a
+  F2.6 passa a ⏳ em desenvolvimento e a Fase 2 também.
 - *Próxima revisão: 2026-09-11*
 
 ---
@@ -6815,8 +6911,9 @@ R: Aproximadamente 30 dias (4 semanas) até Fase 8 concluída.
 **P: Posso usar em produção agora?**  
 R: Não. O ambiente de desenvolvimento já roda a aplicação e as fundações do
 CMS (F2.1) e do painel administrativo (F2.2) estão concluídas, mas a Fase 2
-segue em desenvolvimento, com a **F2.6 — Menus** como próxima etapa operacional
-e ainda não iniciada. As funcionalidades de e-commerce e a preparação para
+segue em desenvolvimento. A **F2.6 — Menus** está ⏳ em desenvolvimento, com a
+F2.6-A concluída; a próxima etapa operacional é a **F2.6-B — Administração,
+CRUD e ordenação**. As funcionalidades de e-commerce e a preparação para
 produção continuam previstas para as próximas fases.
 
 **P: Preciso implementar tudo?**  
