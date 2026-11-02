@@ -63,6 +63,10 @@ class ShippingIntegrationSettings
             ->where('key', ShippingSettings::SINGLETON_KEY)
             ->value('active_provider');
 
+        if ($provider instanceof ShippingProviderCode) {
+            return $provider;
+        }
+
         return is_string($provider) ? ShippingProviderCode::tryFrom($provider) : null;
     }
 

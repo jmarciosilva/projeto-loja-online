@@ -38,6 +38,7 @@ class UpdateProductRequest extends StoreProductRequest
             'is_active' => ['sometimes', 'boolean'],
             'is_featured' => ['sometimes', 'boolean'],
             'sort_order' => ['nullable', 'integer', 'min:1'],
+            ...$this->shippingProfileRules(),
         ];
     }
 

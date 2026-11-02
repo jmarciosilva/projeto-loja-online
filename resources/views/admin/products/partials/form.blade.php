@@ -80,7 +80,9 @@
             <p id="gallery-limit" class="hidden text-sm font-medium text-amber-800">Limite de seis imagens atingido.</p>
             <div id="product-gallery" class="grid grid-cols-2 gap-3 sm:grid-cols-3">
                 @foreach ($gallery as $image)
-                    @php($imageUrl = app(\App\Services\MediaService::class)->url($image))
+                    @php
+                        $imageUrl = app(\App\Services\MediaService::class)->url($image);
+                    @endphp
                     <div class="gallery-item rounded-lg border border-gray-200 p-2" data-media-id="{{ $image->id }}" data-media-url="{{ $imageUrl }}" data-media-name="{{ $image->original_name }}">
                         <img src="{{ $imageUrl }}" alt="{{ $image->original_name }}" class="h-28 w-full rounded bg-gray-50 object-contain">
                         <input type="hidden" name="gallery_media_ids[]" value="{{ $image->id }}">
@@ -92,6 +94,55 @@
             @error('main_media_id')<p class="text-sm text-red-700">{{ $message }}</p>@enderror
             @error('gallery_media_ids')<p class="text-sm text-red-700">{{ $message }}</p>@enderror
             @error('gallery_media_ids.*')<p class="text-sm text-red-700">{{ $message }}</p>@enderror
+        </div>
+    </section>
+
+    @php
+        $shippingProfile = $product->shippingProfile;
+        $shippingReadiness = \App\Enums\ShippingProfileReadiness::for($shippingProfile);
+        $shippingValue = fn (string $field) => old('shipping_profile.'.$field, $shippingProfile?->getAttribute($field));
+        $shippingRequiresShipping = old('shipping_profile.requires_shipping', $shippingProfile?->exists ? (int) $shippingProfile->requires_shipping : null);
+    @endphp
+    <section class="grid min-w-0 gap-5 rounded-xl border border-gray-200 bg-white p-6 sm:p-8 lg:grid-cols-2" aria-labelledby="dados-envio-produto">
+        <div class="lg:col-span-2"><h3 id="dados-envio-produto" class="text-lg font-semibold">Dados para envio</h3></div>
+        <div>
+            <label for="requires_shipping" class="block text-sm font-medium">Exige envio físico?</label>
+            <select id="requires_shipping" name="shipping_profile[requires_shipping]" class="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2.5">
+                <option value="">Defina se o produto exige envio</option>
+                <option value="1" @selected((string) $shippingRequiresShipping === '1')>Sim</option>
+                <option value="0" @selected($shippingRequiresShipping !== null && (string) $shippingRequiresShipping === '0')>Não</option>
+            </select>
+            @error('shipping_profile.requires_shipping')<p class="mt-1 text-sm text-red-700">{{ $message }}</p>@enderror
+            <p class="mt-1 text-xs text-gray-500">Produto sem perfil permanece pendente; não é tratado automaticamente como digital.</p>
+        </div>
+        <div class="rounded-lg bg-gray-50 p-4">
+            <p class="text-sm font-medium">Prontidão logística</p>
+            <p class="mt-1 text-sm {{ $shippingReadiness->toneClass() }}">{{ $shippingReadiness->label() }}</p>
+            <p class="mt-1 text-xs text-gray-500">Prontidão indica apenas que os dados locais estão completos; não valida uma conexão nem solicita frete.</p>
+        </div>
+        <div class="lg:col-span-2 grid min-w-0 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            @foreach ([['weight_kg','Peso do produto','kg',3],['height_cm','Altura do produto','cm',2],['width_cm','Largura do produto','cm',2],['length_cm','Comprimento do produto','cm',2]] as [$field,$label,$unit,$precision])
+                <div class="min-w-0">
+                    <label for="shipping_{{ $field }}" class="block text-sm font-medium">{{ $label }} ({{ $unit }})</label>
+                    <input id="shipping_{{ $field }}" name="shipping_profile[{{ $field }}]" inputmode="decimal" placeholder="{{ $precision === 3 ? '0,500' : '20,00' }}" value="{{ $shippingValue($field) }}" class="mt-2 w-full min-w-0 rounded-lg border border-gray-300 px-3 py-2.5">
+                    <p class="mt-1 text-xs text-gray-500">Maior que zero; máximo {{ $unit === 'kg' ? '1.000 kg' : '300 cm' }}.</p>
+                    @error('shipping_profile.'.$field)<p class="mt-1 text-sm text-red-700">{{ $message }}</p>@enderror
+                </div>
+            @endforeach
+        </div>
+        <div class="lg:col-span-2 border-t border-gray-200 pt-4">
+            <h4 class="font-medium">Dimensões da embalagem usada no MVP</h4>
+            <p class="mt-1 text-sm text-gray-500">Informe medidas reais do pacote pronto. Elas são distintas das dimensões do produto e não são calculadas automaticamente.</p>
+        </div>
+        <div class="lg:col-span-2 grid min-w-0 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            @foreach ([['package_weight_kg','Peso da embalagem','kg',3],['package_height_cm','Altura da embalagem','cm',2],['package_width_cm','Largura da embalagem','cm',2],['package_length_cm','Comprimento da embalagem','cm',2]] as [$field,$label,$unit,$precision])
+                <div class="min-w-0">
+                    <label for="shipping_{{ $field }}" class="block text-sm font-medium">{{ $label }} ({{ $unit }})</label>
+                    <input id="shipping_{{ $field }}" name="shipping_profile[{{ $field }}]" inputmode="decimal" placeholder="{{ $precision === 3 ? '0,500' : '20,00' }}" value="{{ $shippingValue($field) }}" class="mt-2 w-full min-w-0 rounded-lg border border-gray-300 px-3 py-2.5">
+                    <p class="mt-1 text-xs text-gray-500">Maior que zero; máximo {{ $unit === 'kg' ? '1.000 kg' : '300 cm' }}.</p>
+                    @error('shipping_profile.'.$field)<p class="mt-1 text-sm text-red-700">{{ $message }}</p>@enderror
+                </div>
+            @endforeach
         </div>
     </section>
 

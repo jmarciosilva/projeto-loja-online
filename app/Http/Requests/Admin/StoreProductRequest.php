@@ -20,6 +20,16 @@ class StoreProductRequest extends FormRequest
         if (is_string($this->input('sku'))) {
             $this->merge(['sku' => strtoupper(trim($this->input('sku')))]);
         }
+
+        $shippingProfile = $this->input('shipping_profile');
+        if (is_array($shippingProfile)) {
+            foreach (['weight_kg', 'height_cm', 'width_cm', 'length_cm', 'package_weight_kg', 'package_height_cm', 'package_width_cm', 'package_length_cm'] as $field) {
+                if (is_string($shippingProfile[$field] ?? null)) {
+                    $shippingProfile[$field] = str_replace(',', '.', trim($shippingProfile[$field]));
+                }
+            }
+            $this->merge(['shipping_profile' => $shippingProfile]);
+        }
     }
 
     public function authorize(): bool
@@ -48,6 +58,7 @@ class StoreProductRequest extends FormRequest
             'is_active' => ['sometimes', 'boolean'],
             'is_featured' => ['sometimes', 'boolean'],
             'sort_order' => ['nullable', 'integer', 'min:1'],
+            ...$this->shippingProfileRules(),
         ];
     }
 
@@ -93,7 +104,32 @@ class StoreProductRequest extends FormRequest
             if ($product instanceof Product && filled($this->input('sku')) && $this->input('sku') !== $product->sku) {
                 $validator->errors()->add('sku', 'O SKU não pode ser alterado depois da criação.');
             }
+
+            $shipping = $this->input('shipping_profile', []);
+            if (is_array($shipping) && ($shipping['requires_shipping'] ?? null) === null
+                && collect(['weight_kg', 'height_cm', 'width_cm', 'length_cm', 'package_weight_kg', 'package_height_cm', 'package_width_cm', 'package_length_cm'])
+                    ->contains(fn (string $field): bool => filled($shipping[$field] ?? null))) {
+                $validator->errors()->add('shipping_profile.requires_shipping', 'Defina se o produto exige envio físico antes de informar medidas.');
+            }
         });
+    }
+
+    /** @return array<string, array<int, mixed>> */
+    protected function shippingProfileRules(): array
+    {
+        $rules = [
+            'shipping_profile' => ['sometimes', 'array:requires_shipping,weight_kg,height_cm,width_cm,length_cm,package_weight_kg,package_height_cm,package_width_cm,package_length_cm'],
+            'shipping_profile.requires_shipping' => ['nullable', 'boolean'],
+        ];
+
+        foreach (['weight_kg', 'package_weight_kg'] as $field) {
+            $rules['shipping_profile.'.$field] = ['nullable', 'string', 'regex:/^\\d{1,4}(?:\\.\\d{1,3})?$/', 'numeric', 'gt:0', 'lte:1000'];
+        }
+        foreach (['height_cm', 'width_cm', 'length_cm', 'package_height_cm', 'package_width_cm', 'package_length_cm'] as $field) {
+            $rules['shipping_profile.'.$field] = ['nullable', 'string', 'regex:/^\\d{1,3}(?:\\.\\d{1,2})?$/', 'numeric', 'gt:0', 'lte:300'];
+        }
+
+        return $rules;
     }
 
     protected function slugRule(): Closure
@@ -128,6 +164,15 @@ class StoreProductRequest extends FormRequest
             'cost_price' => 'preço de custo', 'target_margin' => 'margem desejada',
             'price' => 'preço', 'promotional_price' => 'preço promocional',
             'promotion_starts_at' => 'início da promoção', 'promotion_ends_at' => 'término da promoção',
+            'shipping_profile.requires_shipping' => 'necessidade de envio físico',
+            'shipping_profile.weight_kg' => 'peso do produto (kg)',
+            'shipping_profile.height_cm' => 'altura do produto (cm)',
+            'shipping_profile.width_cm' => 'largura do produto (cm)',
+            'shipping_profile.length_cm' => 'comprimento do produto (cm)',
+            'shipping_profile.package_weight_kg' => 'peso da embalagem (kg)',
+            'shipping_profile.package_height_cm' => 'altura da embalagem (cm)',
+            'shipping_profile.package_width_cm' => 'largura da embalagem (cm)',
+            'shipping_profile.package_length_cm' => 'comprimento da embalagem (cm)',
         ];
     }
 

@@ -2,11 +2,13 @@
 
 namespace App\Providers;
 
+use App\Contracts\Shipping\ShippingPackagePreparer;
 use App\Models\Banner;
 use App\Models\Media;
 use App\Models\Product;
 use App\Services\MediaUsageRegistry;
 use App\Services\MenuService;
+use App\Services\Shipping\SingleUnitShippingPackagePreparer;
 use App\Services\ThemeService;
 use App\Services\VisualIdentityService;
 use Illuminate\Support\Facades\DB;
@@ -27,6 +29,7 @@ class AppServiceProvider extends ServiceProvider
         // bind comum, cada resolução criaria um registro vazio e a proteção
         // contra exclusão de mídia em uso passaria a não bloquear nada.
         $this->app->singleton(MediaUsageRegistry::class);
+        $this->app->bind(ShippingPackagePreparer::class, SingleUnitShippingPackagePreparer::class);
     }
 
     /**

@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Models\Category;
 use App\Models\Media;
 use App\Models\Product;
+use App\Models\ProductShippingProfile;
+use App\Services\Shipping\ShippingMeasurementConverter;
 use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
@@ -79,6 +81,7 @@ class ProductService
             if (filled($payload['sku'] ?? null)) {
                 $product = Product::query()->create($payload);
                 $this->syncGallery($product, $attributes, $payload['main_media_id']);
+                $this->syncShippingProfile($product, $attributes);
 
                 return $product;
             }
@@ -95,6 +98,7 @@ class ProductService
                     $product->save();
 
                     $this->syncGallery($product, $attributes, $payload['main_media_id']);
+                    $this->syncShippingProfile($product, $attributes);
 
                     return $product;
                 } catch (QueryException $exception) {
@@ -120,6 +124,7 @@ class ProductService
         DB::transaction(function () use ($product, $payload, $attributes): void {
             $product->fill($payload)->save();
             $this->syncGallery($product, $attributes, $payload['main_media_id']);
+            $this->syncShippingProfile($product, $attributes);
         });
 
         return $product;
@@ -333,6 +338,77 @@ class ProductService
             $product->images()->updateExistingPivot($currentId, ['sort_order' => 100 + $position]);
         }
         $product->images()->sync($sync);
+    }
+
+    /** @param array<string, mixed> $attributes */
+    private function syncShippingProfile(Product $product, array $attributes): void
+    {
+        if (! array_key_exists('shipping_profile', $attributes)) {
+            return;
+        }
+
+        $data = $attributes['shipping_profile'];
+        if (! is_array($data)) {
+            throw new InvalidArgumentException('Os dados para envio do produto são inválidos.');
+        }
+
+        $product->loadMissing('shippingProfile');
+        $existing = $product->shippingProfile;
+        $measurementFields = [
+            'weight_kg', 'height_cm', 'width_cm', 'length_cm',
+            'package_weight_kg', 'package_height_cm', 'package_width_cm', 'package_length_cm',
+        ];
+        $hasMeasurements = false;
+        foreach ($measurementFields as $field) {
+            $hasMeasurements = $hasMeasurements || filled($data[$field] ?? null);
+        }
+
+        $requiresShipping = $data['requires_shipping'] ?? null;
+        if ($existing === null && $requiresShipping === null && ! $hasMeasurements) {
+            // Produto antigo ou novo sem escolha explícita continua sem perfil:
+            // ausência de dados não é convertida em produto sem envio.
+            return;
+        }
+        if ($existing === null && $requiresShipping === null) {
+            throw new InvalidArgumentException('Defina se o produto exige envio físico antes de informar medidas.');
+        }
+
+        $payload = [
+            'product_id' => $product->id,
+            'requires_shipping' => $requiresShipping === null
+                ? $existing->requires_shipping
+                : $this->asBoolean($requiresShipping),
+        ];
+
+        foreach ($measurementFields as $field) {
+            if (array_key_exists($field, $data)) {
+                $payload[$field] = $this->shippingMeasurement($field, $data[$field]);
+            } else {
+                $payload[$field] = $existing?->getAttribute($field);
+            }
+        }
+
+        $profile = $existing ?? new ProductShippingProfile;
+        $profile->fill($payload)->save();
+    }
+
+    private function shippingMeasurement(string $field, mixed $value): ?string
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+        if (! is_string($value) && ! is_int($value)) {
+            throw new InvalidArgumentException('Informe medidas decimais válidas para envio.');
+        }
+
+        $normalized = str_replace(',', '.', trim((string) $value));
+        if (str_contains($field, 'weight')) {
+            ShippingMeasurementConverter::kilogramsToGrams($normalized);
+        } else {
+            ShippingMeasurementConverter::centimetersToMillimeters($normalized);
+        }
+
+        return $normalized;
     }
 
     private function resolveSlug(mixed $slug, string $name, ?int $ignoreId = null): string

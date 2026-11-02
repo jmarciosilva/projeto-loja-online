@@ -388,6 +388,7 @@ Descreve as camadas de segurança previstas para a aplicação:
 | [docs/INSTALACAO_RAPIDA.md](./docs/INSTALACAO_RAPIDA.md) | Setup do ambiente |
 | [docs/DOCKER_DEVELOPMENT.md](./docs/DOCKER_DEVELOPMENT.md) | Troubleshooting e debugging |
 | [docs/ARQUITETURA.md](./docs/ARQUITETURA.md) | Desenho técnico alvo (ainda não implementado) |
+| [docs/LOGISTICA_L01.2.md](./docs/LOGISTICA_L01.2.md) | Perfis logísticos de produtos e preparação local de cotação |
 | [CONTRIBUTING.md](./CONTRIBUTING.md) | Padrões de código e fluxo de contribuição |
 
 Planejados: `docs/API.md` (Fase 7) e `CHANGELOG.md` (primeira release).

@@ -2,6 +2,7 @@
 
 namespace App\DTO\Shipping;
 
+use App\Enums\ShippingProviderCode;
 use InvalidArgumentException;
 
 final readonly class ShippingQuoteRequest
@@ -12,6 +13,7 @@ final readonly class ShippingQuoteRequest
         public string $destinationPostalCode,
         public array $packages,
         public int $declaredValueCents,
+        public ?ShippingProviderCode $provider = null,
     ) {
         if (! preg_match('/^\d{8}$/', $originPostalCode) || ! preg_match('/^\d{8}$/', $destinationPostalCode)) {
             throw new InvalidArgumentException('Os CEPs devem conter oito dígitos.');

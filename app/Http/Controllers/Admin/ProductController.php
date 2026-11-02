@@ -42,7 +42,7 @@ class ProductController extends Controller
         $categoryOptions = $categories->adminOptions();
         $media = $products->adminMediaOptions();
 
-        $product->load(['mainMedia', 'images']);
+        $product->load(['mainMedia', 'images', 'shippingProfile']);
 
         return view('admin.products.edit', ['product' => $product, 'categories' => $categoryOptions, 'media' => $media]);
     }

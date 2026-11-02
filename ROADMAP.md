@@ -30,6 +30,13 @@
   parcial da Fase 4. Inclui categorias, produtos, precificação, promoções,
   editor rico sanitizado, galeria de até seis imagens e responsividade.
   Checkout, pedidos, pagamentos e controle de estoque seguem pendentes.
+- **Logística L01.1:** configurações administrativas de Frenet e Melhor Envio
+  concluídas; não há adaptadores nem conexão validada.
+- **Logística L01.2:** perfis logísticos e preparação local de cotação
+  implementados; migration pendente de aplicação. A política atual só prepara
+  uma unidade de um produto físico com embalagem explicitamente medida. Não há
+  chamadas externas nem cotação real. Ver
+  [LOGISTICA_L01.2.md](./docs/LOGISTICA_L01.2.md).
 - **Fase 1:** ✅ Concluída em 2026-09-04
 - **Data de Início:** 2026-09-04
 - **Data Estimada de MVP Completo:** 2026-09-30

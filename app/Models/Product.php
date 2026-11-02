@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
@@ -52,6 +53,11 @@ class Product extends Model
     {
         return $this->belongsToMany(Media::class, 'product_images')
             ->withPivot('sort_order')->withTimestamps()->orderByPivot('sort_order')->orderBy('media.id');
+    }
+
+    public function shippingProfile(): HasOne
+    {
+        return $this->hasOne(ProductShippingProfile::class);
     }
 
     public function scopeActive(Builder $query): Builder
