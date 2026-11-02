@@ -21,22 +21,26 @@
     - F2.5-A — Domínio, persistência e Service Layer: ✅ concluída em 2026-09-06
     - F2.5-B — Administração e ordenação: ✅ concluída em 2026-09-06
     - F2.5-C — Consulta pública, integração e hardening: ✅ concluída em 2026-09-07
-  - **F2.6 — Menus: ⏳ em desenvolvimento** — contrato arquitetural fechado em 2026-09-07
+  - **F2.6 — Menus: ✅ concluída em 2026-11-02** — contrato arquitetural fechado em 2026-09-07
     - F2.6-A — Domínio, persistência, hierarquia e Service Layer: ✅ concluída em 2026-09-07
     - F2.6-B — Administração, CRUD e ordenação: ✅ concluída em 2026-09-08
-    - F2.6-C — Consulta pública, integração e hardening: 📋 planejada
-  - Próxima etapa operacional: **F2.6-C — Consulta pública, integração e
-    hardening**, ainda 📋 planejada e não iniciada. A Fase 2 segue ⏳ em
-    desenvolvimento enquanto a F2.6 não for concluída.
+    - F2.6-C — Consulta pública, integração e hardening: ✅ concluída em 2026-11-02
+  - A F2.6 foi concluída; a Fase 2 segue ⏳ em desenvolvimento.
+- **Catálogo E02–E02.3:** implementação entregue em 2026-11-02 como parte
+  parcial da Fase 4. Inclui categorias, produtos, precificação, promoções,
+  editor rico sanitizado, galeria de até seis imagens e responsividade.
+  Checkout, pedidos, pagamentos e controle de estoque seguem pendentes.
 - **Fase 1:** ✅ Concluída em 2026-09-04
 - **Data de Início:** 2026-09-04
 - **Data Estimada de MVP Completo:** 2026-09-30
 - **Data Estimada de v1.0 Production:** 2026-10-30
-- **Progresso Geral:** ~11% (Fase 1 de 9 concluída)
+- **Progresso Geral:** percentual ainda não recalculado após as entregas recentes.
 
 > **Como ler este arquivo:** um item só é marcado `[x]` depois de existir no
 > repositório e ter sido executado com sucesso. Itens `[ ]` são planejamento —
 > inclusive quando a tecnologia já aparece na Stack Técnica do README.
+> Registros datados de auditorias e decisões preservam o estado da época; para
+> o estado atual, use o resumo acima e os status das fases abaixo.
 
 ---
 
@@ -237,7 +241,7 @@ no repositório e foi executado/validado com sucesso.**
 | F2.4 — Páginas Estáticas | ✅ Concluída | CRUD de páginas com SEO e publicação | F2.2 |
 | F2.7 — Biblioteca de Mídia | ✅ Concluída | Upload, processamento e consulta de mídia, em F2.7-A/B/C concluídas | F2.2 |
 | F2.5 — Banners | ✅ Concluída | CRUD de banners com ordenação e consulta pública, sobre a mídia da F2.7 — F2.5-A, B e C concluídas | F2.2, **F2.7** |
-| F2.6 — Menus | ⏳ Em desenvolvimento | Menus hierárquicos e itens | F2.2, F2.4 |
+| F2.6 — Menus | ✅ Concluída em 2026-11-02 | Menus hierárquicos públicos e administração | F2.2, F2.4 |
 
 > A tabela segue a **ordem de execução**, não a numeração: a F2.7 precede a
 > F2.5 porque os banners dependem da biblioteca de mídia.
@@ -524,9 +528,8 @@ A/B e C a F2.3 ficou deliberadamente **parcialmente executada**; dividir a
 subfase foi preferível a duplicar upload de arquivos só para fechá-la antes.
 
 Com F2.3, F2.4 e F2.7 concluídas, a etapa operacional seguinte passou a ser a
-**F2.5 — Banners**, concluída em 2026-09-07 com as subfases A, B e C. A **F2.6**
-está ⏳ em desenvolvimento, com a F2.6-A e a F2.6-B concluídas; a próxima etapa
-operacional é a **F2.6-C — Consulta pública, integração e hardening**.
+**F2.5 — Banners**, concluída em 2026-09-07 com as subfases A, B e C. A F2.6
+foi concluída em 2026-11-02, conforme o resumo geral e a seção F2.6 abaixo.
 
 **Dependências:** F2.1 (fundação e cache), F2.2 (layout e rotas admin) — ambas
 concluídas.
@@ -2919,18 +2922,17 @@ da Fase 2 é a **F2.6 — Menus**.
 **Bloqueadores / decisões pendentes:** nenhum. As dependências F2.2 e F2.7
 estão concluídas, a F2.5-A entregou o domínio sobre o qual B e C se apoiaram e
 as três subfases foram encerradas. A **F2.5 está concluída** desde 2026-09-07;
-a **F2.6 — Menus** está ⏳ em desenvolvimento, com a F2.6-A e a F2.6-B
-concluídas, e a próxima etapa operacional da Fase 2 é a **F2.6-C**.
+a F2.6 foi concluída em 2026-11-02.
 
 ---
 
-#### F2.6 — Menus ⏳ Em desenvolvimento
+#### F2.6 — Menus ✅ Concluída
 
-**Status:** ⏳ **Em desenvolvimento.** O contrato arquitetural foi fechado em
+**Status:** ✅ **Concluída em 2026-11-02.** O contrato arquitetural foi fechado em
 2026-09-07; a **F2.6-A foi concluída em 2026-09-07**, entregando domínio,
 persistência, hierarquia e Service Layer, e a **F2.6-B em 2026-09-08**,
-entregando a administração, o CRUD e a ordenação. A **F2.6-C** é a próxima
-etapa e permanece 📋 planejada e não iniciada. Nenhum pacote foi instalado.
+entregando a administração, o CRUD e a ordenação. A **F2.6-C** concluiu a
+consulta pública, integração, regressão e hardening. Nenhum pacote foi instalado.
 
 > **Contrato arquitetural definido antes da implementação**, no mesmo formato
 > adotado por F2.4, F2.7 e F2.5. As decisões desta seção foram fechadas em
@@ -2983,7 +2985,7 @@ F2.6-A → F2.6-B → F2.6-C
 | --- | --- | --- | --- |
 | F2.6-A — Domínio, persistência, hierarquia e Service Layer | ✅ Concluída em 2026-09-07 | Migrations `menus` e `menu_items`, models, enum `MenuItemType`, FKs, invariantes da árvore e `MenuService` | F2.2, F2.4 |
 | F2.6-B — Administração, CRUD e ordenação | ✅ Concluída em 2026-09-08 | Controller, Form Requests, CRUD de menu e de item, hierarquia, estado e ordenação | F2.6-A |
-| F2.6-C — Consulta pública, integração e hardening | 📋 Planejada | Consulta pública por `code`, integração do menu `main` no header e regressão de A e B | F2.6-B |
+| F2.6-C — Consulta pública, integração e hardening | ✅ Concluída em 2026-11-02 | Consulta pública por `code`, integração do menu `main` no header e regressões | F2.6-B |
 
 **Por que dividir:** as três concentram riscos distintos — integridade de uma
 árvore com ciclos possíveis; operação administrativa com reordenação dentro de
@@ -3842,69 +3844,58 @@ inconsistente — cada uma derrubou o teste correspondente.
 no header, View Composer público, filtro de publicabilidade, resolução pública
 de `Page`, cache, Repository, roles e policies — tudo permanece com a F2.6-C.
 
-##### F2.6-C — Consulta pública, integração e hardening 📋 Planejada
+##### F2.6-C — Consulta pública, integração e hardening ✅ Concluída
 
-- [ ] Consulta pública da árvore por `Menu.code`
-- [ ] Somente menu ativo é exposto
-- [ ] Somente itens ativos e publicáveis são expostos
-- [ ] Destino `page` resolvido por `Page.id`, apenas quando publicada
-- [ ] URL derivada do slug atual da `Page`, nunca de valor persistido no item
-- [ ] `Page` em rascunho não é renderizada
-- [ ] `Page` soft-deleted não é renderizada
-- [ ] Ancestral não publicável oculta seus descendentes, sem promovê-los
-- [ ] Ordem determinística em cada grupo de irmãos
-- [ ] Árvore montada em memória, sem N+1 recursivo
-- [ ] Integração do menu `main` no header do `layouts.app`
-- [ ] Ausência ou inatividade do `main` não quebra o layout
-- [ ] Escape seguro de rótulo e URL na Blade
-- [ ] Regressão da administração da F2.6-B
-- [ ] Regressão da hierarquia e da ordenação
-- [ ] Suíte completa verde
-- [ ] Hardening final
+- [x] Consulta pública da árvore por `Menu.code`
+- [x] Somente menu ativo é exposto
+- [x] Somente itens ativos e publicáveis são expostos
+- [x] Destino `page` resolvido por `Page.id`, apenas quando publicada
+- [x] URL derivada do slug atual da `Page`, nunca de valor persistido no item
+- [x] `Page` em rascunho não é renderizada
+- [x] `Page` soft-deleted não é renderizada
+- [x] Ancestral não publicável oculta seus descendentes, sem promovê-los
+- [x] Ordem determinística em cada grupo de irmãos
+- [x] Árvore montada em memória, sem N+1 recursivo
+- [x] Integração do menu `main` no header do `layouts.app`
+- [x] Ausência ou inatividade do `main` não quebra o layout
+- [x] Escape seguro de rótulo e URL na Blade
+- [x] Regressão da administração da F2.6-B
+- [x] Regressão da hierarquia e da ordenação
+- [x] Suíte completa verde (866 aprovados; 7 testes de concorrência MySQL ignorados no SQLite)
+- [x] Hardening final de autorização, URLs e renderização pública
+
+**Verificação final em 2026-11-02:** suíte completa aprovada com 866 testes e
+2508 assertions; os sete testes ignorados exigem MySQL de testes para concorrência.
+Pint, build Vite e `git diff --check` também foram aprovados. O usuário já havia
+validado manualmente a vitrine em dispositivos móveis e tablet.
 
 ---
 
 ##### Critérios arquiteturais de aceite da F2.6 completa
 
-- [ ] O menu tem identidade técnica própria em `code`
-- [ ] `code` é único e imutável após a criação
-- [ ] Um `MenuItem` pertence a exatamente um `Menu`
-- [ ] O pai de um item pertence ao mesmo `Menu`
-- [ ] Ciclos na hierarquia são recusados pelo Service Layer
-- [ ] O destino interno usa `page_id` e nunca um slug persistido
-- [ ] `page_id` e `url` são mutuamente exclusivos
-- [ ] URL insegura é rejeitada, incluindo esquemas não suportados
-- [ ] A ordenação é por grupo de irmãos `(menu_id, parent_id)`
-- [ ] O empate de `sort_order` é desempatado por `id ASC`
-- [ ] Novo item é anexado ao fim do seu grupo de irmãos
-- [ ] Mudar de pai move o item para o fim do grupo de destino
-- [ ] Excluir item com filhos é recusado
-- [ ] Excluir um `Menu` pelo Service Layer remove toda a árvore atomicamente
-- [ ] `Menu` e `MenuItem` nascem inativos por default
-- [ ] Menu inativo não aparece publicamente
-- [ ] Item inativo não aparece publicamente
-- [ ] Item apontando para página em rascunho não aparece
-- [ ] Item apontando para página soft-deleted não aparece
-- [ ] Alterar o slug da página muda a URL pública sem alterar `menu_items`
-- [ ] Ancestral oculto oculta seus descendentes, sem promovê-los
-- [ ] A árvore pública é montada sem N+1 recursivo
-- [ ] O menu `main` é integrado ao header do layout público
-- [ ] A ausência do `main` não quebra o layout
-- [ ] O Blade escapa rótulo e URL
-- [ ] Não existe destino polimórfico prematuro
-- [ ] Não existe cache prematuro
-- [ ] As rotas administrativas usam somente `auth`
-- [ ] Suíte completa permanece verde
-- [ ] Pint passa
-- [ ] `git diff --check` passa
+Os critérios abaixo foram verificados pela implementação e pelos testes da
+F2.6-A/B/C. A suíte integral passou em 2026-11-02; sete testes de concorrência
+continuam pendentes porque exigem um banco MySQL de testes isolado.
 
-**Bloqueadores / decisões pendentes:** nenhum. As dependências **F2.2** e
-**F2.4** estão satisfeitas, o contrato arquitetural foi fechado em 2026-09-07,
-a **F2.6-A foi concluída** na mesma data, entregando o domínio sobre o qual B e
-C se apoiam, e a **F2.6-B foi concluída em 2026-09-08**, entregando a
-administração sobre esse domínio. A F2.6 permanece ⏳ em desenvolvimento, e a
-próxima etapa é a **F2.6-C — Consulta pública, integração e hardening**, que
-aguarda autorização específica.
+- [x] O menu tem identidade técnica própria em `code`, único e imutável
+- [x] Itens pertencem a um menu e pais pertencem ao mesmo menu
+- [x] Ciclos na hierarquia são recusados pelo Service Layer
+- [x] Destinos internos usam `page_id`; URL e `page_id` são exclusivos
+- [x] URLs inseguras são rejeitadas
+- [x] Ordenação determinística por grupo de irmãos
+- [x] Novo item e mudança de pai mantêm a ordenação do grupo
+- [x] Exclusão de item com filhos é recusada e exclusão de menu é atômica
+- [x] Menus e itens inativos não são expostos publicamente
+- [x] Páginas em rascunho ou removidas não são expostas
+- [x] Slug atual da página determina a URL pública
+- [x] Ancestral não publicável oculta seus descendentes
+- [x] Árvore pública é montada sem N+1 recursivo
+- [x] Menu `main` integrado ao header; sua ausência não quebra o layout
+- [x] Blade escapa rótulos e URLs
+- [x] Sem destino polimórfico ou cache prematuro
+- [x] Suíte completa aprovada; concorrência MySQL segue pendente
+- [x] Pint e build Vite aprovados
+- [x] `git diff --check` aprovado
 
 ---
 
@@ -3920,8 +3911,8 @@ Com A, B e C implementadas e validadas, a F2.7 está encerrada. A dependência
 técnica da F2.3-C e da F2.5 na biblioteca de mídia foi satisfeita, e a F2.3-C já
 a consumiu: ela foi concluída em 2026-09-06, registrando `Logo do site` e
 `Favicon do site` no `MediaUsageRegistry` sem que a F2.7 precisasse conhecê-los.
-A F2.5 consumiu a biblioteca e foi concluída em 2026-09-07; a **F2.6** está ⏳
-em desenvolvimento desde a mesma data, com a F2.6-A concluída. Nenhum pacote
+A F2.5 consumiu a biblioteca e foi concluída em 2026-09-07; a **F2.6** foi
+concluída em 2026-11-02. Nenhum pacote
 Composer adicional foi necessário.
 
 > **Contrato arquitetural definido antes da implementação**, no mesmo formato
@@ -5033,8 +5024,7 @@ Estado atual da divisão interna: **F2.7-A** (commit `8811b75`), **F2.7-B**
 (commit `29fdacb`) e **F2.7-C** (commit `eec2d6c`) concluídas em 2026-09-06.
 A F2.7 está ✅ concluída; a dependência técnica da F2.3-C foi satisfeita e ela
 foi concluída em 2026-09-06, seguida pela F2.5, concluída em 2026-09-07. A
-F2.6 está ⏳ em desenvolvimento, com a F2.6-A e a F2.6-B concluídas; a próxima
-etapa operacional é a **F2.6-C**.
+F2.6 foi concluída em 2026-11-02.
 
 ---
 
@@ -5816,10 +5806,8 @@ verificadas no repositório e no ambiente Docker:
   a **F2.4 está concluída**, a **F2.7 está concluída** (A, B e C em
   2026-09-06) e a **F2.3 está encerrada**, com a F2.3-C concluída na mesma
   data. A **F2.5 foi concluída em 2026-09-07** (F2.5-A, F2.5-B e F2.5-C), e a
-  **F2.6 está ⏳ em desenvolvimento**: o contrato arquitetural foi fechado em
-  2026-09-07, a **F2.6-A foi concluída** na mesma data e a **F2.6-B em
-  2026-09-08**; a **F2.6-C** é a próxima etapa e permanece 📋 planejada. A
-  Fase 2 segue ⏳ em desenvolvimento enquanto a F2.6 não for concluída.
+  **F2.6 foi concluída em 2026-11-02**, incluindo consulta pública, integração
+  e hardening. A Fase 2 segue em desenvolvimento por outros itens do roadmap.
 - A autorização granular permanece na Fase 3. Durante toda a Fase 2, qualquer
   usuário autenticado acessa `/admin`.
 - **Gates de ambiente da F2.7 — não são bloqueadores arquiteturais, mas são
@@ -5845,28 +5833,9 @@ verificadas no repositório e no ambiente Docker:
 - ✅ Fase 1 (concluída)
 
 #### Próximo Passo
-→ **F2.6-C — Consulta pública, integração e hardening** — 📋 planejada, **não
-iniciada**. A **F2.6 — Menus** está ⏳ em desenvolvimento: o contrato
-arquitetural foi fechado em 2026-09-07 e a **F2.6-A** foi concluída na mesma
-data, no commit `30df68e`, entregando migrations, models, enum, FKs em
-`RESTRICT`, hierarquia sem ciclos, ordenação por grupo de irmãos e
-`MenuService`; a **F2.6-B** foi concluída em 2026-09-08, no commit `503b7f1`,
-entregando a administração de menus e itens, a hierarquia editável e a
-ordenação entre irmãos pelo Service Layer. A **F2.5 — Banners** foi
-concluída em 2026-09-07: a F2.5-A e a F2.5-B em 2026-09-06, cobrindo domínio,
-persistência, CRUD administrativo e ordenação, e a F2.5-C em 2026-09-07, com a
-consulta pública e a integração do `hero` na home. Os banners consomem a
-biblioteca centralizada, sem upload próprio.
-
-A F2.6 é a última da fila da Fase 2, e seu **contrato arquitetural foi fechado
-em 2026-09-07**, antes de qualquer código: modelagem de `menus` e `menu_items`,
-hierarquia em adjacency list, destinos `page`/`url`, ordenação por grupo de
-irmãos, consulta pública por `code` e integração do menu `main` no header. A
-**F2.6-A** foi concluída em 2026-09-07, a **F2.6-B** em 2026-09-08, e a próxima
-etapa é a **F2.6-C — Consulta pública, integração e hardening**, ainda
-📋 planejada e não iniciada. A Fase 2
-permanece ⏳ em desenvolvimento enquanto a F2.6 não for concluída, e a Fase 3
-permanece após o encerramento da Fase 2.
+→ A F2.6 foi concluída em 2026-11-02. A Fase 2 continua em desenvolvimento
+enquanto houver outras entregas planejadas; consulte o resumo geral para o
+estado atual. A Fase 3 permanece planejada.
 
 A arquitetura da F2.5 foi fechada antes da implementação, em `d7937f3`, e a da
 F2.6 em 2026-09-07, como nas subfases anteriores.
@@ -5958,66 +5927,84 @@ F2.6 em 2026-09-07, como nas subfases anteriores.
 
 ---
 
-### Fase 4 — Produtos e Categorias ⏳ PLANEJADO
+### Fase 4 — Produtos e Categorias ⏳ Parcialmente implementada
 
-**Status:** ⏳ **Planejado**  
+**Status:** ⏳ **Parcialmente implementada.** E02, E02.1, E02.2 e E02.3 foram
+entregues em 2026-11-02. Permanecem pendentes funções fora desse escopo, como
+estoque, busca e filtros avançados, avaliações, produtos relacionados, carrinho
+e componentes Livewire específicos.
 **Duração Estimada:** Semana 3 (2026-09-24 → 2026-10-01)  
 **Responsável:** TBD  
 
+#### Entrega E02 — Estado verificado em 2026-11-02
+
+- [x] Categorias e produtos com CRUD administrativo e Policies
+- [x] Catálogo público, categorias, filtros por categoria, paginação e destaques
+- [x] SKU automático e unicidade no banco
+- [x] Preço de custo, margem desejada e sugestão de preço de venda
+- [x] Promoções com ativação e datas programadas
+- [x] Editor rico com sanitização no servidor e suporte a Markdown legado
+- [x] Galeria persistente de até seis imagens, miniaturas, ordem e imagem principal
+- [x] Zoom, lightbox, controles acessíveis e layout responsivo
+- [x] Bootstrap local de administrador opt-in e DemoStorefrontSeeder opcional
+- [x] Regressão automatizada: 866 aprovados, 7 testes de concorrência ignorados
+- [x] Pint, build Vite e `git diff --check`
+
+O proprietário informou validação manual do cadastro, vitrine, galeria e
+responsividade em smartphone/tablet. A validação manual de instalação em um
+banco novo e de concorrência em MySQL isolado continua pendente. Estes resultados
+não validam deploy nem prontidão para produção.
+
 #### Entregáveis
-- [ ] **Model Category**
-  - [ ] Migration (id, name, slug, description, image, is_active, order)
-  - [ ] Relacionamento com Products (hasMany)
-  - [ ] Scope active() para listar ativas
-  - [ ] Slug automático
+- [x] **Model Category**
+  - [x] Migration (id, name, slug, description, is_active, sort_order)
+  - [x] Relacionamento com Products (hasMany)
+  - [x] Scope active() para listar ativas
+  - [x] Slug automático
+  - [ ] Imagem própria para categoria
 
-- [ ] **Model Product**
-  - [ ] Migration (id, name, slug, description, short_description, price, cost, sku, image, category_id, is_active, stock, created_by, created_at, updated_at)
-  - [ ] Relacionamentos:
-    - belongsTo(User, 'created_by')
-    - belongsTo(Category)
-    - hasMany(ProductImage)
-  - [ ] Scopes: active(), byCategory(), featured()
-  - [ ] Mutators: formatar preço em R$, datas
+- [x] **Model Product**
+  - [x] Migration para categoria, mídia principal, nome, slug, SKU, descrição, preços, promoção, publicação e ordenação
+  - [ ] Campos de estoque e usuário criador
+  - [x] Relacionamentos com Category, mídia principal e galeria
+  - [x] Scopes de ativo, visibilidade pública, destaque e ordenação
+  - [x] Formatação de preço e cálculo comercial
 
-- [ ] **Model ProductImage**
-  - [ ] Migration (id, product_id, image, order)
-  - [ ] Galeria de múltiplas imagens
-  - [ ] Reordenação (order field)
+- [x] **Galeria de produto (`product_images`)**
+  - [x] Migration associativa com `media_id` e `sort_order`
+  - [x] Galeria de até seis referências à biblioteca de mídia existente
+  - [x] Ordenação e compatibilidade com `main_media_id`
 
-- [ ] **CRUD Admin de Categorias**
-  - [ ] Listar categorias
-  - [ ] Criar categoria (form)
-  - [ ] Upload de imagem para categoria
-  - [ ] Editar categoria
-  - [ ] Deletar categoria (verificar se tem produtos)
-  - [ ] Reordenar categorias (drag-drop)
-  - [ ] Status ativo/inativo
+- [x] **CRUD Admin de Categorias**
+  - [x] Listar, criar e editar categorias
+  - [ ] Upload de imagem própria para categoria
+  - [x] Exclusão lógica preservando produtos
+  - [ ] Reordenação por arrastar e soltar
+  - [x] Status ativo/inativo e ordem definida no formulário
 
-- [ ] **CRUD Admin de Produtos**
-  - [ ] Listar produtos (filtrar por categoria, status)
-  - [ ] Criar produto (form com validação)
-  - [ ] Upload de múltiplas imagens
-  - [ ] Crop de imagens (opcionalmente)
-  - [ ] Reordenar imagens
-  - [ ] Deletar imagens
-  - [ ] Editar produto
-  - [ ] Deletar produto
+- [x] **CRUD Admin de Produtos**
+  - [x] Listar produtos e filtrar por categoria
+  - [x] Criar e editar produto com validação
+  - [x] Selecionar imagens da biblioteca e enviar sem abandonar o formulário
+  - [ ] Recorte de imagens
+  - [x] Reordenar e remover associações da galeria
+  - [x] Exclusão lógica do produto
   - [ ] Clonar produto
   - [ ] Importar/exportar (CSV - futuro)
   - [ ] Bulk edit de status/preço
 
-- [ ] **Listagem Pública de Produtos**
-  - [ ] GET /produtos (com paginação, filtros)
-  - [ ] Filtros: categoria, preço (min-max), ordenação (novo, popular, preço)
+- [x] **Listagem Pública de Produtos**
+  - [x] GET /produtos com paginação e filtro por categoria
+  - [ ] Filtros por preço e ordenação selecionável
   - [ ] Busca por nome/descrição
-  - [ ] Componente ProductCard (grid responsivo)
-  - [ ] Listar apenas produtos ativos
+  - [x] Card de produto em grade responsiva
+  - [x] Exibir apenas produtos publicados em categorias ativas
 
-- [ ] **Página de Detalhe do Produto**
-  - [ ] GET /produtos/{slug}
-  - [ ] Galeria de imagens com zoom
-  - [ ] Informações: nome, preço, descrição, estoque
+- [x] **Página de Detalhe do Produto**
+  - [x] GET /produtos/{slug}
+  - [x] Galeria de imagens com zoom
+  - [x] Nome, SKU, categoria, preço e descrição formatada
+  - [ ] Exibição de estoque
   - [ ] Botão "Adicionar ao Carrinho"
   - [ ] Avaliação média (futuro)
   - [ ] Produtos relacionados (mesma categoria)
@@ -6030,20 +6017,22 @@ F2.6 em 2026-09-07, como nas subfases anteriores.
   - [ ] FilterProducts (sidebar com filtros)
 
 #### Notas Técnicas
-- Usar Intervention/Image para processar imagens (redimensionar, thumbnail)
-- Slug automático via mutator ou seeder
-- Estoque não pode ser negativo (validação)
-- Preço em centavos no banco (integer) para evitar float issues
-- SKU único por produto
+- O serviço de mídia existente processa arquivos; categorias ainda não têm imagem própria
+- Slug é resolvido pelos Services de categoria e produto
+- Controle de estoque permanece pendente
+- Preços comerciais são armazenados em DECIMAL; cálculos usam centavos inteiros
+- SKU é único no banco e gerado pelo serviço quando omitido
 
 #### Bloqueadores
 - ❌ Nenhum
 
 #### Dependências
-- ✅ Fase 1, 2, 3
+- ✅ Fases 1 e 2
+- ⏳ Papéis e permissões granulares da Fase 3 seguem pendentes; o escopo E02 usa a permissão explícita `can_manage_catalog` e não declara a Fase 3 concluída.
 
 #### Próximo Passo
-→ **Fase 5** (Carrinho e Checkout)
+→ Concluir as pendências da Fase 4 antes de iniciar carrinho e checkout; esses
+recursos permanecem planejados e dependem das etapas de acesso e estoque.
 
 ---
 

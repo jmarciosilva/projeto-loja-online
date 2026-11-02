@@ -8,7 +8,7 @@
 
 ## 📋 Visão Geral
 
-**Loja Online** é uma plataforma de e-commerce moderna, completa e escalável, construída com Laravel 12, Livewire 4 e Docker. Oferece um painel administrativo intuitivo (CMS) com gerenciamento de cores, menus, páginas estáticas e um catálogo de produtos com carrinho e checkout totalmente funcional.
+**Loja Online** é uma loja virtual em desenvolvimento, construída com Laravel 12, Livewire 4 e Docker. Já oferece CMS para páginas, menus, banners e mídia, além de catálogo público e administração de categorias e produtos, incluindo precificação, promoções e galeria de imagens.
 
 É um **e-commerce próprio de operação única (single-store)**: não é marketplace
 e não possui lojistas ou vendedores terceiros. Produtos, estoque, pedidos e
@@ -20,32 +20,35 @@ pagamentos pertencem à operação comercial da própria loja.
 - Startups que precisam escalar um e-commerce rapidamente
 
 ### Diferencial Competitivo
-✨ **CMS completo** integrado ao Laravel (sem dependências externas pesadas)
-✨ **Docker pronto para produção** com health checks e otimizações WSL2
-✨ **API REST autenticada** com Sanctum para apps mobile
-✨ **Permissões granulares** com Spatie/laravel-permission
-✨ **Mobile-first** - design responsivo desde o início
-✨ **Performance** - lazy loading, cache, otimizações de imagem
-✨ **LGPD compliant** - pronto para regulamentações brasileiras
+✨ **CMS e vitrine integrados** ao Laravel
+✨ **Ambiente Docker de desenvolvimento** com health checks
+✨ **Catálogo mobile-first** com navegação responsiva e galeria de imagens
+✨ **Gestão comercial** com SKU, custo, margem e promoções programadas
+✨ **Conteúdo protegido** com sanitização de descrições e autorização administrativa
 
 ---
 
 ## ✨ O que já roda hoje
 
-**Estado em 2026-09-04: ambiente de desenvolvimento completo e funcionando.
-A fundação do CMS (F2.1) já está implementada; catálogo, carrinho, checkout,
-pedidos e interface administrativa ainda não foram implementados.**
+**Estado em 2026-11-02:** CMS, navegação pública, categorias, produtos e vitrine
+foram implementados. A experiência mobile foi validada manualmente pelo
+proprietário. O projeto continua em desenvolvimento e não foi validado para
+produção.
 
-### ✅ Pronto — Fase 1
+### ✅ Infraestrutura e funcionalidades disponíveis
 
 - Os 7 serviços Docker sobem e ficam `healthy`
 - **Laravel 12.69.1** servindo em http://localhost (HTTP 200)
 - **Livewire 4.4.3** instalado (traz o AlpineJS embutido)
 - **Vite 7.3.6 + TailwindCSS 4** compilando assets
-- MySQL 8.4 com as migrations iniciais aplicadas (`users`, `cache`, `jobs`)
+- MySQL 8.4 com migrations do CMS, catálogo, precificação e galeria
 - Cache e filas no Redis (`CACHE_STORE=redis`, database 1)
-- `composer test` passando
-- Laravel Pint disponível para formatação
+- 866 testes aprovados; sete testes de concorrência aguardam execução em MySQL de testes
+- Laravel Pint e build Vite aprovados
+- Catálogo de categorias e produtos, SKU automático, custo, margem e promoções programadas
+- Editor de descrição sanitizado e compatibilidade com descrições Markdown existentes
+- Galeria de até seis imagens por produto, miniaturas e zoom
+- Navegação CMS hierárquica e layouts responsivos para celular, tablet e desktop
 - Pacotes do projeto instalados e prontos para as próximas fases:
   spatie/laravel-permission, laravel/sanctum, intervention/image,
   barryvdh/laravel-dompdf
@@ -54,7 +57,7 @@ pedidos e interface administrativa ainda não foram implementados.**
 
 | Rota | O que verifica |
 |------|----------------|
-| `/` | Home placeholder sobre o layout base |
+| `/` | Vitrine inicial com banner, navegação e conteúdo de demonstração local |
 | `/health` | Aplicação **e** dependências (MySQL + Redis), em JSON |
 | `/api/health` | API respondendo |
 | `/up` | Health nativo do Laravel — só o framework |
@@ -62,13 +65,13 @@ pedidos e interface administrativa ainda não foram implementados.**
 
 Detalhes da validação em [`docker/VERIFICACAO.md`](./docker/VERIFICACAO.md).
 
-### ⏳ Ainda não existe
+### ⏳ Ainda pendente
 
-Tudo que é específico desta loja: produtos, categorias, carrinho, checkout,
-pedidos, painel administrativo, interface do CMS, autenticação por papéis e a
-API mobile.
-A fundação do CMS já inclui `SiteSetting` e `SiteSettingService`; ainda não há
-`Policies/`, `Livewire/` nem `Enums/`.
+Carrinho, checkout, integração de pagamentos, pedidos, acompanhamento de pedidos,
+controle de estoque e API mobile ainda não foram implementados. Também permanecem
+pendentes a autorização granular por papéis e a validação de implantação em
+produção. O painel de conteúdo e catálogo já existe; a Fase 3 continua responsável
+por papéis, permissões granulares e administração de usuários.
 
 A Stack Técnica abaixo mistura o que já está instalado com o que é alvo do
 projeto. Para o estado real por fase, veja o [ROADMAP.md](./ROADMAP.md).
@@ -116,18 +119,23 @@ git clone git@github.com:jmarciosilva/projeto-loja-online.git
 cd projeto-loja-online
 
 cp .env.example .env
+# Edite .env: defina ADMIN_EMAIL e ADMIN_PASSWORD para sua conta local
 
 docker compose up -d --build
 
 docker compose exec app composer install
 docker compose exec app php artisan key:generate
 docker compose exec app php artisan migrate
+docker compose exec app php artisan db:seed
+# Opcional, apenas quando quiser criar conteúdo demonstrativo em ambiente local:
+docker compose exec app php artisan db:seed --class=DemoStorefrontSeeder
 docker compose exec app php artisan storage:link
 docker compose exec node npm install
 docker compose exec node npm run build
 ```
 
-Acesse http://localhost.
+Acesse http://localhost. Entre no painel por **Administração** no cabeçalho ou
+diretamente em `/login`; depois use as credenciais definidas no `.env`.
 
 > `vendor/` e `node_modules/` ficam em volumes nomeados do Docker, não no
 > host — por isso `composer install` e `npm install` precisam rodar **dentro**
@@ -178,6 +186,9 @@ docker compose exec app ls -l public/storage   # deve apontar para storage/app/p
 | `DB_USERNAME` | loja_user | Usuário MySQL |
 | `DB_PASSWORD` | senha_segura | Senha MySQL |
 | `MAIL_MAILER` | log | Mailer (log para dev, smtp para prod) |
+| `ADMIN_NAME` | Administrador da Loja | Nome da conta administrativa local |
+| `ADMIN_EMAIL` | (definir no `.env`) | E-mail da conta criada pelo seeder local |
+| `ADMIN_PASSWORD` | (definir no `.env`) | Senha da conta criada pelo seeder local |
 | `DOCKER_HTTP_PORT` | 80 | Porta HTTP do container |
 | `DOCKER_MYSQL_PORT` | 3306 | Porta MySQL mapeada |
 | `DOCKER_PHPMYADMIN_PORT` | 8081 | Porta phpMyAdmin |
@@ -187,13 +198,36 @@ docker compose exec app ls -l public/storage   # deve apontar para storage/app/p
 
 ---
 
-## 👥 Usuários de Teste
+## 👥 Acesso administrativo local
 
-⏳ **Ainda não existem.** Dependem dos seeders da Fase 3 (Autenticação e Roles).
+Acesse `/login` ou use o link **Administração** no cabeçalho da loja. Para
+inicializar o acesso local ao catálogo, defina `ADMIN_EMAIL` no `.env` e execute:
 
-Os papéis planejados são admin, gerente, editor, operador e customer — a
-definição está no [ROADMAP.md](./ROADMAP.md#fase-3--autenticação-roles-e-permissions).
-Quando os seeders forem escritos, as credenciais de desenvolvimento entram aqui.
+```bash
+docker compose exec app php artisan db:seed
+```
+
+Se esse e-mail ainda não existir, também defina `ADMIN_PASSWORD` com pelo menos
+12 caracteres para criar a conta. Se já existir, o bootstrap apenas habilita
+`can_manage_catalog`; não altera nome, senha ou demais dados da conta. A rotina
+é limitada a `APP_ENV=local` e não habilita outros usuários. Sem as configurações
+necessárias, nenhuma conta insegura é criada. O painel atual reúne configurações,
+identidade visual, páginas, banners, menus e biblioteca de mídia. O controle
+granular por papéis e permissões permanece planejado na Fase 3.
+
+O conteúdo demonstrativo não é executado pelo `db:seed` padrão. Para solicitá-lo
+explicitamente em ambiente local, execute `php artisan db:seed --class=DemoStorefrontSeeder`.
+Ele cria páginas, tema, banner e menu somente
+quando estão ausentes; não substitui conteúdo existente nem cria produtos ou
+categorias fictícias. A imagem do banner está versionada junto ao seeder; nenhum
+arquivo é baixado de serviço externo durante a carga.
+
+Páginas demonstrativas removidas logicamente não são restauradas. Menus e
+banners não possuem exclusão lógica nem marca de origem no schema; por isso, se
+forem removidos fisicamente, uma execução manual posterior não consegue
+distinguir essa remoção de um banco ainda sem esses registros e poderá criá-los
+novamente. Evite executar o seeder novamente quando a intenção for manter essas
+exclusões.
 
 ---
 
@@ -301,17 +335,17 @@ docker compose exec app vendor/bin/pint
 
 ## 📊 Status do Projeto
 
-**Fase Atual:** Fase 2 — CMS e Configurações Admin (em desenvolvimento; próximo passo: F2.2 — Fundação do Admin)
+**Fase Atual:** Fase 2 — CMS e Configurações Admin (em desenvolvimento; F2.6-C concluída; catálogo E02–E02.3 implementado)
 **Data de Início:** 2026-09-04
-**Progresso:** ~11% (Fase 1 de 9 concluída)
+**Progresso:** Fase 1 concluída; Fase 2 em andamento; catálogo da Fase 4 parcialmente entregue pela E02.
 
 | Fase | Status | Entregável |
 |------|--------|-----------|
 | 1a — Infraestrutura Docker | ✅ Concluída | 7 serviços healthy, validados |
 | 1b — Bootstrap do Laravel | ✅ Concluída | Laravel 12.69.1, Livewire 4.4.3, Vite 7 |
-| 2 — CMS e Admin | ⏳ Em desenvolvimento | Configurações, páginas, banners, menus |
+| 2 — CMS e Admin | ⏳ Em desenvolvimento | Configurações, páginas, banners e menus; F2.6 concluída |
 | 3 — Autenticação & Roles | ⏳ Planejado | Roles, permissions, CRUD usuários |
-| 4 — Produtos e Categorias | ⏳ Planejado | CRUD com upload de imagens |
+| 4 — Produtos e Categorias | ⏳ Parcialmente implementada | E02–E02.3: catálogo, precificação, promoções, editor, galeria e responsividade; ver pendências no ROADMAP |
 | 5 — Carrinho e Checkout | ⏳ Planejado | Fluxo completo de compra |
 | 6 — Pedidos e Rastreamento | ⏳ Planejado | Gestão de pedidos e status |
 | 7 — API Mobile (Sanctum) | ⏳ Planejado | Endpoints REST autenticados |
