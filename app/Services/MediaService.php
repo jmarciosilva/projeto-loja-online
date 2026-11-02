@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Exceptions\MediaInUseException;
 use App\Models\Media;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -244,6 +245,23 @@ class MediaService
         return Media::query()
             ->orderByDesc('id')
             ->paginate($perPage);
+    }
+
+    /**
+     * Imagens existentes, acessíveis e compatíveis para associação a produtos.
+     *
+     * @return Collection<int, Media>
+     */
+    public function availableForSelection(int $limit = 200): Collection
+    {
+        return Media::query()
+            ->where('disk', self::DISK)
+            ->orderByDesc('id')
+            ->limit($limit)
+            ->get()
+            ->filter(fn (Media $media): bool => in_array($media->mime_type, $this->supportedMimeTypes(), true)
+                && Storage::disk($media->disk)->exists($media->path))
+            ->values();
     }
 
     /**

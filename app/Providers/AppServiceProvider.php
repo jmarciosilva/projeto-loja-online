@@ -4,9 +4,13 @@ namespace App\Providers;
 
 use App\Models\Banner;
 use App\Models\Media;
+use App\Models\Product;
 use App\Services\MediaUsageRegistry;
+use App\Services\MenuService;
 use App\Services\ThemeService;
 use App\Services\VisualIdentityService;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\View\View as ViewInstance;
@@ -38,6 +42,10 @@ class AppServiceProvider extends ServiceProvider
         View::composer('layouts.app', function (ViewInstance $view): void {
             $view->with('themeColors', $this->app->make(ThemeService::class)->colors());
             $view->with('visualIdentity', $this->app->make(VisualIdentityService::class)->forPublicLayout());
+            $menuService = $this->app->make(MenuService::class);
+            $mainNavigation = $menuService->publicTree('main') ?? [];
+            $view->with('mainNavigation', $mainNavigation);
+            $view->with('catalogNavigationVisible', ! $menuService->containsPublicUrl($mainNavigation, route('catalog.index')));
         });
     }
 
@@ -73,6 +81,13 @@ class AppServiceProvider extends ServiceProvider
         $registry->register(
             'Banner',
             fn (Media $media): bool => Banner::query()->where('media_id', $media->getKey())->exists(),
+        );
+
+        $registry->register(
+            'Imagem de produto',
+            fn (Media $media): bool => Schema::hasTable('products')
+                && (Product::query()->where('main_media_id', $media->getKey())->exists()
+                    || (Schema::hasTable('product_images') && DB::table('product_images')->where('media_id', $media->getKey())->exists())),
         );
     }
 }

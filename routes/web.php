@@ -2,15 +2,19 @@
 
 use App\Enums\BannerPosition;
 use App\Http\Controllers\Admin\BannerController;
+use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\MenuController;
 use App\Http\Controllers\Admin\PageController;
+use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\SiteSettingController;
 use App\Http\Controllers\Admin\ThemeSettingController;
 use App\Http\Controllers\Admin\VisualIdentitySettingController;
+use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\PageController as PublicPageController;
 use App\Services\BannerService;
 use App\Services\MediaService;
+use App\Services\ProductService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
@@ -25,10 +29,15 @@ use Illuminate\Support\Facades\Route;
  * já usado pela listagem administrativa de banners — o banner nunca guarda
  * caminho nem URL.
  */
-Route::get('/', fn (BannerService $banners, MediaService $media) => view('home', [
+Route::get('/', fn (BannerService $banners, MediaService $media, ProductService $products) => view('home', [
     'heroBanners' => $banners->activeForPosition(BannerPosition::Hero),
     'media' => $media,
+    'featuredProducts' => $products->featured(4),
 ]))->name('home');
+
+Route::get('/produtos', [CatalogController::class, 'index'])->name('catalog.index');
+Route::get('/produtos/{slug}', [CatalogController::class, 'show'])->name('catalog.show');
+Route::get('/categorias/{slug}', [CatalogController::class, 'category'])->name('categories.show');
 
 /*
  * Páginas estáticas públicas, sob o namespace `/paginas/` em vez de um
@@ -52,6 +61,21 @@ Route::middleware('auth')
     ->prefix('admin')
     ->name('admin.')
     ->group(function (): void {
+        Route::get('categorias', [CategoryController::class, 'index'])->name('categories.index');
+        Route::get('categorias/criar', [CategoryController::class, 'create'])->name('categories.create');
+        Route::post('categorias', [CategoryController::class, 'store'])->name('categories.store');
+        Route::get('categorias/{category}/editar', [CategoryController::class, 'edit'])->name('categories.edit');
+        Route::put('categorias/{category}', [CategoryController::class, 'update'])->name('categories.update');
+        Route::post('categorias/{category}/alternar', [CategoryController::class, 'toggle'])->name('categories.toggle');
+        Route::delete('categorias/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
+
+        Route::get('produtos', [ProductController::class, 'index'])->name('products.index');
+        Route::get('produtos/criar', [ProductController::class, 'create'])->name('products.create');
+        Route::post('produtos', [ProductController::class, 'store'])->name('products.store');
+        Route::get('produtos/{product}/editar', [ProductController::class, 'edit'])->name('products.edit');
+        Route::put('produtos/{product}', [ProductController::class, 'update'])->name('products.update');
+        Route::post('produtos/{product}/alternar', [ProductController::class, 'toggle'])->name('products.toggle');
+        Route::delete('produtos/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
         Route::get('midias', [MediaController::class, 'index'])->name('media.index');
         Route::post('midias', [MediaController::class, 'store'])->name('media.store');
         Route::delete('midias/{media}', [MediaController::class, 'destroy'])->name('media.destroy');

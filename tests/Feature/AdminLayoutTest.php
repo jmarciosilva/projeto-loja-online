@@ -46,11 +46,11 @@ class AdminLayoutTest extends TestCase
     {
         $html = $this->acessarPainel()->getContent();
 
-        $this->assertStringContainsString('<title>Dashboard', $html);
+        $this->assertStringContainsString('<title>Painel da loja', $html);
         $this->assertGreaterThanOrEqual(
             2,
-            substr_count($html, 'Dashboard'),
-            'O título deve aparecer no <title> e também na topbar.'
+            substr_count($html, 'Painel da loja'),
+            'O título atual deve aparecer no <title> e também na topbar.'
         );
     }
 
@@ -77,16 +77,18 @@ class AdminLayoutTest extends TestCase
         $html = $this->acessarPainel()->getContent();
 
         // As áreas futuras podem ser citadas em texto, mas não viram href.
-        // `configuracoes` saiu da lista na F2.3-A, `paginas` na F2.4-B,
-        // `banners` na F2.5-B e `menus` na F2.6-B: as rotas passaram a existir,
-        // e manter a guarda sobre elas impediria justamente o link legítimo.
-        foreach (['midia', 'produtos', 'pedidos', 'clientes', 'usuarios'] as $secao) {
+        // `configuracoes`, `paginas`, `banners`, `menus` e agora `produtos`
+        // possuem rotas reais. As áreas ainda inexistentes permanecem sem link.
+        foreach (['midia', 'pedidos', 'clientes', 'usuarios'] as $secao) {
             $this->assertStringNotContainsString(
                 'href="'.url('/admin/'.$secao).'"',
                 $html,
                 "A sidebar não deve linkar para /admin/{$secao} antes de a página existir."
             );
         }
+
+        $this->assertStringContainsString('href="'.route('admin.products.index').'"', $html);
+        $this->assertStringContainsString('href="'.route('admin.categories.index').'"', $html);
     }
 
     public function test_logout_is_available_from_the_panel(): void

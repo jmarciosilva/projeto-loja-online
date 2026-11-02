@@ -1,9 +1,14 @@
 <header class="border-b border-gray-200 bg-white">
     <div class="flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
 
-        <h1 class="text-base font-semibold tracking-tight">
-            @yield('title', 'Área administrativa')
-        </h1>
+        <div class="flex min-w-0 items-center gap-2 sm:gap-4">
+            <h1 class="min-w-0 break-words text-sm font-semibold tracking-tight sm:text-base">
+                @yield('title', 'Painel da loja')
+            </h1>
+            <a href="{{ route('home') }}" class="shrink-0 text-xs font-medium text-gray-600 hover:text-gray-950 sm:text-sm">
+                Ver loja
+            </a>
+        </div>
 
         <div class="flex items-center gap-3">
             @auth

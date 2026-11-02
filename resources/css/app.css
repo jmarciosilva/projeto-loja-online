@@ -5,6 +5,10 @@
 @source '../**/*.blade.php';
 @source '../**/*.js';
 
+[x-cloak] {
+    display: none !important;
+}
+
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
@@ -99,6 +103,51 @@
     border-radius: 0.5rem;
     padding: 1rem;
     overflow-x: auto;
+}
+
+.product-description > * + * {
+    margin-top: 0.75rem;
+}
+
+.product-description h2 {
+    margin-top: 1.5rem;
+    font-size: clamp(1.125rem, 4vw, 1.5rem);
+    font-weight: 600;
+}
+
+.product-description h3 {
+    margin-top: 1.25rem;
+    font-size: clamp(1rem, 3.5vw, 1.25rem);
+    font-weight: 600;
+}
+
+.product-description ul,
+.product-description ol {
+    padding-left: 1.5rem;
+}
+
+.product-description ul {
+    list-style: disc;
+}
+
+.product-description ol {
+    list-style: decimal;
+}
+
+.product-description strong {
+    font-weight: 600;
+}
+
+.product-description em {
+    font-style: italic;
+}
+
+.product-description u {
+    text-decoration: underline;
+}
+
+.product-description a {
+    text-decoration: underline;
 }
 
 .page-content pre code {

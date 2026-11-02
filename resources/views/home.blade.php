@@ -3,42 +3,55 @@
 @section('title', config('app.name'))
 
 @section('content')
-    {{-- Destaques da posição `hero`, resolvidos pelo BannerService na rota. --}}
+    {{-- Banners e navegação vêm dos serviços públicos, nunca de consultas na Blade. --}}
     @include('partials.hero-banners')
 
-    <div class="rounded-lg border border-gray-200 bg-white p-8">
-        <p class="text-sm font-medium uppercase tracking-wide text-gray-500">
-            Fase 1 concluída
-        </p>
+    <section class="mt-12 space-y-5" aria-labelledby="produtos-em-destaque">
+        <div class="flex flex-wrap items-end justify-between gap-3">
+            <div><p class="text-sm font-semibold uppercase tracking-wide text-gray-500">Nossa seleção</p><h2 id="produtos-em-destaque" class="mt-1 text-2xl font-semibold">Produtos em destaque</h2></div>
+            <a href="{{ route('catalog.index') }}" class="text-sm font-semibold underline underline-offset-4">Ver catálogo</a>
+        </div>
+        @if ($featuredProducts->isEmpty())
+            <div class="rounded-xl border border-dashed border-gray-300 bg-white p-8 text-center text-sm text-gray-600">Novidades da loja aparecerão aqui em breve.</div>
+        @else
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">@foreach ($featuredProducts as $product)@include('catalog.partials.product-card', ['product' => $product])@endforeach</div>
+        @endif
+    </section>
 
-        <h1 class="mt-2 text-3xl font-semibold tracking-tight">
-            {{ config('app.name') }}
-        </h1>
+    <section class="mt-10 grid min-w-0 gap-6 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:mt-12 sm:gap-8 sm:p-8 lg:mt-0 lg:grid-cols-[1.3fr_0.7fr] lg:items-center lg:p-10">
+        <div>
+            <p class="text-sm font-semibold uppercase tracking-[0.16em] text-gray-500">
+                Uma curadoria para o cotidiano
+            </p>
+            <h1 class="mt-3 max-w-2xl break-words text-2xl font-semibold tracking-tight text-gray-950 sm:text-4xl">
+                Mais leveza nos pequenos momentos.
+            </h1>
+            <p class="mt-4 max-w-2xl text-base leading-7 text-gray-600">
+                Descubra peças, cuidados e detalhes escolhidos para acompanhar a sua rotina — com simplicidade, aconchego e personalidade.
+            </p>
+            <a href="{{ route('pages.show', ['slug' => 'sobre-a-loja']) }}"
+               class="mt-6 inline-flex items-center rounded-lg bg-gray-900 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-gray-700">
+                Conheça a loja <span aria-hidden="true" class="ml-2">→</span>
+            </a>
+        </div>
 
-        <p class="mt-4 max-w-2xl text-gray-600">
-            Ambiente de desenvolvimento no ar: Laravel {{ app()->version() }} sobre
-            PHP {{ PHP_VERSION }}, com Livewire, Vite e TailwindCSS. Nenhuma
-            funcionalidade de e-commerce foi implementada ainda — o catálogo, o
-            carrinho e o painel administrativo são o escopo das próximas fases.
-        </p>
+        <div class="grid grid-cols-1 gap-3 text-center sm:grid-cols-2 sm:gap-4">
+            <div class="rounded-xl bg-[#f5f2ec] px-4 py-6">
+                <p class="text-sm font-semibold text-gray-900">Escolhas cuidadosas</p>
+                <p class="mt-2 text-sm leading-6 text-gray-600">Uma seleção feita com atenção aos detalhes.</p>
+            </div>
+            <div class="rounded-xl bg-[#edf0e9] px-4 py-6">
+                <p class="text-sm font-semibold text-gray-900">Feito para durar</p>
+                <p class="mt-2 text-sm leading-6 text-gray-600">Qualidade e praticidade para o dia a dia.</p>
+            </div>
+        </div>
+    </section>
 
-        <dl class="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
-            @foreach ([
-                'Ambiente' => app()->environment(),
-                'Cache' => config('cache.default'),
-                'Fila' => config('queue.default'),
-                'Banco' => config('database.default'),
-            ] as $rotulo => $valor)
-                <div class="rounded-md bg-gray-50 px-4 py-3">
-                    <dt class="text-xs uppercase tracking-wide text-gray-500">{{ $rotulo }}</dt>
-                    <dd class="mt-1 font-medium">{{ $valor }}</dd>
-                </div>
-            @endforeach
-        </dl>
-
-        <p class="mt-8 text-sm text-gray-500">
-            Verificação de dependências em
-            <a href="{{ route('health') }}" class="underline hover:text-gray-900">/health</a>.
-        </p>
-    </div>
+    <section class="mt-14 border-t border-gray-200 pt-8 text-center">
+        <p class="text-sm text-gray-600">Conheça nossa proposta e acompanhe as novidades da loja.</p>
+        <a href="{{ route('pages.show', ['slug' => 'contato']) }}"
+           class="mt-3 inline-block text-sm font-semibold text-gray-900 underline underline-offset-4 hover:text-gray-600">
+            Fale com a gente
+        </a>
+    </section>
 @endsection

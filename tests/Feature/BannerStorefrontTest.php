@@ -41,8 +41,10 @@ class BannerStorefrontTest extends TestCase
     {
         $html = (string) $this->get('/')->assertOk()->getContent();
 
-        // A home comercial continua inteira: nada da F2.5-C substitui seções.
-        $this->assertStringContainsString('Fase 1 concluída', $html);
+        // A home atual continua renderizada mesmo sem banners; o título e o
+        // conteúdo principal são um contrato estável da vitrine.
+        $this->assertStringContainsString('<h1', $html);
+        $this->assertStringContainsString('Mais leveza nos pequenos momentos.', $html);
 
         // Sem banners ativos nenhuma moldura vazia é emitida — nem a seção,
         // nem uma borda sem conteúdo dentro dela.

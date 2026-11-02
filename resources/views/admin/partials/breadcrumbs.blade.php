@@ -107,6 +107,18 @@
             </li>
             <li aria-hidden="true" class="text-gray-300">/</li>
             <li class="font-medium text-gray-700" aria-current="page">Menus</li>
+        @elseif (request()->routeIs('admin.categories.create'))
+            <li><a href="{{ route('admin') }}" class="hover:text-gray-700">Dashboard</a></li><li aria-hidden="true">/</li><li><a href="{{ route('admin.categories.index') }}" class="hover:text-gray-700">Categorias</a></li><li aria-hidden="true">/</li><li aria-current="page" class="font-medium">Nova categoria</li>
+        @elseif (request()->routeIs('admin.categories.edit'))
+            <li><a href="{{ route('admin') }}" class="hover:text-gray-700">Dashboard</a></li><li aria-hidden="true">/</li><li><a href="{{ route('admin.categories.index') }}" class="hover:text-gray-700">Categorias</a></li><li aria-hidden="true">/</li><li aria-current="page" class="font-medium">Editar</li>
+        @elseif (request()->routeIs('admin.categories.*'))
+            <li><a href="{{ route('admin') }}" class="hover:text-gray-700">Dashboard</a></li><li aria-hidden="true">/</li><li aria-current="page" class="font-medium">Categorias</li>
+        @elseif (request()->routeIs('admin.products.create'))
+            <li><a href="{{ route('admin') }}" class="hover:text-gray-700">Dashboard</a></li><li aria-hidden="true">/</li><li><a href="{{ route('admin.products.index') }}" class="hover:text-gray-700">Produtos</a></li><li aria-hidden="true">/</li><li aria-current="page" class="font-medium">Novo produto</li>
+        @elseif (request()->routeIs('admin.products.edit'))
+            <li><a href="{{ route('admin') }}" class="hover:text-gray-700">Dashboard</a></li><li aria-hidden="true">/</li><li><a href="{{ route('admin.products.index') }}" class="hover:text-gray-700">Produtos</a></li><li aria-hidden="true">/</li><li aria-current="page" class="font-medium">Editar</li>
+        @elseif (request()->routeIs('admin.products.*'))
+            <li><a href="{{ route('admin') }}" class="hover:text-gray-700">Dashboard</a></li><li aria-hidden="true">/</li><li aria-current="page" class="font-medium">Produtos</li>
         @elseif (request()->routeIs('admin.settings.theme.*'))
             <li>
                 <a href="{{ route('admin') }}" class="hover:text-gray-700">Dashboard</a>

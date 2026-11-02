@@ -44,6 +44,12 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'can_manage_catalog' => 'boolean',
         ];
+    }
+
+    public function canManageCatalog(): bool
+    {
+        return (bool) $this->can_manage_catalog;
     }
 }

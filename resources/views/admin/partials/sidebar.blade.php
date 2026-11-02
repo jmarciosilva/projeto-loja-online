@@ -1,4 +1,4 @@
-<aside class="border-b border-gray-200 bg-white lg:w-64 lg:shrink-0 lg:border-r lg:border-b-0">
+<aside aria-label="Área administrativa" class="border-b border-gray-200 bg-white lg:w-64 lg:shrink-0 lg:border-r lg:border-b-0">
 
     <div class="flex items-center gap-3 px-4 py-4 sm:px-6 lg:px-4">
         <span class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-gray-900">
@@ -7,7 +7,7 @@
                 <path fill-rule="evenodd" d="M10 1a4 4 0 0 0-4 4v3H5.5A1.5 1.5 0 0 0 4 9.5v7A1.5 1.5 0 0 0 5.5 18h9a1.5 1.5 0 0 0 1.5-1.5v-7A1.5 1.5 0 0 0 14.5 8H14V5a4 4 0 0 0-4-4Zm2.5 7V5a2.5 2.5 0 0 0-5 0v3h5Z" clip-rule="evenodd" />
             </svg>
         </span>
-        <span class="text-sm font-semibold tracking-tight">Área administrativa</span>
+        <span class="text-sm font-semibold tracking-tight">Administração da loja</span>
     </div>
 
     <nav aria-label="Navegação administrativa" class="px-4 pb-4 sm:px-6 lg:px-4">
@@ -77,6 +77,20 @@
                        'text-gray-700 hover:bg-gray-100' => ! request()->routeIs('admin.menus.*'),
                    ])>
                     Menus
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('admin.categories.index') }}"
+                   @if (request()->routeIs('admin.categories.*')) aria-current="page" @endif
+                   class="block rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100">
+                    Categorias
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('admin.products.index') }}"
+                   @if (request()->routeIs('admin.products.*')) aria-current="page" @endif
+                   class="block rounded-lg px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100">
+                    Produtos
                 </a>
             </li>
             <li>

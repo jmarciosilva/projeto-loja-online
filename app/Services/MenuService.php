@@ -3,11 +3,13 @@
 namespace App\Services;
 
 use App\Enums\MenuItemType;
+use App\Enums\PageStatus;
 use App\Models\Menu;
 use App\Models\MenuItem;
 use App\Models\Page;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 use RuntimeException;
@@ -68,6 +70,99 @@ class MenuService
      * @var list<string>
      */
     private const URL_SCHEMES = ['http', 'https'];
+
+    /**
+     * Resolve a árvore publicável de um menu pela identidade técnica.
+     *
+     * Itens e páginas são lidos em consultas controladas e a hierarquia é
+     * montada em memória. A recursão abaixo nunca dispara consultas por nível;
+     * um ancestral oculto também oculta toda a sua subárvore.
+     *
+     * @return list<array{item: MenuItem, url: string, children: list<array>}>|null
+     */
+    public function publicTree(string $code): ?array
+    {
+        $menu = Menu::query()
+            ->where('code', $code)
+            ->where('is_active', true)
+            ->first();
+
+        if ($menu === null) {
+            return null;
+        }
+
+        /** @var Collection<int, MenuItem> $items */
+        $items = $menu->items()
+            ->with('page')
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get();
+
+        /** @var SupportCollection<string, Collection<int, MenuItem>> $groups */
+        $groups = $items->groupBy(fn (MenuItem $item): string => (string) ($item->parent_id ?? 'root'));
+
+        return $this->publicNodes($groups, 'root');
+    }
+
+    /** @param list<array{item: MenuItem, url: string, children: list<array>}> $tree */
+    public function containsPublicUrl(array $tree, string $url): bool
+    {
+        $targetPath = '/'.ltrim((string) parse_url($url, PHP_URL_PATH), '/');
+        foreach ($tree as $node) {
+            $nodePath = parse_url($node['url'], PHP_URL_PATH);
+            if ($node['url'] === $url || (str_starts_with($node['url'], '/') && $nodePath === $targetPath)
+                || $this->containsPublicUrl($node['children'], $url)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param  SupportCollection<string, Collection<int, MenuItem>>  $groups
+     * @return list<array{item: MenuItem, url: string, children: list<array>}>
+     */
+    private function publicNodes(SupportCollection $groups, string $parentKey): array
+    {
+        $nodes = [];
+
+        foreach ($groups->get($parentKey, collect()) as $item) {
+            if (! $item->is_active) {
+                // Não promover filhos: a árvore configurada pelo admin é a fonte.
+                continue;
+            }
+
+            $url = $this->publicItemUrl($item);
+
+            if ($url === null) {
+                continue;
+            }
+
+            $nodes[] = [
+                'item' => $item,
+                'url' => $url,
+                'children' => $this->publicNodes($groups, (string) $item->getKey()),
+            ];
+        }
+
+        return $nodes;
+    }
+
+    private function publicItemUrl(MenuItem $item): ?string
+    {
+        if ($item->type === MenuItemType::Url) {
+            return $this->isSupportedUrl($item->url) ? $item->url : null;
+        }
+
+        $page = $item->page;
+
+        if ($page === null || $page->status !== PageStatus::Published) {
+            return null;
+        }
+
+        return route('pages.show', ['slug' => $page->slug]);
+    }
 
     /**
      * Cria um menu.

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Entrar &middot; {{ config('app.name') }}</title>
+    <title>Entrar na administração &middot; {{ config('app.name') }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="h-full bg-gray-50 text-gray-900 antialiased">
@@ -21,7 +21,7 @@
                 </div>
 
                 <h1 class="mt-6 text-2xl font-semibold tracking-tight text-gray-900">
-                    Área administrativa
+                    Administração da loja
                 </h1>
 
                 <p class="mt-2 text-sm text-gray-600">
@@ -105,6 +105,12 @@
 
             <p class="mt-6 text-center text-xs text-gray-500">
                 Acesso restrito a pessoas autorizadas.
+            </p>
+
+            <p class="mt-3 text-center text-sm">
+                <a href="{{ route('home') }}" class="font-medium text-gray-600 underline-offset-4 hover:text-gray-950 hover:underline">
+                    Voltar para a loja
+                </a>
             </p>
 
         </main>

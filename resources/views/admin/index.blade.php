@@ -1,67 +1,54 @@
 @extends('layouts.admin')
 
-@section('title', 'Dashboard')
+@section('title', 'Painel da loja')
 
 @section('content')
-    {{--
-        Dashboard estrutural: descreve o que a fundação do painel oferece.
-        Nenhum dado de negócio é consultado aqui — vendas, pedidos, produtos,
-        estoque e clientes pertencem às fases que criarem esses módulos.
-    --}}
-    <div class="space-y-6">
-
-        <section class="rounded-xl border border-gray-200 bg-white p-6 sm:p-8">
-            <h2 class="text-lg font-semibold tracking-tight">
-                Bem-vindo, {{ auth()->user()->name }}
+    <div class="space-y-8">
+        <section class="rounded-2xl bg-gray-900 px-6 py-8 text-white sm:px-8">
+            <p class="text-sm font-medium text-gray-300">Administração da loja</p>
+            <h2 class="mt-2 text-2xl font-semibold tracking-tight">
+                Olá, {{ auth()->user()->name }}
             </h2>
-
-            <p class="mt-2 max-w-2xl text-sm text-gray-600">
-                A fundação do painel administrativo está pronta. Os módulos de
-                gestão da loja serão adicionados nas próximas etapas e aparecerão
-                no menu lateral conforme forem implementados.
+            <p class="mt-2 max-w-2xl text-sm leading-6 text-gray-300">
+                Gerencie o conteúdo e a apresentação da sua loja em um só lugar.
+                Escolha uma área para começar.
             </p>
         </section>
 
-        <section aria-labelledby="estrutura-disponivel">
-            <h3 id="estrutura-disponivel" class="text-sm font-semibold tracking-tight text-gray-900">
-                Estrutura disponível
-            </h3>
-
-            <dl class="mt-3 grid gap-4 sm:grid-cols-2">
-                <div class="rounded-xl border border-gray-200 bg-white p-5">
-                    <dt class="text-sm font-medium text-gray-900">Autenticação</dt>
-                    <dd class="mt-1 text-sm text-gray-600">
-                        Ativa. O acesso ao painel exige sessão autenticada.
-                    </dd>
+        <section aria-labelledby="gestao-conteudo">
+            <div class="flex flex-wrap items-end justify-between gap-3">
+                <div>
+                    <h3 id="gestao-conteudo" class="text-lg font-semibold tracking-tight text-gray-900">
+                        Gestão da loja
+                    </h3>
+                    <p class="mt-1 text-sm text-gray-600">Áreas disponíveis no painel administrativo.</p>
                 </div>
+            </div>
 
-                <div class="rounded-xl border border-gray-200 bg-white p-5">
-                    <dt class="text-sm font-medium text-gray-900">Layout do painel</dt>
-                    <dd class="mt-1 text-sm text-gray-600">
-                        Barra lateral, cabeçalho e trilha de navegação prontos para
-                        receber novas páginas.
-                    </dd>
-                </div>
-            </dl>
-        </section>
-
-        <section aria-labelledby="proximas-areas">
-            <h3 id="proximas-areas" class="text-sm font-semibold tracking-tight text-gray-900">
-                Próximas áreas administrativas
-            </h3>
-
-            {{--
-                Lista propositalmente textual: enquanto as páginas não existirem,
-                transformá-las em links produziria caminhos quebrados.
-            --}}
-            <div class="mt-3 rounded-xl border border-gray-200 bg-white p-5">
-                <p class="text-sm text-gray-600">
-                    Configurações globais, páginas estáticas, biblioteca de mídia,
-                    banners e menus entram no menu lateral à medida que forem
-                    implementados.
-                </p>
+            <div class="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                @foreach ([
+                    ['title' => 'Páginas', 'description' => 'Crie e publique páginas institucionais.', 'route' => 'admin.pages.index', 'action' => 'Gerenciar páginas'],
+                    ['title' => 'Banners', 'description' => 'Organize os destaques exibidos na loja.', 'route' => 'admin.banners.index', 'action' => 'Gerenciar banners'],
+                    ['title' => 'Menus', 'description' => 'Configure os links da navegação principal.', 'route' => 'admin.menus.index', 'action' => 'Gerenciar menus'],
+                    ['title' => 'Categorias', 'description' => 'Organize os produtos em categorias.', 'route' => 'admin.categories.index', 'action' => 'Gerenciar categorias'],
+                    ['title' => 'Produtos', 'description' => 'Cadastre itens para o catálogo público.', 'route' => 'admin.products.index', 'action' => 'Gerenciar produtos'],
+                    ['title' => 'Biblioteca de mídia', 'description' => 'Envie e organize imagens da loja.', 'route' => 'admin.media.index', 'action' => 'Abrir biblioteca'],
+                    ['title' => 'Configurações', 'description' => 'Edite informações, cores e identidade visual.', 'route' => 'admin.settings.edit', 'action' => 'Configurar loja'],
+                ] as $area)
+                    <article class="flex flex-col rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+                        <h4 class="font-semibold text-gray-900">{{ $area['title'] }}</h4>
+                        <p class="mt-2 flex-1 text-sm leading-6 text-gray-600">{{ $area['description'] }}</p>
+                        <a href="{{ route($area['route']) }}"
+                           class="mt-5 inline-flex items-center text-sm font-semibold text-gray-900 underline-offset-4 hover:underline">
+                            {{ $area['action'] }} <span aria-hidden="true" class="ml-1">→</span>
+                        </a>
+                    </article>
+                @endforeach
             </div>
         </section>
 
+        <p class="text-xs text-gray-500">
+            A gestão de pedidos e clientes será adicionada nas próximas etapas do projeto.
+        </p>
     </div>
 @endsection
