@@ -16,4 +16,6 @@
      alt="{{ $banner->alt_text }}"
      width="{{ $banner->media->width }}"
      height="{{ $banner->media->height }}"
-     class="h-auto w-full">
+     loading="{{ $loading ?? 'eager' }}"
+     @if (($loading ?? 'eager') === 'eager') fetchpriority="high" @endif
+     class="{{ $imageClass ?? 'h-auto w-full' }}">

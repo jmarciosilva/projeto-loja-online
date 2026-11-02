@@ -30,17 +30,14 @@ class VisualIdentityStorefrontTest extends TestCase
         Storage::fake('public');
     }
 
-    public function test_without_a_logo_the_textual_fallback_is_kept(): void
+    public function test_without_a_logo_the_official_optimized_fallback_is_rendered(): void
     {
         $html = (string) $this->get('/')->assertOk()->getContent();
 
-        // A asserção precisa olhar o **link do cabeçalho**, e não a página
-        // inteira: o nome da loja também aparece no <title> e no rodapé, e uma
-        // busca solta passaria mesmo sem fallback nenhum no header.
-        $this->assertSame(
-            e((string) config('app.name')),
-            $this->headerLinkContent($html),
-        );
+        $this->assertStringContainsString(e(asset('images/uau-netshopping-logo-header.webp')), $this->headerLinkContent($html));
+        $this->assertStringContainsString('UAU NetShopping — Variedade que surpreende!', $html);
+        $this->assertStringContainsString('xl:block 2xl:text-xl">Variedade que surpreende!</span>', $html);
+        $this->assertStringContainsString('hidden whitespace-nowrap border-l', $html);
         $this->assertDoesNotMatchRegularExpression('#<img[^>]*/storage/media/#', $html);
     }
 
@@ -75,7 +72,7 @@ class VisualIdentityStorefrontTest extends TestCase
         $html = (string) $this->get('/')->assertOk()->getContent();
 
         $this->assertMatchesRegularExpression(
-            '#<img[^>]*alt="'.preg_quote(e((string) config('app.name')), '#').'"#',
+            '#<img[^>]*alt="'.preg_quote('UAU NetShopping — Variedade que surpreende!', '#').'"#',
             $html,
         );
     }
@@ -134,10 +131,7 @@ class VisualIdentityStorefrontTest extends TestCase
 
         $html = (string) $this->get('/')->assertOk()->getContent();
 
-        $this->assertSame(
-            e((string) config('app.name')),
-            $this->headerLinkContent($html),
-        );
+        $this->assertStringContainsString(e(asset('images/uau-netshopping-logo-header.webp')), $this->headerLinkContent($html));
         $this->assertStringNotContainsString($logo->path, $html);
     }
 

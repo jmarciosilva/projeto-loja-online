@@ -31,6 +31,9 @@ class AdminLayoutTest extends TestCase
             ->assertOk()
             ->assertSee('Área administrativa')
             ->assertSee('Navegação administrativa', false)
+            ->assertSee('class="admin-shell', false)
+            ->assertSee('class="admin-sidebar', false)
+            ->assertSee('admin-dashboard-hero', false)
             ->assertSee('Trilha de navegação', false);
     }
 

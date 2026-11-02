@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use App\Services\SiteSettingService;
+use App\Services\StorefrontBrandingService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -58,7 +59,8 @@ class AdminSiteSettingsTest extends TestCase
         $response = $this->actingAsAdmin()->get(self::URI);
 
         $response->assertOk();
-        $this->assertSame(config('app.name'), $this->inputValue($response->getContent(), 'name'));
+        $this->assertSame(StorefrontBrandingService::DEFAULT_NAME, $this->inputValue($response->getContent(), 'name'));
+        $this->assertSame(StorefrontBrandingService::DEFAULT_SLOGAN, $this->inputValue($response->getContent(), 'slogan'));
         $this->assertSame('', $this->inputValue($response->getContent(), 'support_email'));
         $this->assertSame('', $this->inputValue($response->getContent(), 'phone'));
         $this->assertSame('', $this->textareaValue($response->getContent(), 'address'));
@@ -118,6 +120,24 @@ class AdminSiteSettingsTest extends TestCase
             $this->assertDatabaseHas('site_settings', ['key' => $key, 'type' => 'string']);
             $this->assertSame($value, $this->settings()->get($key));
         }
+    }
+
+    public function test_it_persists_the_store_slogan(): void
+    {
+        $this->actingAsAdmin()
+            ->put(self::URI, ['name' => 'UAU Variedades', 'slogan' => 'Ideias para todo dia'])
+            ->assertRedirect(self::URI);
+
+        $this->assertSame('Ideias para todo dia', $this->settings()->get('site.slogan'));
+    }
+
+    public function test_it_rejects_an_empty_slogan(): void
+    {
+        $this->actingAsAdmin()
+            ->put(self::URI, ['name' => 'UAU Variedades', 'slogan' => ''])
+            ->assertSessionHasErrors('slogan');
+
+        $this->assertDatabaseCount('site_settings', 0);
     }
 
     public function test_it_reports_success_after_saving(): void

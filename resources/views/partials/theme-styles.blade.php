@@ -12,5 +12,6 @@
         --color-primary: {{ $themeColors['primary'] }};
         --color-secondary: {{ $themeColors['secondary'] }};
         --color-accent: {{ $themeColors['accent'] }};
+        --color-storefront-background: #F5F7FA;
     }
 </style>

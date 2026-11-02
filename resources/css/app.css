@@ -9,6 +9,13 @@
     display: none !important;
 }
 
+:root {
+    --color-primary: #092B57;
+    --color-secondary: #475569;
+    --color-accent: #FF6900;
+    --color-storefront-background: #F5F7FA;
+}
+
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
@@ -24,8 +31,13 @@
     color: var(--color-primary);
 }
 
+.theme-text-secondary {
+    color: var(--color-secondary);
+}
+
 .theme-bg-primary {
     background-color: var(--color-primary);
+    color: #fff;
 }
 
 .theme-text-accent {
@@ -34,6 +46,201 @@
 
 .theme-border-accent {
     border-color: var(--color-accent);
+}
+
+.theme-category-card:hover {
+    border-color: var(--color-primary);
+}
+
+.theme-carousel-dot-active {
+    background-color: var(--color-accent);
+}
+
+.theme-carousel-dot-inactive {
+    background-color: #dbe2ea;
+}
+
+.theme-carousel-arrow {
+    background-color: var(--color-accent);
+    color: var(--color-primary);
+}
+
+.theme-carousel-toggle {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .theme-carousel-arrow:hover {
+        background-color: var(--color-primary);
+        color: #fff;
+    }
+
+    .theme-carousel-toggle:hover {
+        background-color: var(--color-primary);
+        color: #fff;
+    }
+}
+
+.theme-bg-accent {
+    background-color: var(--color-accent);
+    color: var(--color-primary);
+}
+
+.storefront-background {
+    background-color: var(--color-storefront-background, #F5F7FA);
+}
+
+.theme-focus:focus-visible {
+    outline: 3px solid var(--color-primary);
+    outline-offset: 3px;
+}
+
+.storefront-shell main h1,
+.storefront-shell main h2,
+.storefront-shell main h3 {
+    color: var(--color-primary);
+}
+
+.storefront-shell main a:not([class*="text-red"]):not([class*="text-green"]):not([class*="text-amber"]):not([class*="text-blue"]) {
+    color: var(--color-primary);
+}
+
+.storefront-shell main a:not([class*="text-red"]):not([class*="text-green"]):not([class*="text-amber"]):not([class*="text-blue"]):hover {
+    color: var(--color-accent);
+}
+
+.storefront-shell header a:not([aria-label]),
+.storefront-shell footer a:not([aria-label]) {
+    color: var(--color-primary);
+}
+
+.storefront-shell header a:not([aria-label]):hover,
+.storefront-shell footer a:not([aria-label]):hover {
+    color: var(--color-accent);
+}
+
+.storefront-shell main button.bg-gray-900 {
+    background-color: var(--color-accent);
+    color: var(--color-primary);
+    transition: filter 150ms ease;
+}
+
+.storefront-shell main button.bg-gray-900:hover {
+    filter: brightness(0.94);
+}
+
+.storefront-shell :is(input, select, textarea, button, a):focus-visible {
+    outline: 3px solid color-mix(in srgb, var(--color-accent) 72%, white);
+    outline-offset: 3px;
+}
+
+.admin-shell {
+    background-color: var(--color-storefront-background);
+}
+
+.admin-shell main h1,
+.admin-shell main h2,
+.admin-shell main h3,
+.admin-shell main h4,
+.admin-topbar h1 {
+    color: var(--color-primary);
+}
+
+.admin-shell main a:not([class*="text-red"]):not([class*="text-green"]):not([class*="text-amber"]):not([class*="text-blue"]) {
+    color: var(--color-primary);
+}
+
+.admin-shell main a:not([class*="text-red"]):not([class*="text-green"]):not([class*="text-amber"]):not([class*="text-blue"]):hover {
+    color: var(--color-accent);
+}
+
+.admin-shell header a:not([class*="text-red"]):not([class*="text-green"]):not([class*="text-amber"]):not([class*="text-blue"]) {
+    color: var(--color-primary);
+}
+
+.admin-shell header a:not([class*="text-red"]):not([class*="text-green"]):not([class*="text-amber"]):not([class*="text-blue"]):hover {
+    color: var(--color-accent);
+}
+
+.admin-shell main :is(a, button).bg-gray-900 {
+    background-color: var(--color-accent);
+    border-color: var(--color-accent);
+    color: var(--color-primary);
+    transition: filter 150ms ease;
+}
+
+.admin-shell main :is(a, button).bg-gray-900:hover {
+    filter: brightness(0.94);
+}
+
+.admin-shell :is(input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]), select, textarea):focus {
+    border-color: var(--color-primary);
+    outline: 2px solid color-mix(in srgb, var(--color-accent) 46%, transparent);
+    outline-offset: 1px;
+}
+
+.admin-shell :is(button, a, input, select, textarea):focus-visible {
+    outline: 3px solid color-mix(in srgb, var(--color-accent) 72%, white);
+    outline-offset: 3px;
+}
+
+.admin-sidebar {
+    background-color: var(--color-primary);
+    border-color: color-mix(in srgb, white 18%, transparent);
+    color: white;
+}
+
+.admin-sidebar nav a {
+    color: rgb(255 255 255 / 88%);
+}
+
+.admin-sidebar nav a:hover:not([aria-current="page"]) {
+    background-color: rgb(255 255 255 / 12%);
+    color: white;
+}
+
+.admin-sidebar nav a[aria-current="page"],
+.admin-shell main nav a[aria-current="page"] {
+    background-color: var(--color-accent);
+    color: var(--color-primary);
+}
+
+.admin-brand-mark {
+    background-color: var(--color-accent);
+    color: var(--color-primary);
+}
+
+.admin-dashboard-hero {
+    border-left: 4px solid var(--color-accent);
+    background-color: var(--color-primary);
+    color: white;
+}
+
+.admin-dashboard-hero :is(h1, h2, h3, h4) {
+    color: white;
+}
+
+.admin-topbar {
+    background-color: white;
+}
+
+.admin-shell main table thead {
+    background-color: #F1F5F9;
+    color: var(--color-secondary);
+}
+
+.admin-shell main nav[role="navigation"] span[aria-current="page"] {
+    border-color: var(--color-accent);
+    background-color: var(--color-accent);
+    color: var(--color-primary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .storefront-shell main button.bg-gray-900,
+    .admin-shell main :is(a, button).bg-gray-900 {
+        transition: none;
+    }
 }
 
 /*
@@ -60,7 +267,7 @@
 }
 
 .page-content a {
-    color: var(--color-accent);
+	color: var(--color-primary);
     text-decoration: underline;
 }
 

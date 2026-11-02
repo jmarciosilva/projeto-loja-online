@@ -4,7 +4,7 @@
 
 @section('content')
     <div class="space-y-8">
-        <section class="rounded-2xl bg-gray-900 px-6 py-8 text-white sm:px-8">
+        <section class="admin-dashboard-hero rounded-2xl px-6 py-8 sm:px-8">
             <p class="text-sm font-medium text-gray-300">Administração da loja</p>
             <h2 class="mt-2 text-2xl font-semibold tracking-tight">
                 Olá, {{ auth()->user()->name }}

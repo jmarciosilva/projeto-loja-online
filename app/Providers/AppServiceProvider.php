@@ -6,11 +6,14 @@ use App\Contracts\Shipping\ShippingPackagePreparer;
 use App\Models\Banner;
 use App\Models\Media;
 use App\Models\Product;
+use App\Services\CategoryService;
 use App\Services\MediaUsageRegistry;
 use App\Services\MenuService;
 use App\Services\Shipping\SingleUnitShippingPackagePreparer;
+use App\Services\StorefrontBrandingService;
 use App\Services\ThemeService;
 use App\Services\VisualIdentityService;
+use Closure;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\View;
@@ -44,12 +47,67 @@ class AppServiceProvider extends ServiceProvider
         // usa outro layout e permanece neutro, por decisão arquitetural.
         View::composer('layouts.app', function (ViewInstance $view): void {
             $view->with('themeColors', $this->app->make(ThemeService::class)->colors());
-            $view->with('visualIdentity', $this->app->make(VisualIdentityService::class)->forPublicLayout());
+            $branding = $this->app->make(StorefrontBrandingService::class);
+            $storefrontBrand = $this->requestScoped('storefront_brand', fn () => $branding->brand());
+            $visualIdentity = $this->requestScoped('storefront_identity', function () use ($storefrontBrand): array {
+                $identity = $this->app->make(VisualIdentityService::class)->forPublicLayout();
+                if ($identity['logo'] !== null) {
+                    $identity['logo']['alt'] = $storefrontBrand['name'].' — '.$storefrontBrand['slogan'];
+                }
+
+                return $identity;
+            });
+            $view->with('storefrontBrand', $storefrontBrand);
+            $view->with('storefrontContact', $this->requestScoped('storefront_contact', fn () => $branding->contact()));
+            $view->with('visualIdentity', $visualIdentity);
             $menuService = $this->app->make(MenuService::class);
             $mainNavigation = $menuService->publicTree('main') ?? [];
+            $footerNavigation = $menuService->publicTree('footer') ?? [];
+            $publicCategories = $this->requestScoped('storefront_categories', fn () => $this->app->make(CategoryService::class)->publicCategories());
+            $catalogCategories = $publicCategories
+                ->reject(fn ($category): bool => $menuService->containsPublicUrl(
+                    $mainNavigation,
+                    route('categories.show', $category->slug),
+                ))
+                ->values();
             $view->with('mainNavigation', $mainNavigation);
+            $view->with('footerNavigation', $footerNavigation);
+            $view->with('catalogCategories', $catalogCategories);
+            $view->with('publicCategories', $publicCategories);
             $view->with('catalogNavigationVisible', ! $menuService->containsPublicUrl($mainNavigation, route('catalog.index')));
         });
+
+        // As seções das views filhas são avaliadas antes do layout pai. Elas
+        // recebem os dados que usam em título e metadados sem depender da ordem
+        // de renderização do composer do layout.
+        View::composer('home', function (ViewInstance $view): void {
+            $brand = $this->requestScoped('storefront_brand', fn () => $this->app->make(StorefrontBrandingService::class)->brand());
+            $identity = $this->requestScoped('storefront_identity', function () use ($brand): array {
+                $identity = $this->app->make(VisualIdentityService::class)->forPublicLayout();
+                if ($identity['logo'] !== null) {
+                    $identity['logo']['alt'] = $brand['name'].' — '.$brand['slogan'];
+                }
+
+                return $identity;
+            });
+            $view->with('storefrontBrand', $brand);
+            $view->with('visualIdentity', $identity);
+            $view->with('publicCategories', $this->requestScoped('storefront_categories', fn () => $this->app->make(CategoryService::class)->publicCategories()));
+        });
+
+        View::composer('catalog.*', function (ViewInstance $view): void {
+            $view->with('storefrontBrand', $this->requestScoped('storefront_brand', fn () => $this->app->make(StorefrontBrandingService::class)->brand()));
+        });
+    }
+
+    private function requestScoped(string $key, Closure $resolver): mixed
+    {
+        $attributes = $this->app['request']->attributes;
+        if (! $attributes->has($key)) {
+            $attributes->set($key, $resolver());
+        }
+
+        return $attributes->get($key);
     }
 
     /**

@@ -1,4 +1,4 @@
-<header class="border-b border-gray-200 bg-white">
+<header class="admin-topbar border-b border-gray-200 bg-white">
     <div class="flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
 
         <div class="flex min-w-0 items-center gap-2 sm:gap-4">

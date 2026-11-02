@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UpdateSiteSettingsRequest;
 use App\Services\SiteSettingService;
+use App\Services\StorefrontBrandingService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -30,11 +31,14 @@ class SiteSettingController extends Controller
         'address' => 'site.address',
     ];
 
-    public function edit(SiteSettingService $siteSettings): View
+    public function edit(SiteSettingService $siteSettings, StorefrontBrandingService $branding): View
     {
+        $brand = $branding->brand();
+
         return view('admin.settings.edit', [
             'settings' => [
-                'name' => $siteSettings->get('site.name', config('app.name')),
+                'name' => $brand['name'],
+                'slogan' => $brand['slogan'],
                 'support_email' => $siteSettings->get('site.support_email', ''),
                 'phone' => $siteSettings->get('site.phone', ''),
                 'address' => $siteSettings->get('site.address', ''),
@@ -54,6 +58,13 @@ class SiteSettingController extends Controller
             $settings[$key] = [
                 'type' => 'string',
                 'value' => $validated[$field] ?? '',
+            ];
+        }
+
+        if (array_key_exists('slogan', $validated)) {
+            $settings['site.slogan'] = [
+                'type' => 'string',
+                'value' => $validated['slogan'],
             ];
         }
 

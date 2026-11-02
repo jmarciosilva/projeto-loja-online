@@ -1,57 +1,54 @@
 @extends('layouts.app')
 
-@section('title', config('app.name'))
+@section('title', $storefrontBrand['name'])
+
+@section('meta')
+    <meta name="description" content="{{ $storefrontBrand['name'] }} — {{ $storefrontBrand['slogan'] }}">
+    <meta property="og:title" content="{{ $storefrontBrand['name'] }}">
+    <meta property="og:description" content="{{ $storefrontBrand['slogan'] }}">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ route('home') }}">
+    <meta property="og:image" content="{{ $visualIdentity['logo']['url'] ?? asset('images/uau-netshopping-logo.webp') }}">
+@endsection
 
 @section('content')
-    {{-- Banners e navegação vêm dos serviços públicos, nunca de consultas na Blade. --}}
-    @include('partials.hero-banners')
-
-    <section class="mt-12 space-y-5" aria-labelledby="produtos-em-destaque">
-        <div class="flex flex-wrap items-end justify-between gap-3">
-            <div><p class="text-sm font-semibold uppercase tracking-wide text-gray-500">Nossa seleção</p><h2 id="produtos-em-destaque" class="mt-1 text-2xl font-semibold">Produtos em destaque</h2></div>
-            <a href="{{ route('catalog.index') }}" class="text-sm font-semibold underline underline-offset-4">Ver catálogo</a>
+    <section class="mb-10 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm" aria-labelledby="storefront-welcome">
+        @include('partials.hero-banners')
+        <div class="px-5 py-8 sm:px-8 sm:py-10 lg:px-12">
+            <p class="theme-text-secondary text-sm font-semibold uppercase tracking-wide">Bem-vindo à loja</p>
+            <h1 id="storefront-welcome" class="theme-text-primary mt-2 break-words text-3xl font-bold tracking-tight sm:text-4xl">{{ $storefrontBrand['name'] }}</h1>
+            <p class="mt-3 max-w-2xl text-lg leading-7 text-slate-700">{{ $storefrontBrand['slogan'] }}</p>
+            <a href="{{ route('catalog.index') }}" class="theme-focus theme-bg-accent mt-6 inline-flex min-h-12 items-center rounded-lg px-5 py-3 text-sm font-bold transition hover:brightness-95">
+                Explorar produtos <span aria-hidden="true" class="ml-2">→</span>
+            </a>
         </div>
-        @if ($featuredProducts->isEmpty())
-            <div class="rounded-xl border border-dashed border-gray-300 bg-white p-8 text-center text-sm text-gray-600">Novidades da loja aparecerão aqui em breve.</div>
+    </section>
+
+    <section class="mt-10 space-y-5" aria-labelledby="store-categories">
+        <div class="flex flex-wrap items-end justify-between gap-3">
+            <div><p class="theme-text-secondary text-sm font-semibold uppercase tracking-wide">Explore</p><h2 id="store-categories" class="theme-text-primary mt-1 text-2xl font-semibold">Categorias</h2></div>
+            <a href="{{ route('catalog.index') }}" class="theme-focus theme-text-primary rounded text-sm font-semibold underline underline-offset-4">Ver catálogo</a>
+        </div>
+        @if ($publicCategories->isEmpty())
+            <p class="rounded-xl border border-dashed border-slate-300 bg-white p-6 text-sm text-slate-700">As categorias da loja aparecerão aqui em breve.</p>
         @else
-            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">@foreach ($featuredProducts as $product)@include('catalog.partials.product-card', ['product' => $product])@endforeach</div>
+            <ul class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                @foreach ($publicCategories as $category)
+                    <li><a href="{{ route('categories.show', $category->slug) }}" class="theme-focus theme-category-card theme-text-primary flex min-h-14 items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-4 font-semibold shadow-sm"><span class="break-words [overflow-wrap:anywhere]">{{ $category->name }}</span><span aria-hidden="true">→</span></a></li>
+                @endforeach
+            </ul>
         @endif
     </section>
 
-    <section class="mt-10 grid min-w-0 gap-6 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:mt-12 sm:gap-8 sm:p-8 lg:mt-0 lg:grid-cols-[1.3fr_0.7fr] lg:items-center lg:p-10">
-        <div>
-            <p class="text-sm font-semibold uppercase tracking-[0.16em] text-gray-500">
-                Uma curadoria para o cotidiano
-            </p>
-            <h1 class="mt-3 max-w-2xl break-words text-2xl font-semibold tracking-tight text-gray-950 sm:text-4xl">
-                Mais leveza nos pequenos momentos.
-            </h1>
-            <p class="mt-4 max-w-2xl text-base leading-7 text-gray-600">
-                Descubra peças, cuidados e detalhes escolhidos para acompanhar a sua rotina — com simplicidade, aconchego e personalidade.
-            </p>
-            <a href="{{ route('pages.show', ['slug' => 'sobre-a-loja']) }}"
-               class="mt-6 inline-flex items-center rounded-lg bg-gray-900 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-gray-700">
-                Conheça a loja <span aria-hidden="true" class="ml-2">→</span>
-            </a>
+    <section class="mt-12 space-y-5" aria-labelledby="produtos-em-destaque">
+        <div class="flex flex-wrap items-end justify-between gap-3">
+            <div><p class="theme-text-secondary text-sm font-semibold uppercase tracking-wide">Nossa seleção</p><h2 id="produtos-em-destaque" class="theme-text-primary mt-1 text-2xl font-semibold">Produtos em destaque</h2></div>
+            <a href="{{ route('catalog.index') }}" class="theme-focus theme-text-primary rounded text-sm font-semibold underline underline-offset-4">Ver catálogo</a>
         </div>
-
-        <div class="grid grid-cols-1 gap-3 text-center sm:grid-cols-2 sm:gap-4">
-            <div class="rounded-xl bg-[#f5f2ec] px-4 py-6">
-                <p class="text-sm font-semibold text-gray-900">Escolhas cuidadosas</p>
-                <p class="mt-2 text-sm leading-6 text-gray-600">Uma seleção feita com atenção aos detalhes.</p>
-            </div>
-            <div class="rounded-xl bg-[#edf0e9] px-4 py-6">
-                <p class="text-sm font-semibold text-gray-900">Feito para durar</p>
-                <p class="mt-2 text-sm leading-6 text-gray-600">Qualidade e praticidade para o dia a dia.</p>
-            </div>
-        </div>
-    </section>
-
-    <section class="mt-14 border-t border-gray-200 pt-8 text-center">
-        <p class="text-sm text-gray-600">Conheça nossa proposta e acompanhe as novidades da loja.</p>
-        <a href="{{ route('pages.show', ['slug' => 'contato']) }}"
-           class="mt-3 inline-block text-sm font-semibold text-gray-900 underline underline-offset-4 hover:text-gray-600">
-            Fale com a gente
-        </a>
+        @if ($featuredProducts->isEmpty())
+            <div class="rounded-xl border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-700">Produtos em destaque aparecerão aqui quando forem publicados.</div>
+        @else
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">@foreach ($featuredProducts as $product)@include('catalog.partials.product-card', ['product' => $product])@endforeach</div>
+        @endif
     </section>
 @endsection

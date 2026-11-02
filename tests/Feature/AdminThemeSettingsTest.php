@@ -25,9 +25,9 @@ class AdminThemeSettingsTest extends TestCase
     private const URI = '/admin/configuracoes/tema';
 
     private const DEFAULTS = [
-        'primary' => '#111827',
-        'secondary' => '#4B5563',
-        'accent' => '#2563EB',
+        'primary' => '#092B57',
+        'secondary' => '#475569',
+        'accent' => '#FF6900',
     ];
 
     protected function setUp(): void
@@ -264,6 +264,19 @@ class AdminThemeSettingsTest extends TestCase
 
         // Declarar as variáveis não basta: algum elemento precisa usá-las.
         $this->assertStringContainsString('theme-text-primary', $html);
+    }
+
+    public function test_the_shared_stylesheet_declares_the_official_brand_tokens_for_admin_and_storefront(): void
+    {
+        $styles = file_get_contents(resource_path('css/app.css'));
+
+        $this->assertIsString($styles);
+        $this->assertStringContainsString('--color-primary: #092B57;', $styles);
+        $this->assertStringContainsString('--color-secondary: #475569;', $styles);
+        $this->assertStringContainsString('--color-accent: #FF6900;', $styles);
+        $this->assertStringContainsString('--color-storefront-background: #F5F7FA;', $styles);
+        $this->assertStringContainsString('.admin-sidebar {', $styles);
+        $this->assertStringContainsString('.theme-carousel-arrow {', $styles);
     }
 
     // --- Preview e navegação ----------------------------------------------

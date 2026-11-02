@@ -57,6 +57,25 @@
                 </div>
 
                 <div>
+                    <label for="slogan" class="block text-sm font-medium text-gray-900">
+                        Slogan
+                    </label>
+                    <input
+                        id="slogan"
+                        name="slogan"
+                        type="text"
+                        value="{{ old('slogan', $settings['slogan']) }}"
+                        required
+                        maxlength="150"
+                        @error('slogan') aria-invalid="true" aria-describedby="slogan-erro" @enderror
+                        class="mt-2 block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-gray-900 shadow-sm focus:border-gray-900 focus:ring-2 focus:ring-gray-900/10 focus:outline-none @error('slogan') border-red-400 @enderror"
+                    >
+                    @error('slogan')
+                        <p id="slogan-erro" class="mt-2 text-sm text-red-700">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
                     <label for="support_email" class="block text-sm font-medium text-gray-900">
                         Email de suporte
                     </label>

@@ -44,7 +44,7 @@ class BannerStorefrontTest extends TestCase
         // A home atual continua renderizada mesmo sem banners; o título e o
         // conteúdo principal são um contrato estável da vitrine.
         $this->assertStringContainsString('<h1', $html);
-        $this->assertStringContainsString('Mais leveza nos pequenos momentos.', $html);
+        $this->assertStringContainsString('UAU NetShopping', $html);
 
         // Sem banners ativos nenhuma moldura vazia é emitida — nem a seção,
         // nem uma borda sem conteúdo dentro dela.
@@ -72,6 +72,52 @@ class BannerStorefrontTest extends TestCase
         $this->assertMatchesRegularExpression(
             '#<img[^>]*src="[^"]*'.preg_quote($banner->media->path, '#').'"#',
             $hero,
+        );
+    }
+
+    public function test_a_single_hero_banner_is_static_without_carousel_controls(): void
+    {
+        $this->makeBanner(BannerPosition::Hero);
+
+        $hero = $this->heroSectionOfHome();
+
+        $this->assertStringContainsString('<img', $hero);
+        $this->assertStringNotContainsString('heroCarousel', $hero);
+        $this->assertStringNotContainsString('Banner anterior', $hero);
+        $this->assertStringNotContainsString('Pausar rotação automática', $hero);
+    }
+
+    public function test_multiple_hero_banners_render_accessible_carousel_controls_in_order(): void
+    {
+        $media = Media::factory()->count(3)->create();
+        $last = $this->fixOrder($media[0], 3);
+        $first = $this->fixOrder($media[1], 1);
+        $second = $this->fixOrder($media[2], 2);
+
+        $html = (string) $this->get('/')->assertOk()->getContent();
+        $hero = $this->heroSection($html);
+        $this->assertNotNull($hero);
+
+        $this->assertStringContainsString('aria-roledescription="carrossel"', $html);
+        $this->assertStringContainsString('aria-label="Banner anterior"', $hero);
+        $this->assertStringContainsString('aria-label="Próximo banner"', $hero);
+        $this->assertStringContainsString('Pausar rotação automática', $hero);
+        $this->assertStringContainsString('Mostrar banner 3 de 3', $hero);
+        $this->assertStringContainsString('heroCarousel(3)', $html);
+        $this->assertSame(2, substr_count($hero, 'theme-carousel-arrow'));
+        $this->assertStringContainsString('@click="advance(-1)"', $hero);
+        $this->assertStringContainsString('@click="advance(1)"', $hero);
+        $this->assertStringContainsString('theme-carousel-toggle', $hero);
+        $this->assertStringContainsString('@click="togglePause"', $hero);
+        $this->assertStringContainsString(':aria-pressed="pausedByUser.toString()"', $hero);
+        $this->assertStringContainsString('theme-carousel-dot-active h-2.5 w-7 rounded-full', $hero);
+        $this->assertStringContainsString(':aria-current="current === 0 ?', $hero);
+        $this->assertStringContainsString('@click="goTo(0)"', $hero);
+        $this->assertStringContainsString('aspect-[16/6]', $hero);
+        $this->assertStringNotContainsString('aspect-[4/3]', $hero);
+        $this->assertSame(
+            [$first->media_id, $second->media_id, $last->media_id],
+            $this->renderedMediaIds($hero),
         );
     }
 

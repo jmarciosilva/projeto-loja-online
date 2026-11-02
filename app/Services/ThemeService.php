@@ -14,9 +14,9 @@ class ThemeService
      * @var array<string, array{key: string, default: string}>
      */
     private const COLORS = [
-        'primary' => ['key' => 'theme.primary_color', 'default' => '#111827'],
-        'secondary' => ['key' => 'theme.secondary_color', 'default' => '#4B5563'],
-        'accent' => ['key' => 'theme.accent_color', 'default' => '#2563EB'],
+        'primary' => ['key' => 'theme.primary_color', 'default' => '#092B57'],
+        'secondary' => ['key' => 'theme.secondary_color', 'default' => '#475569'],
+        'accent' => ['key' => 'theme.accent_color', 'default' => '#FF6900'],
     ];
 
     public function __construct(private readonly SiteSettingService $siteSettings) {}

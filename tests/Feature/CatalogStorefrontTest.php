@@ -77,7 +77,8 @@ class CatalogStorefrontTest extends TestCase
     public function test_home_shows_featured_products_and_handles_an_empty_catalog(): void
     {
         $this->get('/')->assertOk()->assertSee('Produtos em destaque')
-            ->assertSee('Novidades da loja aparecerão aqui em breve.');
+            ->assertSee('Produtos em destaque aparecerão aqui quando forem publicados.')
+            ->assertSee('As categorias da loja aparecerão aqui em breve.');
 
         $category = Category::factory()->create(['is_active' => true]);
         $featured = $this->product($category, [

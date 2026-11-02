@@ -6,7 +6,7 @@
     <title>@yield('title', 'Área administrativa') &middot; {{ config('app.name') }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="h-full bg-gray-50 text-gray-900 antialiased">
+<body class="admin-shell h-full bg-gray-50 text-gray-900 antialiased">
 
     {{--
         Layout único das páginas administrativas: nenhuma view sob admin/ deve

@@ -1,13 +1,12 @@
-<aside aria-label="Área administrativa" class="border-b border-gray-200 bg-white lg:w-64 lg:shrink-0 lg:border-r lg:border-b-0">
+<aside aria-label="Área administrativa" class="admin-sidebar border-b lg:w-64 lg:shrink-0 lg:border-r lg:border-b-0">
 
     <div class="flex items-center gap-3 px-4 py-4 sm:px-6 lg:px-4">
-        <span class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-gray-900">
-            {{-- Marca neutra: a identidade visual da loja ainda não foi definida. --}}
-            <svg class="size-4 text-white" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        <span class="admin-brand-mark flex size-9 shrink-0 items-center justify-center rounded-lg">
+            <svg class="size-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                 <path fill-rule="evenodd" d="M10 1a4 4 0 0 0-4 4v3H5.5A1.5 1.5 0 0 0 4 9.5v7A1.5 1.5 0 0 0 5.5 18h9a1.5 1.5 0 0 0 1.5-1.5v-7A1.5 1.5 0 0 0 14.5 8H14V5a4 4 0 0 0-4-4Zm2.5 7V5a2.5 2.5 0 0 0-5 0v3h5Z" clip-rule="evenodd" />
             </svg>
         </span>
-        <span class="text-sm font-semibold tracking-tight">Administração da loja</span>
+        <span class="text-sm font-semibold tracking-tight text-white">Administração da loja</span>
     </div>
 
     <nav aria-label="Navegação administrativa" class="px-4 pb-4 sm:px-6 lg:px-4">
@@ -125,7 +124,7 @@
             aqui somente quando a funcionalidade correspondente existir — link
             para página inexistente é caminho quebrado, não prévia.
         --}}
-        <p class="mt-6 hidden border-t border-gray-100 pt-4 text-xs text-gray-400 lg:block">
+        <p class="mt-6 hidden border-t border-white/20 pt-4 text-xs text-white/65 lg:block">
             Novas seções aparecem aqui conforme forem implementadas.
         </p>
     </nav>

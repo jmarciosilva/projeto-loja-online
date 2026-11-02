@@ -27,6 +27,7 @@ class UpdateSiteSettingsRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:150',
+            'slogan' => 'sometimes|required|string|max:150',
             'support_email' => 'nullable|email|max:254',
             'phone' => 'nullable|string|max:30',
             'address' => 'nullable|string|max:500',
@@ -40,6 +41,7 @@ class UpdateSiteSettingsRequest extends FormRequest
     {
         return [
             'name' => 'nome da loja',
+            'slogan' => 'slogan',
             'support_email' => 'email de suporte',
             'phone' => 'telefone',
             'address' => 'endereço',
