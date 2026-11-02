@@ -19,6 +19,32 @@ class AdminAuthenticationTest extends TestCase
             ->assertSee('name="password"', false);
     }
 
+    public function test_authenticated_user_visiting_login_is_redirected_to_the_named_home_route(): void
+    {
+        $this->actingAs(User::factory()->create())
+            ->get('/login')
+            ->assertRedirect(route('home'));
+    }
+
+    public function test_administration_link_sends_visitors_to_login_and_authenticated_users_to_admin(): void
+    {
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('href="'.route('login').'"', false);
+
+        $this->get('/login')
+            ->assertOk()
+            ->assertSee('name="email"', false)
+            ->assertSee('name="password"', false);
+
+        $user = User::factory()->create();
+        $this->actingAs($user)
+            ->get('/')
+            ->assertOk()
+            ->assertSee('href="'.route('admin').'"', false)
+            ->assertDontSee('href="'.route('login').'"', false);
+    }
+
     public function test_user_can_authenticate_and_is_redirected_to_admin(): void
     {
         $user = User::factory()->create();
@@ -77,6 +103,7 @@ class AdminAuthenticationTest extends TestCase
         $this->post('/logout')->assertRedirect('/');
 
         $this->assertGuest();
+        $this->get('/login')->assertOk();
         $this->get('/admin')->assertRedirect('/login');
     }
 

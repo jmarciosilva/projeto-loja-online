@@ -33,7 +33,7 @@
                     @if ($catalogNavigationVisible ?? true)
                         <a href="{{ route('catalog.index') }}" @if(request()->url() === route('catalog.index')) aria-current="page" @endif class="shrink-0 whitespace-nowrap text-sm font-medium text-gray-700 underline-offset-4 hover:underline">Produtos</a>
                     @endif
-                    <a href="{{ route('login') }}" class="shrink-0 whitespace-nowrap rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50">Administração</a>
+                    <a href="{{ auth()->check() ? route('admin') : route('login') }}" class="shrink-0 whitespace-nowrap rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50">Administração</a>
                 </div>
 
                 <button type="button" class="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-gray-300 text-gray-800 md:hidden" @click="mobileMenuOpen = !mobileMenuOpen" :aria-expanded="mobileMenuOpen.toString()" aria-controls="mobile-navigation" :aria-label="mobileMenuOpen ? 'Fechar menu' : 'Abrir menu'">
@@ -52,7 +52,7 @@
                     @if ($catalogNavigationVisible ?? true)
                         <a href="{{ route('catalog.index') }}" @if(request()->url() === route('catalog.index')) aria-current="page" @endif class="block min-h-11 rounded-md px-3 py-2.5 text-base font-medium text-gray-800 hover:bg-gray-50">Produtos</a>
                     @endif
-                    <a href="{{ route('login') }}" class="mt-1 block min-h-11 rounded-md px-3 py-2.5 text-base font-medium text-gray-800 hover:bg-gray-50">Administração</a>
+                    <a href="{{ auth()->check() ? route('admin') : route('login') }}" class="mt-1 block min-h-11 rounded-md px-3 py-2.5 text-base font-medium text-gray-800 hover:bg-gray-50">Administração</a>
                 </nav>
             </div>
         </div>
