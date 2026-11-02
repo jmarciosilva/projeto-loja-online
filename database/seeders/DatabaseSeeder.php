@@ -28,8 +28,11 @@ class DatabaseSeeder extends Seeder
         $user = User::query()->where('email', $email)->first();
 
         if ($user !== null) {
-            if (! $user->canManageCatalog()) {
-                $user->forceFill(['can_manage_catalog' => true])->save();
+            if (! $user->canManageCatalog() || ! $user->canManageShippingIntegrations()) {
+                $user->forceFill([
+                    'can_manage_catalog' => true,
+                    'can_manage_shipping_integrations' => true,
+                ])->save();
             }
 
             return;
@@ -48,6 +51,9 @@ class DatabaseSeeder extends Seeder
             'email' => $email,
             'password' => $password,
         ]);
-        $user->forceFill(['can_manage_catalog' => true])->save();
+        $user->forceFill([
+            'can_manage_catalog' => true,
+            'can_manage_shipping_integrations' => true,
+        ])->save();
     }
 }

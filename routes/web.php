@@ -1,17 +1,20 @@
 <?php
 
 use App\Enums\BannerPosition;
+use App\Enums\ShippingProviderCode;
 use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\MenuController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\ShippingIntegrationController;
 use App\Http\Controllers\Admin\SiteSettingController;
 use App\Http\Controllers\Admin\ThemeSettingController;
 use App\Http\Controllers\Admin\VisualIdentitySettingController;
 use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\PageController as PublicPageController;
+use App\Models\ShippingSettings;
 use App\Services\BannerService;
 use App\Services\MediaService;
 use App\Services\ProductService;
@@ -185,6 +188,21 @@ Route::middleware('auth')
             ->name('menus.items.move-up');
         Route::post('menus/{menu}/itens/{item}/descer', [MenuController::class, 'moveItemDown'])
             ->name('menus.items.move-down');
+
+        Route::get('integracoes/frete', [ShippingIntegrationController::class, 'edit'])
+            ->middleware('can:manage,'.ShippingSettings::class)
+            ->name('integrations.shipping.edit');
+        Route::put('integracoes/frete/provedor-ativo', [ShippingIntegrationController::class, 'updateActiveProvider'])
+            ->middleware('can:manage,'.ShippingSettings::class)
+            ->name('integrations.shipping.active-provider.update');
+        Route::put('integracoes/frete/{provider}', [ShippingIntegrationController::class, 'updateProvider'])
+            ->middleware('can:manage,'.ShippingSettings::class)
+            ->whereIn('provider', ShippingProviderCode::values())
+            ->name('integrations.shipping.provider.update');
+        Route::delete('integracoes/frete/{provider}/credenciais', [ShippingIntegrationController::class, 'removeCredentials'])
+            ->middleware('can:manage,'.ShippingSettings::class)
+            ->whereIn('provider', ShippingProviderCode::values())
+            ->name('integrations.shipping.credentials.destroy');
     });
 
 /*

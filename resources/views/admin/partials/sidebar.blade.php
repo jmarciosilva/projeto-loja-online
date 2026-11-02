@@ -104,6 +104,20 @@
                     Configurações
                 </a>
             </li>
+            @can('manage', \App\Models\ShippingSettings::class)
+                <li class="pt-3">
+                    <p class="px-3 pb-1 text-xs font-semibold tracking-wide text-gray-500 uppercase">Integrações</p>
+                    <a href="{{ route('admin.integrations.shipping.edit') }}"
+                       @if (request()->routeIs('admin.integrations.shipping.*')) aria-current="page" @endif
+                       @class([
+                           'block rounded-lg px-3 py-2 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-gray-900 focus-visible:ring-offset-2 focus-visible:outline-none',
+                           'bg-gray-900 text-white' => request()->routeIs('admin.integrations.shipping.*'),
+                           'text-gray-700 hover:bg-gray-100' => ! request()->routeIs('admin.integrations.shipping.*'),
+                       ])>
+                        Frete
+                    </a>
+                </li>
+            @endcan
         </ul>
 
         {{--

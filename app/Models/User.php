@@ -45,11 +45,17 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'can_manage_catalog' => 'boolean',
+            'can_manage_shipping_integrations' => 'boolean',
         ];
     }
 
     public function canManageCatalog(): bool
     {
         return (bool) $this->can_manage_catalog;
+    }
+
+    public function canManageShippingIntegrations(): bool
+    {
+        return (bool) $this->can_manage_shipping_integrations;
     }
 }
