@@ -22,6 +22,16 @@ return [
     ],
 
     /*
+    | Administrador de desenvolvimento local, criado por DevelopmentAdminSeeder.
+    | Os valores vêm do .env local (fora do Git), nunca do código.
+    */
+    'dev_admin' => [
+        'name' => env('DEV_ADMIN_NAME', 'Administrador de Desenvolvimento'),
+        'email' => env('DEV_ADMIN_EMAIL'),
+        'password' => env('DEV_ADMIN_PASSWORD'),
+    ],
+
+    /*
     |--------------------------------------------------------------------------
     | Application Environment
     |--------------------------------------------------------------------------
