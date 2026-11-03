@@ -47,6 +47,7 @@ class CartPage extends Component
             'lines' => $cart->lines(),
             'count' => $cart->count(),
             'subtotal' => $cart->subtotal(),
+            'ready' => $cart->readyForCheckout(),
         ]);
     }
 }

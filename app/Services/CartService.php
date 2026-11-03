@@ -123,6 +123,16 @@ final class CartService
         return collect($this->evaluate($items));
     }
 
+    /**
+     * Regra única para liberar o checkout: carrinho com itens e todos compráveis.
+     */
+    public function readyForCheckout(): bool
+    {
+        $lines = $this->lines();
+
+        return $lines->isNotEmpty() && $lines->every(fn (CartLine $line): bool => $line->isPurchasable());
+    }
+
     /** Unidades compráveis. Itens indisponíveis não entram na contagem. */
     public function count(): int
     {

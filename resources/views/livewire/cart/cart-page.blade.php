@@ -85,9 +85,16 @@
                 </dl>
                 <p class="mt-3 text-xs text-slate-500">O frete e o total final serão calculados na finalização da compra.</p>
 
-                <button type="button" disabled aria-disabled="true" class="mt-5 inline-flex min-h-12 w-full cursor-not-allowed items-center justify-center rounded-xl bg-slate-200 px-6 font-bold text-slate-600">
-                    Finalizar compra (em breve)
-                </button>
+                @if ($ready)
+                    <a href="{{ route('checkout.show') }}" class="theme-focus theme-bg-primary mt-5 inline-flex min-h-12 w-full items-center justify-center rounded-xl px-6 font-bold text-white shadow-sm">
+                        Finalizar compra
+                    </a>
+                @else
+                    <button type="button" disabled aria-disabled="true" class="mt-5 inline-flex min-h-12 w-full cursor-not-allowed items-center justify-center rounded-xl bg-slate-200 px-6 font-bold text-slate-600">
+                        Finalizar compra
+                    </button>
+                    <p class="mt-2 text-xs text-slate-600">Remova ou ajuste os itens indisponíveis para continuar.</p>
+                @endif
 
                 <a href="{{ route('catalog.index') }}" class="theme-focus mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-slate-300 bg-white px-6 font-semibold text-slate-800 hover:bg-slate-50">
                     Continuar comprando

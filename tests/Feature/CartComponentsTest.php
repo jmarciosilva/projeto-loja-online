@@ -155,13 +155,24 @@ class CartComponentsTest extends TestCase
             ->assertSee(route('catalog.index'));
     }
 
-    public function test_checkout_is_visibly_unavailable_in_this_phase(): void
+    public function test_checkout_link_appears_only_when_every_line_is_purchasable(): void
     {
         $product = $this->publishedProduct(stock: 5);
         app(CartService::class)->add($product->id);
 
         Livewire::test(CartPage::class)
-            ->assertSee('Finalizar compra (em breve)');
+            ->assertSee(route('checkout.show'));
+    }
+
+    public function test_checkout_is_blocked_on_the_cart_when_an_item_is_unavailable(): void
+    {
+        $product = $this->publishedProduct(stock: 5);
+        app(CartService::class)->add($product->id);
+        $product->forceFill(['is_active' => false])->save();
+
+        Livewire::test(CartPage::class)
+            ->assertDontSee(route('checkout.show'))
+            ->assertSee('Remova ou ajuste os itens indisponíveis para continuar.');
     }
 
     public function test_cart_persists_between_requests_and_appears_on_the_cart_page(): void

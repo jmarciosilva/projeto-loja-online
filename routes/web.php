@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\SiteSettingController;
 use App\Http\Controllers\Admin\ThemeSettingController;
 use App\Http\Controllers\Admin\VisualIdentitySettingController;
 use App\Http\Controllers\CatalogController;
+use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\PageController as PublicPageController;
 use App\Models\ShippingSettings;
 use App\Services\BannerService;
@@ -59,6 +60,7 @@ Route::get('/', function (Request $request, BannerService $banners, MediaService
 
 Route::get('/produtos', [CatalogController::class, 'index'])->name('catalog.index');
 Route::view('/carrinho', 'cart.index')->name('cart.index');
+Route::get('/finalizar-compra', [CheckoutController::class, 'show'])->name('checkout.show');
 Route::get('/produtos/{slug}', [CatalogController::class, 'show'])->name('catalog.show');
 Route::get('/categorias/{slug}', [CatalogController::class, 'category'])->name('categories.show');
 
