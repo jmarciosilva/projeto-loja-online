@@ -20,7 +20,7 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - CACHE_DRIVER=redis
-      - SESSION_DRIVER=cookie
+      - SESSION_DRIVER=${SESSION_DRIVER:-database}
       - QUEUE_CONNECTION=redis
     depends_on:
       mysql:
