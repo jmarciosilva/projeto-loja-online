@@ -114,6 +114,8 @@
                     <p class="theme-text-primary {{ $product->promotionIsActive($pricingAt) ? 'mt-1' : '' }} whitespace-nowrap text-3xl font-extrabold sm:text-4xl">{{ \App\Services\ProductService::formatPrice($product->effectivePrice($pricingAt)) }}</p>
                 </div>
 
+                <livewire:cart.add-to-cart-button :product-id="$product->id" />
+
                 @if ($product->description)
                     <section class="product-description mt-5 w-full min-w-0 break-words text-slate-700 [overflow-wrap:anywhere]" aria-labelledby="descricao-produto">
                         <h2 id="descricao-produto" class="mb-2 text-lg font-bold">Sobre este produto</h2>

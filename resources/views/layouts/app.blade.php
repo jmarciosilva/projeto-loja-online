@@ -97,6 +97,7 @@
                 <nav aria-label="Atalhos da loja" class="flex shrink-0 items-center gap-1">
                     @if ($homeNavigationVisible ?? true)<a href="{{ route('home') }}" class="theme-focus whitespace-nowrap rounded-lg px-3 py-2 text-sm font-semibold hover:bg-slate-50">Início</a>@endif
                     @if ($catalogNavigationVisible ?? true)<a href="{{ route('catalog.index') }}" class="theme-focus whitespace-nowrap rounded-lg px-3 py-2 text-sm font-semibold hover:bg-slate-50">Todos os produtos</a>@endif
+                    <livewire:cart.cart-counter />
                 </nav>
             </div>
 

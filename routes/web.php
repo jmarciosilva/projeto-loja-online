@@ -58,6 +58,7 @@ Route::get('/', function (Request $request, BannerService $banners, MediaService
 })->name('home');
 
 Route::get('/produtos', [CatalogController::class, 'index'])->name('catalog.index');
+Route::view('/carrinho', 'cart.index')->name('cart.index');
 Route::get('/produtos/{slug}', [CatalogController::class, 'show'])->name('catalog.show');
 Route::get('/categorias/{slug}', [CatalogController::class, 'category'])->name('categories.show');
 
