@@ -28,6 +28,8 @@ class UpdateProductRequest extends StoreProductRequest
             'slug' => ['nullable', 'string', 'max:255', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/', Rule::unique('products', 'slug')->ignore($product->id)->whereNull('deleted_at'), $this->slugRule($product->id)],
             'sku' => ['nullable', 'string', 'max:255', Rule::unique('products', 'sku')->ignore($product->id)],
             'description' => ['nullable', 'string'],
+            'condition' => ['nullable', Rule::in(['new', 'used'])],
+            'condition_notes' => ['nullable', 'string', 'max:500'],
             'cost_price' => ['nullable', 'string', 'regex:/^\d{1,10}(?:[,.]\d{1,2})?$/'],
             'target_margin' => ['nullable', 'string', 'regex:/^\d{1,2}(?:[,.]\d{1,2})?$/'],
             'price' => ['required', 'string', 'regex:/^\d{1,10}(?:[,.]\d{1,2})?$/'],

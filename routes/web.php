@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\MenuController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\ProductStockController;
 use App\Http\Controllers\Admin\ShippingIntegrationController;
 use App\Http\Controllers\Admin\SiteSettingController;
 use App\Http\Controllers\Admin\ThemeSettingController;
@@ -16,8 +17,10 @@ use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\PageController as PublicPageController;
 use App\Models\ShippingSettings;
 use App\Services\BannerService;
+use App\Services\CategoryService;
 use App\Services\MediaService;
 use App\Services\ProductService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
@@ -32,11 +35,27 @@ use Illuminate\Support\Facades\Route;
  * já usado pela listagem administrativa de banners — o banner nunca guarda
  * caminho nem URL.
  */
-Route::get('/', fn (BannerService $banners, MediaService $media, ProductService $products) => view('home', [
-    'heroBanners' => $banners->activeForPosition(BannerPosition::Hero),
-    'media' => $media,
-    'featuredProducts' => $products->featured(4),
-]))->name('home');
+Route::get('/', function (Request $request, BannerService $banners, MediaService $media, ProductService $products, CategoryService $categoryService) {
+    $homepageSelection = $products->homepageSelection(5);
+    $homepageProducts = $homepageSelection['products'];
+    $displayedIds = $homepageProducts->modelKeys();
+    $homepageCategories = $categoryService->publicRootCategoriesWithProductCounts();
+    $request->attributes->set('storefront_categories', $homepageCategories);
+    $discoveryCategories = $homepageCategories->flatMap(fn ($category) => $category->children)
+        ->take(3)->map(fn ($category) => [
+            'category' => $category,
+            'products' => $products->publicHighlightsForCategories([$category->id], 4, $displayedIds),
+        ])->filter(fn ($section) => $section['products']->isNotEmpty())->values();
+
+    return view('home', [
+        'heroBanners' => $banners->activeForPosition(BannerPosition::Hero),
+        'media' => $media,
+        'featuredProducts' => $homepageProducts,
+        'homepageCategories' => $homepageCategories,
+        'showFeaturedLabel' => $homepageSelection['has_featured'],
+        'discoveryCategories' => $discoveryCategories,
+    ]);
+})->name('home');
 
 Route::get('/produtos', [CatalogController::class, 'index'])->name('catalog.index');
 Route::get('/produtos/{slug}', [CatalogController::class, 'show'])->name('catalog.show');
@@ -79,6 +98,8 @@ Route::middleware('auth')
         Route::put('produtos/{product}', [ProductController::class, 'update'])->name('products.update');
         Route::post('produtos/{product}/alternar', [ProductController::class, 'toggle'])->name('products.toggle');
         Route::delete('produtos/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
+        Route::get('produtos/{product}/estoque', [ProductStockController::class, 'edit'])->name('products.stock');
+        Route::post('produtos/{product}/estoque', [ProductStockController::class, 'store'])->name('products.stock.store');
         Route::get('midias', [MediaController::class, 'index'])->name('media.index');
         Route::post('midias', [MediaController::class, 'store'])->name('media.store');
         Route::delete('midias/{media}', [MediaController::class, 'destroy'])->name('media.destroy');

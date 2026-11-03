@@ -31,4 +31,14 @@ class ProductPolicy
     {
         return $user->canManageCatalog();
     }
+
+    public function manageStock(User $user, Product $product): bool
+    {
+        return $user->canManageCatalog() && $user->canManageStock();
+    }
+
+    public function viewStockMovements(User $user, Product $product): bool
+    {
+        return $user->canManageCatalog() && ($user->canManageStock() || $user->canViewStockMovements());
+    }
 }

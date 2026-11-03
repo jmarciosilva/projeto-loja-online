@@ -29,7 +29,13 @@
 - **Catálogo E02–E02.3:** implementação entregue em 2026-11-02 como parte
   parcial da Fase 4. Inclui categorias, produtos, precificação, promoções,
   editor rico sanitizado, galeria de até seis imagens e responsividade.
-  Checkout, pedidos, pagamentos e controle de estoque seguem pendentes.
+  Checkout, pedidos e pagamentos seguem pendentes.
+- **E05 — Catálogo comercial e controle de estoque:** implementação local em
+  andamento, aguardando revisão. As duas migrations foram aplicadas somente no
+  banco local após backup; nenhum saldo foi atribuído a produtos existentes.
+  O teste de saída concorrente depende de MySQL de testes isolado e permanece
+  pendente nesta validação. Não há carrinho, pedidos, reservas ou pagamentos
+  nesta etapa.
 - **Logística L01.1:** configurações administrativas de Frenet e Melhor Envio
   concluídas; não há adaptadores nem conexão validada.
 - **Logística L01.2:** perfis logísticos e preparação local de cotação

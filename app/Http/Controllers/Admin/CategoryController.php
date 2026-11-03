@@ -19,11 +19,11 @@ class CategoryController extends Controller
         return view('admin.categories.index', ['categories' => $categories->paginate()]);
     }
 
-    public function create(): View
+    public function create(CategoryService $categories): View
     {
         $this->authorize('create', Category::class);
 
-        return view('admin.categories.create', ['category' => new Category]);
+        return view('admin.categories.create', ['category' => new Category, 'parentOptions' => $categories->parentOptions()]);
     }
 
     public function store(StoreCategoryRequest $request, CategoryService $categories): RedirectResponse
@@ -33,11 +33,11 @@ class CategoryController extends Controller
         return redirect()->route('admin.categories.index')->with('status', 'Categoria criada com sucesso.');
     }
 
-    public function edit(Category $category): View
+    public function edit(Category $category, CategoryService $categories): View
     {
         $this->authorize('update', $category);
 
-        return view('admin.categories.edit', compact('category'));
+        return view('admin.categories.edit', ['category' => $category, 'parentOptions' => $categories->parentOptions()->reject(fn (Category $option) => $option->is($category))->values()]);
     }
 
     public function update(UpdateCategoryRequest $request, Category $category, CategoryService $categories): RedirectResponse

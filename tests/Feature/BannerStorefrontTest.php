@@ -45,6 +45,8 @@ class BannerStorefrontTest extends TestCase
         // conteúdo principal são um contrato estável da vitrine.
         $this->assertStringContainsString('<h1', $html);
         $this->assertStringContainsString('UAU NetShopping', $html);
+        $this->assertStringContainsString('Explorar produtos', $html);
+        $this->assertStringContainsString('href="'.route('catalog.index').'"', $html);
 
         // Sem banners ativos nenhuma moldura vazia é emitida — nem a seção,
         // nem uma borda sem conteúdo dentro dela.
@@ -113,12 +115,33 @@ class BannerStorefrontTest extends TestCase
         $this->assertStringContainsString('theme-carousel-dot-active h-2.5 w-7 rounded-full', $hero);
         $this->assertStringContainsString(':aria-current="current === 0 ?', $hero);
         $this->assertStringContainsString('@click="goTo(0)"', $hero);
-        $this->assertStringContainsString('aspect-[16/6]', $hero);
+        $this->assertStringContainsString('aspect-[16/9]', $hero);
+        $this->assertStringContainsString('lg:aspect-[16/5]', $hero);
+        $this->assertStringContainsString('bg-white px-4 py-5 sm:px-7 sm:py-6 lg:absolute', $hero);
+        $this->assertStringContainsString('top-[24vw]', $hero);
+        $this->assertStringContainsString('sm:top-[30%] lg:top-1/2', $hero);
         $this->assertStringNotContainsString('aspect-[4/3]', $hero);
         $this->assertSame(
             [$first->media_id, $second->media_id, $last->media_id],
             $this->renderedMediaIds($hero),
         );
+    }
+
+    public function test_mobile_banner_copy_uses_a_separate_panel_and_carousel_controls_remain_single_instance(): void
+    {
+        $this->makeBanner(BannerPosition::Hero);
+        $this->makeBanner(BannerPosition::Hero);
+        $html = (string) $this->get('/')->assertOk()->getContent();
+        $hero = $this->heroSection($html);
+
+        $this->assertNotNull($hero);
+        $this->assertSame(1, substr_count($html, 'heroCarousel(2)'));
+        $this->assertSame(2, substr_count($hero, 'Explore o catálogo da loja e veja as informações de cada produto.'));
+        $this->assertStringContainsString('aspect-[16/9] overflow-hidden bg-slate-100 sm:aspect-[16/7]', $hero);
+        $this->assertStringContainsString('relative z-10 bg-white px-4 py-5', $hero);
+        $this->assertStringContainsString('aria-label="Banner anterior"', $hero);
+        $this->assertStringContainsString('aria-label="Próximo banner"', $hero);
+        $this->assertStringContainsString('aria-label="Escolher banner"', $hero);
     }
 
     public function test_the_hero_image_uses_the_url_derived_from_the_media(): void
@@ -216,15 +239,14 @@ class BannerStorefrontTest extends TestCase
 
     // --- Link -------------------------------------------------------------
 
-    public function test_a_hero_banner_with_a_link_is_wrapped_in_an_anchor(): void
+    public function test_a_hero_banner_link_is_used_by_the_prominent_catalog_call_to_action(): void
     {
         $banner = $this->makeBanner(BannerPosition::Hero, ['link_url' => '/categorias/promocoes']);
 
-        $this->assertMatchesRegularExpression(
-            '#<a[^>]*href="/categorias/promocoes"[^>]*>\s*<img[^>]*'
-                .preg_quote($banner->media->path, '#').'#s',
-            $this->heroSectionOfHome(),
-        );
+        $hero = $this->heroSectionOfHome();
+        $this->assertStringContainsString('href="/categorias/promocoes"', $hero);
+        $this->assertStringContainsString('Explorar produtos', $hero);
+        $this->assertStringContainsString($banner->media->path, $hero);
     }
 
     public function test_an_absolute_http_link_is_rendered_as_received(): void
@@ -237,17 +259,15 @@ class BannerStorefrontTest extends TestCase
         );
     }
 
-    public function test_a_hero_banner_without_a_link_is_not_wrapped_in_an_anchor(): void
+    public function test_a_hero_banner_without_a_link_uses_the_catalog_as_a_functional_fallback(): void
     {
         $banner = $this->makeBanner(BannerPosition::Hero, ['link_url' => null]);
 
         $hero = $this->heroSectionOfHome();
 
         $this->assertStringContainsString($banner->media->path, $hero);
-        // Nenhuma âncora inerte em volta da imagem: um alvo de clique que não
-        // leva a lugar nenhum é pior do que nenhum alvo.
-        $this->assertStringNotContainsString('<a ', $hero);
-        $this->assertStringNotContainsString('<a>', $hero);
+        $this->assertStringContainsString('href="'.route('catalog.index').'"', $hero);
+        $this->assertStringContainsString('Explorar produtos', $hero);
     }
 
     public function test_the_markup_adds_no_target_and_no_script(): void

@@ -120,6 +120,14 @@
     color: var(--color-accent);
 }
 
+.storefront-shell footer.storefront-footer a:not([aria-label]) {
+    color: rgb(255 255 255 / 88%);
+}
+
+.storefront-shell footer.storefront-footer a:not([aria-label]):hover {
+    color: var(--color-accent);
+}
+
 .storefront-shell main button.bg-gray-900 {
     background-color: var(--color-accent);
     color: var(--color-primary);

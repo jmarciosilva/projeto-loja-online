@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Category;
+use App\Models\Product;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Schema;
@@ -17,7 +18,57 @@ class CategoryService
             return new Collection;
         }
 
-        return Category::query()->publiclyVisible()->ordered()->get();
+        return Category::query()->publiclyVisible()
+            ->where(fn ($query) => $query->whereNull('parent_category_id')->orWhereHas('parent', fn ($parent) => $parent->publiclyVisible()))
+            ->with(['parent', 'children' => fn ($query) => $query->publiclyVisible()->ordered()])->ordered()->get();
+    }
+
+    public function publicRootCategories(): Collection
+    {
+        if (! Schema::hasTable('categories')) {
+            return new Collection;
+        }
+
+        return Category::query()->publiclyVisible()->whereNull('parent_category_id')
+            ->with(['children' => fn ($query) => $query->publiclyVisible()->ordered()])->ordered()->get();
+    }
+
+    /**
+     * Retorna categorias principais com filhos e contagens públicas agregadas.
+     *
+     * A contagem é calculada em uma única consulta para todas as categorias,
+     * incluindo somente produtos publicados em categorias visíveis. A raiz
+     * soma seus produtos diretos e os de suas subcategorias.
+     */
+    public function publicRootCategoriesWithProductCounts(): Collection
+    {
+        $roots = $this->publicRootCategories();
+        $categories = $roots->flatMap(fn (Category $root) => collect([$root])->concat($root->children));
+
+        if ($categories->isEmpty()) {
+            return $roots;
+        }
+
+        $counts = Product::query()->publiclyVisible()
+            ->whereIn('category_id', $categories->pluck('id')->all())
+            ->select('category_id')
+            ->selectRaw('COUNT(*) as public_products_count')
+            ->groupBy('category_id')
+            ->pluck('public_products_count', 'category_id');
+
+        foreach ($roots as $root) {
+            $rootCount = (int) $counts->get($root->id, 0);
+
+            foreach ($root->children as $child) {
+                $childCount = (int) $counts->get($child->id, 0);
+                $child->setAttribute('public_products_count', $childCount);
+                $rootCount += $childCount;
+            }
+
+            $root->setAttribute('public_products_count', $rootCount);
+        }
+
+        return $roots;
     }
 
     public function findPublicBySlug(string $slug): ?Category
@@ -26,17 +77,26 @@ class CategoryService
             return null;
         }
 
-        return Category::query()->publiclyVisible()->where('slug', $slug)->first();
+        return Category::query()->publiclyVisible()
+            ->where(fn ($query) => $query->whereNull('parent_category_id')->orWhereHas('parent', fn ($parent) => $parent->publiclyVisible()))
+            ->with(['parent', 'children' => fn ($query) => $query->publiclyVisible()->ordered()])
+            ->where('slug', $slug)->first();
     }
 
     public function adminOptions(): Collection
     {
-        return Category::query()->ordered()->get();
+        return Category::query()->with('parent')->ordered()->get();
+    }
+
+    public function parentOptions(): Collection
+    {
+        return Category::query()->whereNull('parent_category_id')->ordered()->get();
     }
 
     public function paginate(int $perPage = 15): LengthAwarePaginator
     {
         return Category::query()
+            ->with(['parent', 'children'])
             ->withCount('products')
             ->ordered()
             ->paginate($perPage);
@@ -49,6 +109,7 @@ class CategoryService
         $slug = $this->resolveSlug($attributes['slug'] ?? null, $name);
 
         return Category::query()->create([
+            'parent_category_id' => $this->parentId($attributes['parent_category_id'] ?? null),
             'name' => $name,
             'slug' => $slug,
             'description' => $this->nullableString($attributes['description'] ?? null),
@@ -76,6 +137,9 @@ class CategoryService
                 };
             }
         }
+        if (array_key_exists('parent_category_id', $attributes)) {
+            $payload['parent_category_id'] = $this->parentId($attributes['parent_category_id'], $category);
+        }
         $category->fill($payload)->save();
 
         return $category;
@@ -91,6 +155,29 @@ class CategoryService
         return ! Category::withTrashed()->where('slug', $slug)
             ->when($ignoreId !== null, fn ($query) => $query->whereKeyNot($ignoreId))
             ->exists();
+    }
+
+    /** @return list<int> */
+    public function publicCategoryTreeIds(Category $category): array
+    {
+        $ids = [$category->id];
+        $children = Category::query()->publiclyVisible()->where('parent_category_id', $category->id)->pluck('id')->all();
+
+        return [...$ids, ...array_map('intval', $children)];
+    }
+
+    private function parentId(mixed $value, ?Category $category = null): ?int
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+        $parent = Category::query()->find((int) $value);
+        if ($parent === null || $parent->id === $category?->id || $parent->parent_category_id !== null
+            || ($category !== null && $category->children()->exists())) {
+            throw new InvalidArgumentException('Selecione uma categoria principal válida.');
+        }
+
+        return $parent->id;
     }
 
     private function resolveSlug(mixed $slug, string $name, ?int $ignoreId = null): string

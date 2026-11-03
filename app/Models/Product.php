@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -20,7 +21,7 @@ class Product extends Model
         'category_id', 'main_media_id', 'name', 'slug', 'sku', 'description',
         'cost_price', 'target_margin', 'price', 'promotional_price',
         'promotion_enabled', 'promotion_starts_at', 'promotion_ends_at',
-        'is_active', 'is_featured', 'sort_order',
+        'is_active', 'is_featured', 'sort_order', 'condition', 'condition_notes',
     ];
 
     protected function casts(): array
@@ -60,6 +61,25 @@ class Product extends Model
         return $this->hasOne(ProductShippingProfile::class);
     }
 
+    public function stock(): HasOne
+    {
+        return $this->hasOne(ProductStock::class);
+    }
+
+    public function stockMovements(): HasMany
+    {
+        return $this->hasMany(StockMovement::class)->latest();
+    }
+
+    public function stockAvailability(): string
+    {
+        if (! $this->relationLoaded('stock')) {
+            $this->load('stock');
+        }
+
+        return $this->stock?->publicAvailability() ?? 'unreported';
+    }
+
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
@@ -67,7 +87,9 @@ class Product extends Model
 
     public function scopePubliclyVisible(Builder $query): Builder
     {
-        return $query->active()->whereHas('category', fn (Builder $category) => $category->active());
+        return $query->active()->whereHas('category', fn (Builder $category) => $category->active()
+            ->where(fn (Builder $visibleCategory) => $visibleCategory->whereNull('parent_category_id')
+                ->orWhereHas('parent', fn (Builder $parent) => $parent->active())));
     }
 
     public function scopeFeatured(Builder $query): Builder

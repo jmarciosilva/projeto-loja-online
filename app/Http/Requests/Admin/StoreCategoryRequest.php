@@ -20,6 +20,11 @@ class StoreCategoryRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'slug' => ['nullable', 'string', 'max:255', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/', $this->slugRule()],
             'description' => ['nullable', 'string'],
+            'parent_category_id' => ['nullable', 'integer', function (string $attribute, mixed $value, Closure $fail): void {
+                if ($value !== null && ! Category::query()->whereKey($value)->whereNull('parent_category_id')->exists()) {
+                    $fail('Selecione uma categoria principal válida.');
+                }
+            }],
             'is_active' => ['sometimes', 'boolean'],
             'sort_order' => ['nullable', 'integer', 'min:1'],
         ];

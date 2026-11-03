@@ -46,6 +46,8 @@ class User extends Authenticatable
             'password' => 'hashed',
             'can_manage_catalog' => 'boolean',
             'can_manage_shipping_integrations' => 'boolean',
+            'can_manage_stock' => 'boolean',
+            'can_view_stock_movements' => 'boolean',
         ];
     }
 
@@ -57,5 +59,15 @@ class User extends Authenticatable
     public function canManageShippingIntegrations(): bool
     {
         return (bool) $this->can_manage_shipping_integrations;
+    }
+
+    public function canManageStock(): bool
+    {
+        return (bool) $this->can_manage_stock;
+    }
+
+    public function canViewStockMovements(): bool
+    {
+        return (bool) $this->can_view_stock_movements;
     }
 }

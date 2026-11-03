@@ -48,6 +48,11 @@ class StoreProductRequest extends FormRequest
             'slug' => ['nullable', 'string', 'max:255', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/', $this->slugRule()],
             'sku' => ['nullable', 'string', 'max:255', 'unique:products,sku'],
             'description' => ['nullable', 'string'],
+            'condition' => ['nullable', Rule::in(['new', 'used'])],
+            'condition_notes' => ['nullable', 'string', 'max:500'],
+            'stock_control_enabled' => ['sometimes', 'boolean'],
+            'initial_stock_quantity' => ['required_if:stock_control_enabled,1,true', 'nullable', 'integer', 'min:0', 'max:1000000'],
+            'minimum_stock_quantity' => ['nullable', 'integer', 'min:0', 'max:1000000'],
             'cost_price' => ['nullable', 'string', 'regex:/^\d{1,10}(?:[,.]\d{1,2})?$/'],
             'target_margin' => ['nullable', 'string', 'regex:/^\d{1,2}(?:[,.]\d{1,2})?$/'],
             'price' => ['required', 'string', 'regex:/^\d{1,10}(?:[,.]\d{1,2})?$/'],
@@ -89,6 +94,13 @@ class StoreProductRequest extends FormRequest
             }
             if ($this->boolean('promotion_enabled') && ! filled($this->input('promotional_price'))) {
                 $validator->errors()->add('promotional_price', 'Informe o preço promocional para habilitar a promoção.');
+            }
+
+            if ($this->input('condition') !== 'used' && filled($this->input('condition_notes'))) {
+                $validator->errors()->add('condition_notes', 'A conservação detalhada é aplicável a produtos usados.');
+            }
+            if ($this->boolean('stock_control_enabled') && ! ($this->user()?->canManageStock() ?? false)) {
+                $validator->errors()->add('stock_control_enabled', 'Você não tem permissão para cadastrar saldo inicial.');
             }
 
             $start = $this->input('promotion_starts_at');
@@ -161,6 +173,9 @@ class StoreProductRequest extends FormRequest
         return [
             'category_id' => 'categoria', 'main_media_id' => 'imagem principal', 'name' => 'nome',
             'slug' => 'endereço', 'sku' => 'SKU', 'description' => 'descrição',
+            'condition' => 'condição do produto', 'condition_notes' => 'conservação',
+            'stock_control_enabled' => 'controle de estoque', 'initial_stock_quantity' => 'saldo inicial',
+            'minimum_stock_quantity' => 'estoque mínimo',
             'cost_price' => 'preço de custo', 'target_margin' => 'margem desejada',
             'price' => 'preço', 'promotional_price' => 'preço promocional',
             'promotion_starts_at' => 'início da promoção', 'promotion_ends_at' => 'término da promoção',

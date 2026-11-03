@@ -2,8 +2,13 @@
 
 namespace Tests\Feature;
 
+use App\Enums\MenuItemType;
+use App\Enums\PageStatus;
 use App\Models\Category;
 use App\Models\Media;
+use App\Models\Menu;
+use App\Models\MenuItem;
+use App\Models\Page;
 use App\Models\Product;
 use App\Models\User;
 use App\Services\MediaService;
@@ -59,7 +64,7 @@ class StorefrontBrandingTest extends TestCase
             ->assertOk()
             ->assertSee('<title>UAU Variedades</title>', false)
             ->assertSee('UAU Variedades — Ideias para todo dia')
-            ->assertSee('xl:block 2xl:text-xl">Ideias para todo dia</span>', false)
+            ->assertSee('text-base font-bold leading-snug">Ideias para todo dia</span>', false)
             ->assertSee('content="UAU Variedades — Ideias para todo dia"', false);
     }
 
@@ -78,9 +83,76 @@ class StorefrontBrandingTest extends TestCase
     {
         $html = (string) $this->get('/')->assertOk()->getContent();
 
+        $this->assertStringContainsString('<footer class="storefront-footer theme-bg-primary', $html);
+        $this->assertStringNotContainsString('Institucional', $html);
+        $this->assertStringContainsString('UAU NetShopping — início', $html);
         $this->assertStringNotContainsString('mailto:', $html);
         $this->assertStringNotContainsString('Política de privacidade', $html);
         $this->assertStringNotContainsString('Entrega grátis', $html);
+    }
+
+    public function test_footer_uses_only_existing_public_navigation_and_configured_contact(): void
+    {
+        app(SiteSettingService::class)->setMany([
+            'site.support_email' => ['type' => 'string', 'value' => 'ajuda@example.test'],
+            'site.phone' => ['type' => 'string', 'value' => '(11) 3333-4444'],
+        ]);
+        $publishedPage = Page::query()->create([
+            'title' => 'Sobre a loja', 'slug' => 'sobre-a-loja-footer', 'content' => '<p>Sobre</p>',
+            'status' => PageStatus::Published,
+        ]);
+        $draftPage = Page::query()->create([
+            'title' => 'Política em revisão', 'slug' => 'politica-em-revisao-footer', 'content' => '<p>Rascunho</p>',
+            'status' => PageStatus::Draft,
+        ]);
+        $footer = Menu::factory()->create(['code' => 'footer', 'is_active' => true]);
+        MenuItem::factory()->create([
+            'menu_id' => $footer->id, 'label' => 'Sobre a loja', 'type' => MenuItemType::Page,
+            'page_id' => $publishedPage->id, 'url' => null, 'sort_order' => 1, 'is_active' => true,
+        ]);
+        MenuItem::factory()->create([
+            'menu_id' => $footer->id, 'label' => 'Política em revisão', 'type' => MenuItemType::Page,
+            'page_id' => $draftPage->id, 'url' => null, 'sort_order' => 2, 'is_active' => true,
+        ]);
+        $category = Category::factory()->create(['name' => 'Livros Usados', 'is_active' => true]);
+
+        $this->get('/')->assertOk()
+            ->assertSee('Institucional')
+            ->assertSee('Sobre a loja')
+            ->assertSee('href="'.route('pages.show', $publishedPage->slug).'"', false)
+            ->assertDontSee('Política em revisão')
+            ->assertSee('Atendimento')
+            ->assertSee('mailto:ajuda@example.test', false)
+            ->assertSee('href="tel:1133334444"', false)
+            ->assertSee('Explore a loja')
+            ->assertSee('Todos os produtos')
+            ->assertSee('Livros Usados')
+            ->assertDontSee('https://wa.me/')
+            ->assertDontSee('WhatsApp');
+    }
+
+    public function test_product_detail_offers_only_configured_contact_channels(): void
+    {
+        $category = Category::factory()->create(['is_active' => true]);
+        $product = Product::factory()->create(['category_id' => $category->id, 'is_active' => true]);
+        app(SiteSettingService::class)->setMany([
+            'site.support_email' => ['type' => 'string', 'value' => 'loja@example.test'],
+        ]);
+
+        $this->get(route('catalog.show', $product->slug))->assertOk()
+            ->assertSee('Dúvidas sobre este produto?')
+            ->assertSee('mailto:loja@example.test', false)
+            ->assertDontSee('tel:');
+    }
+
+    public function test_product_detail_does_not_show_contact_action_without_configured_channels(): void
+    {
+        $category = Category::factory()->create(['is_active' => true]);
+        $product = Product::factory()->create(['category_id' => $category->id, 'is_active' => true]);
+
+        $this->get(route('catalog.show', $product->slug))->assertOk()
+            ->assertDontSee('Dúvidas sobre este produto?')
+            ->assertDontSee('mailto:');
     }
 
     public function test_back_to_top_is_public_and_accessibly_named(): void

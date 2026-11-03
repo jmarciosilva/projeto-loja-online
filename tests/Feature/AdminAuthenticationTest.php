@@ -37,11 +37,20 @@ class AdminAuthenticationTest extends TestCase
             ->assertSee('name="email"', false)
             ->assertSee('name="password"', false);
 
-        $user = User::factory()->create();
+        $user = User::factory()->create(['can_manage_catalog' => true]);
         $this->actingAs($user)
             ->get('/')
             ->assertOk()
             ->assertSee('href="'.route('admin').'"', false)
+            ->assertDontSee('href="'.route('login').'"', false);
+    }
+
+    public function test_authenticated_user_without_catalog_permission_does_not_see_the_admin_link(): void
+    {
+        $this->actingAs(User::factory()->create(['can_manage_catalog' => false]))
+            ->get('/')
+            ->assertOk()
+            ->assertDontSee('href="'.route('admin').'"', false)
             ->assertDontSee('href="'.route('login').'"', false);
     }
 

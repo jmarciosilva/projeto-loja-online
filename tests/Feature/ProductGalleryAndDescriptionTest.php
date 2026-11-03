@@ -145,7 +145,27 @@ class ProductGalleryAndDescriptionTest extends TestCase
             ->assertSee('aria-pressed="true"', false)
             ->assertSee('product-zoom-dialog', false)
             ->assertSee('max-h-[calc(100dvh-1rem)]', false)
-            ->assertSee('touch-pan-y', false);
+            ->assertSee('touch-pan-y', false)
+            ->assertSee('alt="Produto visual — imagem 2"', false)
+            ->assertSee('width="1200" height="800"', false);
+    }
+
+    public function test_detail_page_uses_product_alt_text_and_never_exposes_media_filename(): void
+    {
+        $category = Category::factory()->create(['is_active' => true]);
+        Storage::disk(MediaService::DISK)->put('uploads/product-photo.jpg', 'fake image data');
+        $image = Media::factory()->create([
+            'path' => 'uploads/product-photo.jpg',
+            'original_name' => 'private-original-name.jpg',
+        ]);
+        $product = app(ProductService::class)->create([
+            'category_id' => $category->id, 'name' => 'Peça artesanal', 'price' => '42.50',
+            'main_media_id' => $image->id, 'gallery_media_ids' => [$image->id], 'is_active' => true,
+        ]);
+
+        $this->get(route('catalog.show', $product->slug))->assertOk()
+            ->assertSee('alt="Peça artesanal — imagem 1"', false)
+            ->assertDontSee('private-original-name.jpg');
     }
 
     private function media(string $path): Media

@@ -63,17 +63,25 @@ class AppServiceProvider extends ServiceProvider
             $menuService = $this->app->make(MenuService::class);
             $mainNavigation = $menuService->publicTree('main') ?? [];
             $footerNavigation = $menuService->publicTree('footer') ?? [];
-            $publicCategories = $this->requestScoped('storefront_categories', fn () => $this->app->make(CategoryService::class)->publicCategories());
-            $catalogCategories = $publicCategories
-                ->reject(fn ($category): bool => $menuService->containsPublicUrl(
+            $publicCategories = $this->requestScoped('storefront_categories', fn () => $this->app->make(CategoryService::class)->publicRootCategories());
+            $catalogCategories = $publicCategories->map(function ($category) use ($mainNavigation, $menuService) {
+                $navigationCategory = clone $category;
+                $navigationCategory->catalog_link_visible = ! $menuService->containsPublicUrl(
                     $mainNavigation,
                     route('categories.show', $category->slug),
-                ))
-                ->values();
+                );
+                $navigationCategory->setRelation('children', $category->children->reject(fn ($child): bool => $menuService->containsPublicUrl(
+                    $mainNavigation,
+                    route('categories.show', $child->slug),
+                ))->values());
+
+                return $navigationCategory;
+            })->filter(fn ($category): bool => $category->catalog_link_visible || $category->children->isNotEmpty())->values();
             $view->with('mainNavigation', $mainNavigation);
             $view->with('footerNavigation', $footerNavigation);
             $view->with('catalogCategories', $catalogCategories);
             $view->with('publicCategories', $publicCategories);
+            $view->with('homeNavigationVisible', ! $menuService->containsPublicUrl($mainNavigation, route('home')));
             $view->with('catalogNavigationVisible', ! $menuService->containsPublicUrl($mainNavigation, route('catalog.index')));
         });
 
@@ -92,11 +100,12 @@ class AppServiceProvider extends ServiceProvider
             });
             $view->with('storefrontBrand', $brand);
             $view->with('visualIdentity', $identity);
-            $view->with('publicCategories', $this->requestScoped('storefront_categories', fn () => $this->app->make(CategoryService::class)->publicCategories()));
+            $view->with('publicCategories', $this->requestScoped('storefront_categories', fn () => $this->app->make(CategoryService::class)->publicRootCategories()));
         });
 
         View::composer('catalog.*', function (ViewInstance $view): void {
             $view->with('storefrontBrand', $this->requestScoped('storefront_brand', fn () => $this->app->make(StorefrontBrandingService::class)->brand()));
+            $view->with('storefrontContact', $this->requestScoped('storefront_contact', fn () => $this->app->make(StorefrontBrandingService::class)->contact()));
         });
     }
 

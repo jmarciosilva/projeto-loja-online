@@ -126,6 +126,7 @@ class CatalogAdminTest extends TestCase
                 ->assertSee('name="promotion_ends_at"', false)
                 ->assertSee('id="main_media_id"', false)
                 ->assertSee('Adicionar imagem da biblioteca')
+                ->assertSee('Para livros usados, prefira fotografias do exemplar')
                 ->assertSee('Produto em destaque na home')
                 ->assertSee($submitLabel)
                 ->assertDontSee('@include(');

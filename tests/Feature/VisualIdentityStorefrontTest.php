@@ -36,8 +36,8 @@ class VisualIdentityStorefrontTest extends TestCase
 
         $this->assertStringContainsString(e(asset('images/uau-netshopping-logo-header.webp')), $this->headerLinkContent($html));
         $this->assertStringContainsString('UAU NetShopping — Variedade que surpreende!', $html);
-        $this->assertStringContainsString('xl:block 2xl:text-xl">Variedade que surpreende!</span>', $html);
-        $this->assertStringContainsString('hidden whitespace-nowrap border-l', $html);
+        $this->assertStringContainsString('text-base font-bold leading-snug">Variedade que surpreende!</span>', $html);
+        $this->assertStringContainsString('id="storefront-hero-title"', $html);
         $this->assertDoesNotMatchRegularExpression('#<img[^>]*/storage/media/#', $html);
     }
 

@@ -12,6 +12,7 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\QueryException;
 use Illuminate\Pagination\LengthAwarePaginator as Paginator;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
@@ -22,11 +23,13 @@ class ProductService
 {
     private const MONEY_FORMAT = '/^\d{1,10}(?:[,.]\d{1,2})?$/';
 
+    private const EFFECTIVE_PRICE_SQL = 'CASE WHEN promotion_enabled = 1 AND promotional_price IS NOT NULL AND (promotion_starts_at IS NULL OR promotion_starts_at <= ?) AND (promotion_ends_at IS NULL OR promotion_ends_at > ?) THEN promotional_price ELSE price END';
+
     public function __construct(private readonly MediaService $mediaService) {}
 
     public function paginateAdmin(int $perPage = 15): LengthAwarePaginator
     {
-        return Product::query()->with(['category', 'mainMedia', 'images'])->ordered()->paginate($perPage);
+        return Product::query()->with(['category', 'mainMedia', 'images', 'stock'])->ordered()->paginate($perPage);
     }
 
     public function adminMediaOptions(): Collection
@@ -34,7 +37,8 @@ class ProductService
         return $this->mediaService->availableForSelection();
     }
 
-    public function paginatePublic(?string $categorySlug = null, int $perPage = 12): LengthAwarePaginator
+    /** @param array<string, mixed> $filters */
+    public function paginatePublic(?string $categorySlug = null, int $perPage = 12, ?array $categoryIds = null, array $filters = []): LengthAwarePaginator
     {
         if (! Schema::hasTable('products') || ! Schema::hasTable('categories')) {
             return new Paginator([], 0, $perPage, Paginator::resolveCurrentPage(), [
@@ -42,11 +46,114 @@ class ProductService
             ]);
         }
 
+        $query = Product::query()->publiclyVisible()
+            ->when($categorySlug !== null, fn ($query) => $query->whereIn('category_id', $categoryIds ?? Category::query()->where('slug', $categorySlug)->pluck('id')->all()))
+            ->with(['category', 'mainMedia', 'images', 'stock']);
+
+        if (filled($filters['q'] ?? null)) {
+            $term = trim((string) $filters['q']);
+            $query->where(fn ($products) => $products
+                ->where('name', 'like', '%'.$term.'%')
+                ->orWhere('description', 'like', '%'.$term.'%')
+                ->orWhere('sku', 'like', '%'.$term.'%'));
+        }
+        if (filled($filters['condition'] ?? null)) {
+            $query->where('condition', $filters['condition']);
+        }
+        $now = now(config('app.timezone'))->toDateTimeString();
+        if (filled($filters['price_min'] ?? null)) {
+            $query->whereRaw(self::EFFECTIVE_PRICE_SQL.' >= ?', [$now, $now, $filters['price_min']]);
+        }
+        if (filled($filters['price_max'] ?? null)) {
+            $query->whereRaw(self::EFFECTIVE_PRICE_SQL.' <= ?', [$now, $now, $filters['price_max']]);
+        }
+        if (($filters['availability'] ?? null) === 'available') {
+            $query->whereHas('stock', fn ($stock) => $stock->where('stock_control_enabled', true)->whereColumn('quantity_on_hand', '>', 'quantity_reserved'));
+        } elseif (($filters['availability'] ?? null) === 'sold_out') {
+            $query->whereHas('stock', fn ($stock) => $stock->where('stock_control_enabled', true)->whereColumn('quantity_on_hand', '<=', 'quantity_reserved'));
+        } elseif (($filters['availability'] ?? null) === 'unreported') {
+            $query->where(fn ($products) => $products->whereDoesntHave('stock')->orWhereHas('stock', fn ($stock) => $stock->where('stock_control_enabled', false)));
+        }
+
+        match ($filters['sort'] ?? null) {
+            'price_asc' => $query->orderByRaw(self::EFFECTIVE_PRICE_SQL.' ASC', [$now, $now]),
+            'price_desc' => $query->orderByRaw(self::EFFECTIVE_PRICE_SQL.' DESC', [$now, $now]),
+            'newest' => $query->latest('created_at'),
+            default => $query->ordered(),
+        };
+
+        return $query->paginate($perPage);
+    }
+
+    /** @param list<int> $categoryIds @return Collection<int, Product> */
+    public function publicHighlightsForCategories(array $categoryIds, int $limit = 4, array $excludingIds = []): Collection
+    {
+        if ($categoryIds === [] || ! Schema::hasTable('products') || ! Schema::hasTable('categories')) {
+            return new Collection;
+        }
+
+        return Product::query()->publiclyVisible()->whereIn('category_id', $categoryIds)
+            ->when($excludingIds !== [], fn ($query) => $query->whereNotIn('id', $excludingIds))
+            ->with(['category', 'mainMedia', 'images', 'stock'])->ordered()->limit($limit)->get();
+    }
+
+    /**
+     * @param  list<int>  $excludingIds
+     */
+    public function publicRecent(int $limit = 4, array $excludingIds = []): Collection
+    {
+        if (! Schema::hasTable('products') || ! Schema::hasTable('categories')) {
+            return new Collection;
+        }
+
         return Product::query()->publiclyVisible()
-            ->when($categorySlug !== null, fn ($query) => $query->whereHas('category', fn ($category) => $category->where('slug', $categorySlug)))
-            ->with(['category', 'mainMedia', 'images'])
-            ->ordered()
-            ->paginate($perPage);
+            ->when($excludingIds !== [], fn ($query) => $query->whereNotIn('id', $excludingIds))
+            ->with(['category', 'mainMedia', 'images', 'stock'])
+            ->orderByDesc('created_at')->orderByDesc('id')->limit($limit)->get();
+    }
+
+    /**
+     * Prioriza destaques explícitos e completa a seção com os produtos públicos
+     * mais recentes, sem duplicar itens nem alterar o cadastro comercial.
+     *
+     * @return array{products: Collection<int, Product>, has_featured: bool}
+     */
+    public function homepageSelection(int $limit = 5): array
+    {
+        $featured = $this->featured($limit);
+        $hasFeatured = $featured->isNotEmpty();
+        $remaining = max(0, $limit - $featured->count());
+        $available = $remaining > 0
+            ? $this->publicRecentlyAvailable($remaining, $featured->modelKeys())
+            : new Collection;
+        $remaining -= $available->count();
+        $fallback = $remaining > 0
+            ? $this->publicRecent($remaining, array_merge($featured->modelKeys(), $available->modelKeys()))
+            : new Collection;
+
+        return [
+            'products' => $featured->concat($available)->concat($fallback)->values(),
+            'has_featured' => $hasFeatured,
+        ];
+    }
+
+    /**
+     * @param  list<int>  $excludingIds
+     * @return Collection<int, Product>
+     */
+    private function publicRecentlyAvailable(int $limit, array $excludingIds = []): Collection
+    {
+        if (! Schema::hasTable('products') || ! Schema::hasTable('categories') || ! Schema::hasTable('product_stocks')) {
+            return new Collection;
+        }
+
+        return Product::query()->publiclyVisible()
+            ->when($excludingIds !== [], fn ($query) => $query->whereNotIn('id', $excludingIds))
+            ->whereHas('stock', fn ($stock) => $stock
+                ->where('stock_control_enabled', true)
+                ->whereColumn('quantity_on_hand', '>', 'quantity_reserved'))
+            ->with(['category', 'mainMedia', 'images', 'stock'])
+            ->orderByDesc('created_at')->orderByDesc('id')->limit($limit)->get();
     }
 
     public function featured(int $limit = 4)
@@ -56,7 +163,7 @@ class ProductService
         }
 
         return Product::query()->publiclyVisible()->featured()
-            ->with(['category', 'mainMedia', 'images'])
+            ->with(['category', 'mainMedia', 'images', 'stock'])
             ->ordered()->limit($limit)->get();
     }
 
@@ -66,7 +173,7 @@ class ProductService
             return null;
         }
 
-        return Product::query()->publiclyVisible()->with(['category', 'mainMedia', 'images'])
+        return Product::query()->publiclyVisible()->with(['category', 'mainMedia', 'images', 'stock'])
             ->where('slug', $slug)->first();
     }
 
@@ -82,6 +189,7 @@ class ProductService
                 $product = Product::query()->create($payload);
                 $this->syncGallery($product, $attributes, $payload['main_media_id']);
                 $this->syncShippingProfile($product, $attributes);
+                $this->syncInitialStock($product, $attributes);
 
                 return $product;
             }
@@ -99,6 +207,7 @@ class ProductService
 
                     $this->syncGallery($product, $attributes, $payload['main_media_id']);
                     $this->syncShippingProfile($product, $attributes);
+                    $this->syncInitialStock($product, $attributes);
 
                     return $product;
                 } catch (QueryException $exception) {
@@ -270,12 +379,24 @@ class ProductService
         }
 
         $description = array_key_exists('description', $attributes) ? $attributes['description'] : $product?->description;
+        $condition = array_key_exists('condition', $attributes) ? ($attributes['condition'] ?: null) : $product?->condition;
+        $conditionNotes = array_key_exists('condition_notes', $attributes)
+            ? (filled($attributes['condition_notes']) ? trim((string) $attributes['condition_notes']) : null)
+            : $product?->condition_notes;
+        if ($condition !== null && ! in_array($condition, ['new', 'used'], true)) {
+            throw new InvalidArgumentException('Selecione uma condição válida para o produto.');
+        }
+        if ($condition !== 'used' && $conditionNotes !== null) {
+            throw new InvalidArgumentException('A conservação detalhada só pode ser informada para produtos usados.');
+        }
         $payload = [
             'category_id' => $category->id,
             'main_media_id' => $mediaId,
             'name' => $name,
             'sku' => $sku,
             'description' => is_string($description) ? app(ProductDescription::class)->sanitize($description) ?: null : null,
+            'condition' => $condition,
+            'condition_notes' => $conditionNotes,
             'cost_price' => $costPrice,
             'target_margin' => $targetMargin,
             'price' => $price,
@@ -291,6 +412,25 @@ class ProductService
         }
 
         return $payload;
+    }
+
+    /** Estoque inicial só é criado na criação; edições comerciais não sobrescrevem saldo. */
+    private function syncInitialStock(Product $product, array $attributes): void
+    {
+        if (! Schema::hasTable('product_stocks')) {
+            return;
+        }
+        $enabled = filter_var($attributes['stock_control_enabled'] ?? false, FILTER_VALIDATE_BOOLEAN);
+        app(StockService::class)->configureInitial(
+            $product,
+            $enabled,
+            (int) ($attributes['initial_stock_quantity'] ?? 0),
+            (int) ($attributes['minimum_stock_quantity'] ?? 0),
+            Auth::user(),
+            (string) ($attributes['stock_initial_reason'] ?? 'Definição do saldo inicial'),
+            isset($attributes['stock_initial_reference_type']) ? (string) $attributes['stock_initial_reference_type'] : null,
+            isset($attributes['stock_initial_reference_id']) ? (string) $attributes['stock_initial_reference_id'] : null,
+        );
     }
 
     /** @param array<string, mixed> $attributes */

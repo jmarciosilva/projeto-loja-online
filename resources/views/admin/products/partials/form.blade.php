@@ -53,6 +53,20 @@
             <input id="slug" name="slug" maxlength="255" value="{{ old('slug', $product->slug) }}" class="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2.5">
             @error('slug')<p class="mt-1 text-sm text-red-700">{{ $message }}</p>@else<p class="mt-1 text-sm text-gray-500">Em branco na criação, gerado a partir do nome.</p>@enderror
         </div>
+        <div>
+            <label for="condition" class="block text-sm font-medium">Condição do produto</label>
+            <select id="condition" name="condition" class="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2.5">
+                <option value="">Não informada</option>
+                <option value="new" @selected(old('condition', $product->condition) === 'new')>Novo</option>
+                <option value="used" @selected(old('condition', $product->condition) === 'used')>Usado</option>
+            </select>
+            @error('condition')<p class="mt-1 text-sm text-red-700">{{ $message }}</p>@enderror
+        </div>
+        <div>
+            <label for="condition_notes" class="block text-sm font-medium">Conservação (para usados)</label>
+            <input id="condition_notes" name="condition_notes" maxlength="500" value="{{ old('condition_notes', $product->condition_notes) }}" class="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2.5" placeholder="Ex.: ótimo estado, pequenas marcas na capa">
+            @error('condition_notes')<p class="mt-1 text-sm text-red-700">{{ $message }}</p>@enderror
+        </div>
         <div class="lg:col-span-2">
             <label for="description-editor" class="block text-sm font-medium">Descrição formatada</label>
             <div class="mt-2 overflow-hidden rounded-lg border border-gray-300">
@@ -69,10 +83,51 @@
         </div>
     </section>
 
+    @if (! $product->exists)
+        <section class="grid gap-5 rounded-xl border border-gray-200 bg-white p-6 sm:p-8 lg:grid-cols-2" aria-labelledby="estoque-produto">
+            <div class="lg:col-span-2"><h3 id="estoque-produto" class="text-lg font-semibold">Estoque e disponibilidade</h3><p class="mt-1 text-sm text-gray-600">Escolha explicitamente se o saldo físico será controlado. Produtos antigos permanecem sem disponibilidade informada.</p></div>
+            <div>
+                <label for="stock_control_enabled" class="block text-sm font-medium">Controle de estoque</label>
+                <select id="stock_control_enabled" name="stock_control_enabled" required class="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2.5">
+                    <option value="0" @selected(old('stock_control_enabled', '0') === '0')>Não controlar estoque</option>
+                    <option value="1" @selected(old('stock_control_enabled') === '1') @disabled(! auth()->user()->canManageStock())>Controlar saldo físico</option>
+                </select>
+                @error('stock_control_enabled')<p class="mt-1 text-sm text-red-700">{{ $message }}</p>@enderror
+            </div>
+            @if (auth()->user()->canManageStock())
+                <div>
+                    <label for="initial_stock_quantity" class="block text-sm font-medium">Saldo físico inicial</label>
+                    <input id="initial_stock_quantity" name="initial_stock_quantity" type="number" min="0" max="1000000" value="{{ old('initial_stock_quantity', '0') }}" class="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2.5">
+                    @error('initial_stock_quantity')<p class="mt-1 text-sm text-red-700">{{ $message }}</p>@enderror
+                </div>
+                <div>
+                    <label for="minimum_stock_quantity" class="block text-sm font-medium">Estoque mínimo</label>
+                    <input id="minimum_stock_quantity" name="minimum_stock_quantity" type="number" min="0" max="1000000" value="{{ old('minimum_stock_quantity', '0') }}" class="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2.5">
+                    @error('minimum_stock_quantity')<p class="mt-1 text-sm text-red-700">{{ $message }}</p>@enderror
+                </div>
+            @endif
+            <p class="text-sm text-gray-500">O saldo inicial é registrado no histórico. Depois, alterações passam por movimentações auditáveis.</p>
+        </section>
+    @else
+        @php
+            $stockStatus = $product->stockAvailability();
+        @endphp
+        <section class="rounded-xl border border-gray-200 bg-white p-6 sm:p-8" aria-labelledby="estoque-produto">
+            <h3 id="estoque-produto" class="text-lg font-semibold">Estoque e disponibilidade</h3>
+            <p class="mt-2 text-sm">Situação: {{ $stockStatus === 'available' ? 'Disponível' : ($stockStatus === 'sold_out' ? 'Esgotado' : 'Disponibilidade não informada') }}</p>
+            @can('viewStockMovements', $product)
+                <a class="mt-3 inline-flex rounded-lg border px-4 py-2 text-sm font-semibold" href="{{ route('admin.products.stock', $product) }}">Consultar estoque e movimentações</a>
+            @else
+                <p class="mt-2 text-sm text-gray-500">A consulta de saldos e movimentações exige permissão específica.</p>
+            @endcan
+        </section>
+    @endif
+
     <section class="grid gap-5 rounded-xl border border-gray-200 bg-white p-6 sm:p-8 sm:grid-cols-[12rem_1fr]" aria-labelledby="imagens-produto">
         <div>
             <h3 id="imagens-produto" class="text-lg font-semibold">Imagens</h3>
             <p class="mt-1 text-sm text-gray-500">Escolha até seis imagens. Os botões de ordem movem as imagens; marque a principal.</p>
+            <p class="mt-2 text-xs leading-5 text-gray-500">Para livros usados, prefira fotografias do exemplar: capa frontal, contracapa, lombada e detalhes de marcas de uso. Essa orientação não é obrigatória para outros produtos.</p>
         </div>
         <div class="space-y-4">
             <input id="main_media_id" type="hidden" name="main_media_id" value="{{ $selectedMediaId }}">
